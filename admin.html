@@ -1,0 +1,1261 @@
+<!DOCTYPE html> 
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شيخ البلد - لوحة الإدارة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:    #8B0000;
+      --red2:   #A50000;
+      --gold:   #D4AF37;
+      --gold2:  #F0C93A;
+      --cream:  #FDF6E3;
+      --dark:   #1a0000;
+      --green:  #27AE60;
+      --blue:   #3498DB;
+      --shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #f4f1e8;
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--red) 0%, var(--red2) 60%, #6B0000 100%);
+      padding: 24px;
+    }
+    .login-box {
+      background: #fff;
+      border-radius: 24px;
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      border: 2px solid var(--gold);
+    }
+    .login-box .logo-img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--gold);
+      margin-bottom: 12px;
+    }
+    .login-box .logo-emoji { font-size: 56px; margin-bottom: 12px; display: block; }
+    .login-box h2 { font-size: 22px; font-weight: 900; margin-bottom: 4px; color: var(--dark); }
+    .login-box p  { color: #888; font-size: 13px; margin-bottom: 24px; }
+
+    input[type="password"], input[type="text"], input[type="number"] {
+      width: 100%;
+      border: 2px solid #eee;
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-size: 15px;
+      font-family: 'Cairo', sans-serif;
+      text-align: right;
+      transition: border-color 0.2s;
+      outline: none;
+      color: var(--dark);
+      margin-bottom: 12px;
+    }
+    input:focus { border-color: var(--gold); }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn:hover  { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-red   { background: linear-gradient(135deg, var(--red), var(--red2)); color: var(--gold2); border: 2px solid var(--gold); box-shadow: 0 4px 16px rgba(139,0,0,0.4); }
+    .btn-green { background: linear-gradient(135deg, var(--green), #2ECC71); color: #fff; box-shadow: 0 4px 16px rgba(39,174,96,0.3); }
+    .btn-danger { background: #c0392b; color: #fff; }
+    .btn-outline { background: transparent; border: 2px solid var(--red); color: var(--red); }
+    .btn-sm { padding: 8px 16px; font-size: 13px; width: auto; }
+
+    #adminScreen { display: none; }
+
+    .topbar {
+      background: linear-gradient(135deg, var(--red) 0%, var(--red2) 60%, #6B0000 100%);
+      color: #fff;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 3px solid var(--gold);
+    }
+    .topbar h1 { font-size: 18px; font-weight: 900; color: var(--gold2); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .logout-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(212,175,55,0.5);
+      color: var(--gold2);
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 99px;
+      cursor: pointer;
+    }
+
+    .tabs {
+      background: #fff;
+      display: flex;
+      border-bottom: 2px solid #eee;
+      position: sticky;
+      top: 57px;
+      z-index: 99;
+      overflow-x: auto;
+    }
+    .tab {
+      flex: 1;
+      min-width: 80px;
+      padding: 14px 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #aaa;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+    .tab.active { color: var(--red); border-bottom-color: var(--red); }
+    .tab:hover  { color: var(--dark); }
+
+    .tab-content { display: none; padding: 16px; max-width: 600px; margin: 0 auto; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(212,175,55,0.15);
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--dark);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(212,175,55,0.2);
+    }
+    .stat-icon { font-size: 32px; margin-bottom: 8px; }
+    .stat-num  { font-size: 28px; font-weight: 900; color: var(--red); }
+    .stat-lbl  { font-size: 12px; color: #aaa; margin-top: 4px; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #f8f8f8; padding: 10px 12px; text-align: right; font-weight: 700; color: #666; }
+    td { padding: 12px; border-bottom: 1px solid #f0f0f0; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge-green { background: #d4edda; color: var(--green); }
+    .badge-gold  { background: #fff3cd; color: #856404; }
+
+    .pending-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid #f0f0f0;
+      gap: 12px;
+    }
+    .pending-item:last-child { border-bottom: none; }
+    .pending-info .name  { font-weight: 700; font-size: 15px; }
+    .pending-info .phone { font-size: 12px; color: #888; }
+    .pending-info .pts   { font-size: 13px; color: var(--red); font-weight: 600; }
+    .pending-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--dark);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 99px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.3s;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    #toast.show    { transform: translateX(-50%) translateY(0); }
+    #toast.success { background: var(--green); }
+    #toast.error   { background: #c0392b; }
+
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .stamp-mini { display:inline-flex; gap:3px; flex-wrap:wrap; margin-top:4px; }
+    .stamp-dot { width:14px; height:14px; border-radius:4px; border:1px solid #ddd; background:#f5f5f5; font-size:10px; display:flex; align-items:center; justify-content:center; }
+    .stamp-dot.filled { background:#fff3cd; border-color:var(--gold); }
+
+    .empty-state { text-align: center; padding: 32px; color: #ccc; font-size: 14px; }
+    .empty-state .icon { font-size: 40px; margin-bottom: 8px; }
+    /* === DARK MODE === */
+    body.dark { background: #1a0a0a; color: #f0e6d3; }
+    body.dark .card { background: #2a1010; border-color: rgba(212,175,55,0.2); }
+    body.dark .tabs { background: #2a1010; }
+    body.dark .tab  { color: #888; }
+    body.dark .tab.active { color: var(--gold2); border-bottom-color: var(--gold2); }
+    body.dark input { background: #2a1010; border-color: #444; color: #f0e6d3; }
+    body.dark table th { background: #1a0a0a; }
+    body.dark td { border-color: #333; }
+    body.dark .stat-card { background: #2a1010; }
+
+    /* === CHART === */
+    .chart-bar-wrap { display:flex; align-items:flex-end; gap:8px; height:120px; margin-top:12px; }
+    .chart-bar-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; }
+    .chart-bar { width:100%; background:linear-gradient(var(--red),var(--red2)); border-radius:6px 6px 0 0; min-height:4px; transition:height 0.8s; }
+    .chart-bar-lbl { font-size:10px; color:#888; }
+    .chart-bar-val { font-size:11px; font-weight:700; color:var(--red); }
+
+    /* === ACTIVITY LOG === */
+    .log-item { display:flex; gap:10px; padding:10px 0; border-bottom:1px solid #f0f0f0; font-size:13px; }
+    .log-item:last-child { border-bottom:none; }
+    .log-time { color:#aaa; font-size:11px; flex-shrink:0; }
+    .log-user { font-weight:700; color:var(--red); }
+
+    /* === DARK TOGGLE === */
+    .dark-toggle {
+      position:fixed; bottom:20px; left:16px;
+      width:44px; height:44px; border-radius:50%;
+      background:var(--red); border:2px solid var(--gold);
+      color:#fff; font-size:20px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 16px rgba(0,0,0,0.3); z-index:100;
+    }
+
+    /* === USERS === */
+    .user-item { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f0f0f0; }
+    .user-item:last-child { border-bottom:none; }
+    .user-role { font-size:11px; padding:3px 10px; border-radius:99px; font-weight:700; }
+    .role-super { background:#fff3cd; color:#856404; }
+    .role-cashier { background:#d4edda; color:#27AE60; }
+    .perm-check { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .perm-tag { background:#f0f0f0; border-radius:6px; padding:4px 10px; font-size:12px; color:#555; }
+
+  /* === HAMBURGER & DRAWER === */
+  .menu-btn {
+    position: fixed; top: 14px; left: 16px;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); border: 1.5px solid rgba(212,175,55,0.5);
+    color: var(--gold2); font-size: 20px; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    z-index: 200;
+  }
+  .menu-btn.visible { display: flex; }
+
+  .drawer-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 400; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .drawer-overlay.show { opacity: 1; pointer-events: auto; }
+
+  .drawer {
+    position: fixed; top: 0; right: 0; height: 100%; width: 78%; max-width: 300px;
+    background: #fff; z-index: 401; padding: 24px 18px;
+    transform: translateX(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+    box-shadow: -6px 0 30px rgba(0,0,0,0.25);
+    display: flex; flex-direction: column; gap: 6px;
+    overflow-y: auto;
+  }
+  .drawer.open { transform: translateX(0); }
+  body.dark .drawer { background: #1e1208; }
+
+  .drawer-header {
+    font-size: 17px; font-weight: 900; color: var(--red);
+    margin-bottom: 10px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--gold);
+  }
+  body.dark .drawer-header { color: var(--gold2); }
+
+  .drawer-item {
+    display: flex; align-items: center; gap: 12px;
+    background: none; border: none; cursor: pointer;
+    font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700;
+    color: var(--dark); padding: 13px 10px; border-radius: 12px;
+    text-align: right; transition: background 0.15s;
+  }
+  body.dark .drawer-item { color: #f0e6d3; }
+  .drawer-item .d-icon { font-size: 20px; }
+  .drawer-item:hover, .drawer-item.active { background: rgba(212,175,55,0.15); }
+  .drawer-item.active { color: var(--red); }
+  body.dark .drawer-item.active { color: var(--gold2); }
+  .drawer-logout { color: #c0392b !important; }
+  .drawer-dev { color: #25D366 !important; }
+
+  /* === SALAH POPUP === */
+  #salahOverlay {
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: fadeInOverlay 0.4s ease;
+  }
+  @keyframes fadeInOverlay { from { opacity:0 } to { opacity:1 } }
+  #salahBox {
+    background: linear-gradient(160deg, #fff9ee 0%, #fff3cd 100%);
+    border: 3px solid var(--gold);
+    border-radius: 24px;
+    padding: 32px 24px;
+    text-align: center;
+    max-width: 320px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes popIn { from { transform: scale(0.7); opacity:0 } to { transform: scale(1); opacity:1 } }
+  #salahBox .salah-icon { font-size: 52px; margin-bottom: 12px; display: block; }
+  #salahBox .salah-main {
+    font-size: 22px; font-weight: 900; color: var(--red);
+    line-height: 1.6; margin-bottom: 8px;
+  }
+  #salahBox .salah-sub {
+    font-size: 14px; color: #7a6000; margin-bottom: 24px; line-height: 1.8;
+  }
+  #salahBox .salah-btn {
+    background: linear-gradient(135deg, var(--red), var(--red2));
+    color: var(--gold2); border: 2px solid var(--gold);
+    border-radius: 12px; padding: 12px 32px;
+    font-size: 15px; font-weight: 700; font-family: 'Cairo', sans-serif;
+    cursor: pointer; box-shadow: 0 4px 16px rgba(139,0,0,0.3);
+    transition: transform 0.15s;
+  }
+  #salahBox .salah-btn:hover { transform: translateY(-2px); }
+
+  </style>
+</head>
+<body>
+
+<!-- SALAH POPUP -->
+<div id="salahOverlay">
+  <div id="salahBox">
+    <span class="salah-icon">☪️</span>
+    <div class="salah-main">اللهم صلِّ وسلم<br>على سيدنا محمد ﷺ</div>
+    <div class="salah-sub">صلى الله عليه وسلم<br>« من صلى عليّ صلاةً صلى الله عليه بها عشراً »</div>
+    <button class="salah-btn" onclick="closeSalah()">آمين 🤲</button>
+  </div>
+</div>
+<div id="loginScreen">
+  <div class="login-box">
+    <span class="logo-emoji">🔐</span>
+    <h2>لوحة الإدارة</h2>
+    <p>شيخ البلد — ادخل بياناتك</p>
+    <input type="text" id="userInput" placeholder="اسم المستخدم" autocomplete="username">
+    <input type="password" id="passInput" placeholder="الباسورد">
+    <button class="btn btn-red" onclick="adminLogin()">دخول</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminScreen">
+
+  <div class="topbar">
+    <h1> شيخ البلد</h1>
+    <div class="topbar-right">
+      <span style="font-size:13px;opacity:0.85;color:var(--gold2);" id="pendingCount"></span>
+      <span style="font-size:13px;color:var(--gold2);font-weight:700;" id="currentUserLabel"></span>
+      <button class="logout-btn" onclick="adminLogout()">خروج</button>
+      <button class="logout-btn" onclick="openDrawer()" style="font-size:18px;padding:6px 12px;">☰</button>
+    </div>
+  </div>
+
+  <div class="tabs" style="display:none;">
+    <div class="tab active" onclick="switchTab('home')">🏠 الرئيسية</div>
+    <div class="tab" onclick="switchTab('addPoints')">➕ إضافة نقط</div>
+    <div class="tab" onclick="switchTab('pending')">⏳ طلبات</div>
+    <div class="tab" onclick="switchTab('stamps')">🍽️ الأختام</div>
+    <div class="tab" onclick="switchTab('customers')">👥 العملاء</div>
+    <div class="tab" onclick="switchTab('addCustomer')">👤 عميل جديد</div>
+    <div class="tab" onclick="switchTab('leaderboard')">🏅 المتصدرين</div>
+    <div class="tab" onclick="switchTab('branches')">🏪 الفروع</div>
+    <div class="tab" onclick="switchTab('activity')">📋 السجل</div>
+    <div class="tab" onclick="switchTab('users')">👔 المستخدمين</div>
+    <div class="tab" onclick="switchTab('export')">📤 تصدير</div>
+  </div>
+
+  <!-- HOME -->
+  <div id="tab-home" class="tab-content active">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-num" id="statTotal">—</div>
+        <div class="stat-lbl">إجمالي العملاء</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-num" id="statPending">—</div>
+        <div class="stat-lbl">طلبات معلقة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-num" id="statTotalPts">—</div>
+        <div class="stat-lbl">إجمالي النقاط</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-num" id="statReady">—</div>
+        <div class="stat-lbl">جاهزين للخصم</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚡ بحث سريع عن عميل</div>
+      <input type="text" inputmode="numeric" id="quickSearchPhone" placeholder="ابحث برقم التليفون">
+      <button class="btn btn-red" onclick="quickSearch()">بحث</button>
+      <div id="quickResult" style="margin-top:16px;"></div>
+    </div>
+  </div>
+
+  <!-- ADD POINTS -->
+  <div id="tab-addPoints" class="tab-content">
+    <div class="card">
+      <div class="card-title">➕ إضافة نقاط لعميل</div>
+      <input type="text" inputmode="numeric" id="ptPhone" placeholder="رقم التليفون">
+      <input type="number" id="ptAmount" placeholder="المبلغ المدفوع (جنيه)" min="1">
+      <div id="ptPreview" style="background:#f9f9f9;border-radius:12px;padding:12px;text-align:center;margin-bottom:12px;font-size:14px;color:#666;display:none;">
+        سيتم إضافة <strong id="ptCalc" style="color:var(--red);font-size:18px;">0</strong> نقطة
+      </div>
+      <button class="btn btn-green" onclick="addPoints()">إضافة النقاط ✅</button>
+    </div>
+  </div>
+
+  <!-- PENDING -->
+  <div id="tab-pending" class="tab-content">
+    <div class="card">
+      <div class="card-title">⏳ طلبات الاسترداد المعلقة</div>
+      <div id="pendingList">
+        <div class="empty-state"><div class="icon">⏳</div>جاري التحميل...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAMPS -->
+  <div id="tab-stamps" class="tab-content">
+    <div class="card">
+      <div class="card-title">🍽️ طلبات الأختام المعلقة</div>
+      <div id="stampPendingList">
+        <div class="empty-state"><div class="icon">🍽️</div>جاري التحميل...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🪄 إضافة ختم يدوي</div>
+      <input type="text" inputmode="numeric" id="stampPhone" placeholder="رقم التليفون">
+      <div id="stampCustomerInfo" style="background:#f9f9f9;border-radius:12px;padding:12px;text-align:center;margin-bottom:12px;font-size:14px;color:#666;display:none;"></div>
+      <button class="btn btn-green" onclick="addStampManual()">إضافة ختم ✅</button>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div id="tab-customers" class="tab-content">
+    <div class="card">
+      <div class="card-title">👥 كل العملاء</div>
+      <div class="table-wrap">
+        <table id="customersTable">
+          <thead>
+            <tr>
+              <th>الاسم</th>
+              <th>التليفون</th>
+              <th>النقاط</th>
+              <th>الحالة</th>
+              <th>حذف</th>
+            </tr>
+          </thead>
+          <tbody id="customersBody">
+            <tr><td colspan="5" class="empty-state">جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD CUSTOMER -->
+  <div id="tab-addCustomer" class="tab-content">
+    <div class="card">
+      <div class="card-title">👤 تسجيل عميل جديد</div>
+      <input type="text" id="newName"  placeholder="اسم العميل">
+      <input type="text" inputmode="numeric" id="newPhone" placeholder="رقم التليفون">
+      <button class="btn btn-red" onclick="addCustomer()">تسجيل العميل 🎉</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div id="tab-leaderboard" class="tab-content">
+    <div class="card">
+      <div class="card-title">🏅 أكثر العملاء ولاءً</div>
+      <div id="adminLeaderboard">
+        <div class="empty-state"><div class="icon">🏅</div>جاري التحميل...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRANCHES -->
+  <div id="tab-branches" class="tab-content">
+    <div class="stats-grid" id="branchStats">
+      <div class="stat-card"><div class="stat-icon">🏪</div><div class="stat-num" id="b1Total">—</div><div class="stat-lbl">الف مسكن - عملاء</div></div>
+      <div class="stat-card"><div class="stat-icon">🏪</div><div class="stat-num" id="b2Total">—</div><div class="stat-lbl">المطرية - عملاء</div></div>
+      <div class="stat-card"><div class="stat-icon">🏪</div><div class="stat-num" id="b3Total">—</div><div class="stat-lbl">الشروق - عملاء</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-num" id="b1Sales">—</div><div class="stat-lbl">الف مسكن - مبيعات</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-num" id="b2Sales">—</div><div class="stat-lbl">المطرية - مبيعات</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-num" id="b3Sales">—</div><div class="stat-lbl">الشروق - مبيعات</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 مقارنة الفروع - النقاط</div>
+      <div class="chart-bar-wrap" id="branchChart"></div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY -->
+  <div id="tab-activity" class="tab-content">
+    <div class="card">
+      <div class="card-title">📋 سجل النشاط</div>
+      <div id="activityLog"><div class="empty-state"><div class="icon">📋</div>جاري التحميل...</div></div>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div id="tab-users" class="tab-content">
+    <div class="card">
+      <div class="card-title">👔 إدارة المستخدمين</div>
+      <div id="usersList"></div>
+    </div>
+    <div class="card" id="addUserCard">
+      <div class="card-title">➕ إضافة مستخدم جديد</div>
+      <input type="text" id="newUserName" placeholder="اسم المستخدم">
+      <input type="password" id="newUserPass" placeholder="الباسورد">
+      <select id="newUserRole" style="width:100%;border:2px solid #eee;border-radius:12px;padding:13px 16px;font-size:15px;font-family:Cairo,sans-serif;margin-bottom:12px;outline:none;">
+        <option value="cashier_alfmosken">كاشير - الف مسكن</option>
+        <option value="cashier_matriya">كاشير - المطرية</option>
+        <option value="cashier_shorouk">كاشير - الشروق</option>
+        <option value="super">سوبر أدمن</option>
+      </select>
+      <div style="margin-bottom:12px;">
+        <div style="font-weight:700;margin-bottom:8px;font-size:14px;">الصلاحيات:</div>
+        <div class="perm-check">
+          <label><input type="checkbox" id="perm_addPoints" checked> إضافة نقاط</label>
+          <label><input type="checkbox" id="perm_addCustomer" checked> تسجيل عملاء</label>
+          <label><input type="checkbox" id="perm_approve" checked> موافقة خصومات</label>
+          <label><input type="checkbox" id="perm_delete"> حذف عملاء</label>
+          <label><input type="checkbox" id="perm_export"> تصدير</label>
+        </div>
+      </div>
+      <button class="btn btn-red" onclick="addUser()">إضافة المستخدم</button>
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div id="tab-export" class="tab-content">
+    <div class="card">
+      <div class="card-title">📤 تصدير البيانات</div>
+      <button class="btn btn-green" onclick="exportCSV()" style="margin-bottom:12px;">تصدير العملاء CSV</button>
+      <button class="btn btn-red" onclick="exportReport()">تصدير تقرير الفروع</button>
+    </div>
+    <div class="card">
+      <div class="card-title">⚠️ العملاء الغايبين</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px;">عملاء مجاش من أكتر من 30 يوم</p>
+      <div id="absentList"><div class="empty-state">جاري التحميل...</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">شيخ البلد 🍢</div>
+  <button class="drawer-item active" data-tab="home" onclick="switchTab('home')">
+    <span class="d-icon">🏠</span><span>الرئيسية</span>
+  </button>
+  <button class="drawer-item" data-tab="addPoints" onclick="switchTab('addPoints')">
+    <span class="d-icon">➕</span><span>إضافة نقاط</span>
+  </button>
+  <button class="drawer-item" data-tab="pending" onclick="switchTab('pending')">
+    <span class="d-icon">⏳</span><span>طلبات</span>
+  </button>
+  <button class="drawer-item" data-tab="stamps" onclick="switchTab('stamps')">
+    <span class="d-icon">🍽️</span><span>الأختام</span>
+  </button>
+  <button class="drawer-item" data-tab="customers" onclick="switchTab('customers')">
+    <span class="d-icon">👥</span><span>العملاء</span>
+  </button>
+  <button class="drawer-item" data-tab="addCustomer" onclick="switchTab('addCustomer')">
+    <span class="d-icon">👤</span><span>عميل جديد</span>
+  </button>
+  <button class="drawer-item" data-tab="leaderboard" onclick="switchTab('leaderboard')">
+    <span class="d-icon">🏅</span><span>المتصدرين</span>
+  </button>
+  <button class="drawer-item" data-tab="branches" onclick="switchTab('branches')">
+    <span class="d-icon">🏪</span><span>الفروع</span>
+  </button>
+  <button class="drawer-item" data-tab="activity" onclick="switchTab('activity')">
+    <span class="d-icon">📋</span><span>السجل</span>
+  </button>
+  <button class="drawer-item" data-tab="users" onclick="switchTab('users')">
+    <span class="d-icon">👔</span><span>المستخدمين</span>
+  </button>
+  <button class="drawer-item" data-tab="export" onclick="switchTab('export')">
+    <span class="d-icon">📤</span><span>تصدير</span>
+  </button>
+  <button class="drawer-item drawer-dev" onclick="contactDev()">
+    <span class="d-icon">💬</span><span>اتصل بالمطور</span>
+  </button>
+  <button class="drawer-item drawer-logout" onclick="adminLogout()">
+    <span class="d-icon">↩</span><span>تسجيل خروج</span>
+  </button>
+</div>
+
+<button class="dark-toggle" onclick="toggleDarkAdmin()" id="darkBtnAdmin">🌙</button>
+<div id="toast"></div>
+
+<script>
+  const SCRIPT_URL  = 'https://script.google.com/macros/s/AKfycbxb98xtVxn33UEHD86M8-XXoMaFrNGfqBxfwCD8faeG4ZTJ-IkGS_n5EAfNZY4fI_0t/exec';
+  const ADMIN_PASS  = '1234';
+
+  let adminPassword = '';
+  let allCustomers  = [];
+  let currentUser   = '';
+
+  function adminLogin() {
+    const user = document.getElementById('userInput').value.trim();
+    const pass = document.getElementById('passInput').value;
+    if (!user) { showToast('ادخل اسم المستخدم ❌', 'error'); return; }
+    if (pass === ADMIN_PASS) {
+      adminPassword = pass;
+      currentUser   = user;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminScreen').style.display = 'block';
+      document.getElementById('currentUserLabel').textContent = '👤 ' + user;
+      logActivity('تسجيل دخول');
+      loadAll();
+    } else {
+      showToast('باسورد غلط ❌', 'error');
+    }
+  }
+
+  function adminLogout() {
+    logActivity('تسجيل خروج');
+    adminPassword = '';
+    currentUser   = '';
+    document.getElementById('adminScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('passInput').value = '';
+    document.getElementById('userInput').value  = '';
+    document.getElementById('currentUserLabel').textContent = '';
+  }
+
+  function openDrawer() {
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('drawerOverlay').classList.add('show');
+  }
+  function closeDrawer() {
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('show');
+  }
+
+  function switchTab(name) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    document.querySelectorAll('.drawer-item[data-tab]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === name);
+    });
+    closeDrawer();
+    window.scrollTo(0, 0);
+    if (name === 'pending')     loadPending();
+    if (name === 'stamps')      loadStampRequests();
+    if (name === 'leaderboard') renderAdminLeaderboard();
+    if (name === 'branches')    loadBranchStats();
+    if (name === 'activity')    loadActivityLog();
+    if (name === 'users')       loadUsers();
+    if (name === 'export')      loadAbsentCustomers();
+  }
+
+  function contactDev() {
+    const msg = 'مرحباً، أنا مهتم بتطوير تطبيق ولاء مشابه لشيخ البلد 🍢';
+    window.open('https://wa.me/201022390517?text=' + encodeURIComponent(msg), '_blank');
+    closeDrawer();
+  }
+
+  function toggleDarkAdmin() {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    document.getElementById('darkBtnAdmin').textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('darkModeAdmin', isDark);
+  }
+  if (localStorage.getItem('darkModeAdmin') === 'true') {
+    document.body.classList.add('dark');
+    document.getElementById('darkBtnAdmin').textContent = '☀️';
+  }
+
+
+
+  async function api(params) {
+    const url = new URL(SCRIPT_URL);
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    const res = await fetch(url.toString());
+    return res.json();
+  }
+
+
+
+  function renderStats() {
+    const total    = allCustomers.length;
+    const pending  = allCustomers.filter(c => c.pendingRedemption).length;
+    const totalPts = allCustomers.reduce((s, c) => s + (c.points || 0), 0);
+    const ready    = allCustomers.filter(c => c.points >= 100 && !c.pendingRedemption).length;
+
+    document.getElementById('statTotal').textContent    = total;
+    document.getElementById('statPending').textContent  = pending;
+    document.getElementById('statTotalPts').textContent = totalPts;
+    document.getElementById('statReady').textContent    = ready;
+
+    const pc = document.getElementById('pendingCount');
+    pc.textContent = pending > 0 ? `🔔 ${pending} طلب معلق` : '';
+  }
+
+  function renderCustomers() {
+    const tbody = document.getElementById('customersBody');
+    if (!allCustomers.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">مفيش عملاء لحد دلوقتي</td></tr>';
+      return;
+    }
+    const sorted = [...allCustomers].sort((a, b) => (b.points || 0) - (a.points || 0));
+    tbody.innerHTML = sorted.map(c => `
+      <tr>
+        <td><strong>${c.name}</strong></td>
+        <td style="direction:ltr;">${c.phone}</td>
+        <td><strong style="color:var(--red);">${c.points}</strong></td>
+        <td>
+          ${c.pendingRedemption
+            ? '<span class="badge badge-gold">طلب معلق</span>'
+            : c.points >= 100
+              ? '<span class="badge badge-green">جاهز للخصم</span>'
+              : '<span class="badge">عادي</span>'
+          }
+        </td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteCustomer('${c.phone}', '${c.name}')">🗑 حذف</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function renderPending(pending) {
+    const list = document.getElementById('pendingList');
+    if (!pending.length) {
+      list.innerHTML = '<div class="empty-state"><div class="icon">✅</div>مفيش طلبات معلقة</div>';
+      return;
+    }
+    list.innerHTML = pending.map(p => `
+      <div class="pending-item" id="pend-${p.phone}">
+        <div class="pending-info">
+          <div class="name">${p.name}</div>
+          <div class="phone">${p.phone}</div>
+          <div class="pts">⭐ ${p.points} نقطة → خصم 15%</div>
+        </div>
+        <div class="pending-actions">
+          <button class="btn btn-green btn-sm" onclick="approveRedemption('${p.phone}', '${p.name}')">✓ وافق</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectRedemption('${p.phone}', '${p.name}')">✗ ارفض</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('ptAmount').addEventListener('input', function () {
+      const amt = parseFloat(this.value) || 0;
+      const pts = Math.floor(amt * 0.1);
+      document.getElementById('ptCalc').textContent = pts;
+      document.getElementById('ptPreview').style.display = amt > 0 ? 'block' : 'none';
+    });
+    document.getElementById('passInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') adminLogin();
+    });
+    document.getElementById('userInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('passInput').focus();
+    });
+  });
+
+  async function addPoints() {
+    const phone  = document.getElementById('ptPhone').value.trim();
+    const amount = parseFloat(document.getElementById('ptAmount').value);
+    if (!phone || !amount || amount <= 0) { showToast('ادخل التليفون والمبلغ', 'error'); return; }
+
+    const btn = document.querySelector('#tab-addPoints .btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    try {
+      const data = await api({ action: 'addPoints', phone, amount, password: adminPassword });
+      if (data.success) {
+        showToast(`✅ ${data.message} — الإجمالي: ${data.newTotal}`, 'success');
+        logActivity(`إضافة نقاط للعميل: ${phone} — مبلغ: ${amount} ج`);
+        document.getElementById('ptPhone').value  = '';
+        document.getElementById('ptAmount').value = '';
+        document.getElementById('ptPreview').style.display = 'none';
+        loadAll();
+      } else {
+        showToast(data.message, 'error');
+      }
+    } catch (e) {
+      showToast('خطأ في الاتصال', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'إضافة النقاط ✅';
+    }
+  }
+
+  async function approveRedemption(phone, name) {
+    if (!confirm(`تأكيد الموافقة على خصم 15% لـ ${name}؟`)) return;
+    try {
+      const data = await api({ action: 'approveRedemption', phone, password: adminPassword });
+      if (data.success) {
+        showToast(`✅ تمت الموافقة لـ ${name}`, 'success');
+        logActivity(`موافقة خصم لـ: ${name} — ${phone}`);
+        document.getElementById(`pend-${phone}`)?.remove();
+        loadAll();
+      } else {
+        showToast(data.message, 'error');
+      }
+    } catch (e) { showToast('خطأ في الاتصال', 'error'); }
+  }
+
+  async function rejectRedemption(phone, name) {
+    if (!confirm(`تأكيد رفض طلب ${name}؟`)) return;
+    try {
+      const data = await api({ action: 'rejectRedemption', phone, password: adminPassword });
+      if (data.success) {
+        showToast(`تم الرفض`, 'error');
+        logActivity(`رفض طلب خصم لـ: ${name} — ${phone}`);
+        document.getElementById(`pend-${phone}`)?.remove();
+        loadAll();
+      } else {
+        showToast(data.message, 'error');
+      }
+    } catch (e) { showToast('خطأ في الاتصال', 'error'); }
+  }
+
+  async function addCustomer() {
+    const name  = document.getElementById('newName').value.trim();
+    const phone = document.getElementById('newPhone').value.trim();
+    if (!name || !phone) { showToast('ادخل الاسم والتليفون', 'error'); return; }
+
+    const btn = document.querySelector('#tab-addCustomer .btn');
+    btn.disabled = true;
+    try {
+      const data = await api({ action: 'addCustomer', phone, name, password: adminPassword });
+      if (data.success) {
+        showToast(`🎉 ${data.message}`, 'success');
+        logActivity(`تسجيل عميل جديد: ${name} — ${phone}`);
+        document.getElementById('newName').value  = '';
+        document.getElementById('newPhone').value = '';
+        loadAll();
+      } else {
+        showToast(data.message, 'error');
+      }
+    } catch (e) { showToast('خطأ في الاتصال', 'error'); }
+    finally { btn.disabled = false; }
+  }
+
+  async function deleteCustomer(phone, name) {
+    if (!confirm(`هتحذف ${name} نهائياً؟`)) return;
+    try {
+      const data = await api({ action: 'deleteCustomer', phone, password: adminPassword });
+      if (data.success) {
+        showToast(`تم حذف ${name} ✅`, 'success');
+        logActivity(`حذف عميل: ${name} — ${phone}`);
+        loadAll();
+      } else {
+        showToast(data.message, 'error');
+      }
+    } catch (e) { showToast('خطأ في الاتصال', 'error'); }
+  }
+
+  async function quickSearch() {
+    const phone = document.getElementById('quickSearchPhone').value.trim();
+    if (!phone) return;
+    const res = document.getElementById('quickResult');
+    res.innerHTML = '<p style="color:#aaa;font-size:13px;">جاري البحث...</p>';
+    try {
+      const data = await api({ action: 'getCustomer', phone });
+      if (data.success) {
+        const c = data.customer;
+        res.innerHTML = `
+          <div style="background:#f9f9f9;border-radius:12px;padding:16px;border:1px solid rgba(212,175,55,0.2);">
+            <div style="font-weight:900;font-size:16px;margin-bottom:8px;">👤 ${c.name}</div>
+            <div style="font-size:14px;color:#666;line-height:2;">
+              📱 ${c.phone}<br>
+              ⭐ <strong style="color:var(--red);">${c.points} نقطة</strong><br>
+              ${c.pendingRedemption ? '⏳ <span style="color:#856404;">طلب معلق</span>' : c.points >= 100 ? '🎁 <span style="color:var(--green);">جاهز للخصم!</span>' : ''}
+            </div>
+          </div>
+        `;
+      } else {
+        res.innerHTML = '<p style="color:#c0392b;font-size:14px;">العميل مش موجود</p>';
+      }
+    } catch (e) {
+      res.innerHTML = '<p style="color:#c0392b;font-size:14px;">خطأ في الاتصال</p>';
+    }
+  }
+
+
+  async function renderAdminLeaderboard() {
+    try {
+      const data = await api({ action: 'getAllCustomers', password: adminPassword });
+      const div = document.getElementById('adminLeaderboard');
+      if (!data.success || !data.customers.length) {
+        div.innerHTML = '<div class="empty-state"><div class="icon">🏅</div>مفيش عملاء لحد دلوقتي</div>';
+        return;
+      }
+      const sorted = [...data.customers].sort((a,b) => (b.points||0) - (a.points||0)).slice(0,10);
+      div.innerHTML = sorted.map((c, i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+        let levelTxt = '', levelColor = '';
+        if (c.points >= 500)      { levelTxt = 'بلاتيني 💎'; levelColor = '#3498DB'; }
+        else if (c.points >= 200) { levelTxt = 'ذهبي 🥇';    levelColor = '#D4AF37'; }
+        else if (c.points >= 100) { levelTxt = 'فضي 🥈';     levelColor = '#aaa'; }
+        else                      { levelTxt = 'برونزي 🥉';  levelColor = '#CD853F'; }
+        return `
+          <div class="pending-item">
+            <div style="font-size:24px;flex-shrink:0;">${medal}</div>
+            <div class="pending-info" style="flex:1;">
+              <div class="name">${c.name}</div>
+              <div class="phone">${c.phone}</div>
+              <div style="font-size:12px;color:${levelColor};font-weight:700;">${levelTxt}</div>
+            </div>
+            <div style="font-weight:900;color:var(--red);font-size:18px;">${c.points}</div>
+          </div>
+        `;
+      }).join('');
+    } catch(e) {}
+  }
+
+  async function loadPending() {
+    try {
+      const pd = await api({ action: 'getPendingRedemptions', password: adminPassword });
+      if (pd.success) renderPending(pd.pending);
+    } catch (e) {}
+  }
+
+  // === USERS SYSTEM ===
+  function loadUsers() {
+    const users = JSON.parse(localStorage.getItem('sheikh_users') || '[]');
+    const div = document.getElementById('usersList');
+    if (!users.length) {
+      div.innerHTML = '<div class="empty-state"><div class="icon">👔</div>مفيش مستخدمين مضافين</div>';
+      return;
+    }
+    div.innerHTML = users.map((u, i) => `
+      <div class="user-item">
+        <div>
+          <div style="font-weight:700;">${u.name}</div>
+          <div style="font-size:12px;color:#888;">${u.role === 'super' ? 'سوبر أدمن' : 'كاشير - ' + u.branch}</div>
+          <div class="perm-check" style="margin-top:4px;">
+            ${u.perms.map(p => `<span class="perm-tag">${p}</span>`).join('')}
+          </div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deleteUser(${i})">حذف</button>
+      </div>
+    `).join('');
+  }
+
+  function addUser() {
+    const name = document.getElementById('newUserName').value.trim();
+    const pass = document.getElementById('newUserPass').value.trim();
+    const role = document.getElementById('newUserRole').value;
+    if (!name || !pass) { showToast('ادخل الاسم والباسورد', 'error'); return; }
+
+    const perms = [];
+    if (document.getElementById('perm_addPoints').checked)   perms.push('إضافة نقاط');
+    if (document.getElementById('perm_addCustomer').checked) perms.push('تسجيل عملاء');
+    if (document.getElementById('perm_approve').checked)     perms.push('موافقة خصومات');
+    if (document.getElementById('perm_delete').checked)      perms.push('حذف');
+    if (document.getElementById('perm_export').checked)      perms.push('تصدير');
+
+    const branchMap = { cashier_alfmosken: 'الف مسكن', cashier_matriya: 'المطرية', cashier_shorouk: 'الشروق', super: 'كل الفروع' };
+    const users = JSON.parse(localStorage.getItem('sheikh_users') || '[]');
+    users.push({ name, pass, role, branch: branchMap[role], perms, createdAt: new Date().toISOString() });
+    localStorage.setItem('sheikh_users', JSON.stringify(users));
+
+    document.getElementById('newUserName').value = '';
+    document.getElementById('newUserPass').value = '';
+    showToast(`تم إضافة ${name} ✅`, 'success');
+    logActivity(`إضافة مستخدم: ${name}`);
+    loadUsers();
+  }
+
+  function deleteUser(i) {
+    const users = JSON.parse(localStorage.getItem('sheikh_users') || '[]');
+    if (!confirm(`هتحذف ${users[i].name}؟`)) return;
+    logActivity(`حذف مستخدم: ${users[i].name}`);
+    users.splice(i, 1);
+    localStorage.setItem('sheikh_users', JSON.stringify(users));
+    loadUsers();
+    showToast('تم الحذف', 'error');
+  }
+
+  // === ACTIVITY LOG ===
+  function logActivity(action) {
+    const log = JSON.parse(localStorage.getItem('sheikh_activity') || '[]');
+    log.unshift({ action, time: new Date().toLocaleString('ar-EG'), user: currentUser || 'غير معروف' });
+    if (log.length > 100) log.pop();
+    localStorage.setItem('sheikh_activity', JSON.stringify(log));
+  }
+
+  function loadActivityLog() {
+    const log = JSON.parse(localStorage.getItem('sheikh_activity') || '[]');
+    const div = document.getElementById('activityLog');
+    if (!log.length) {
+      div.innerHTML = '<div class="empty-state"><div class="icon">📋</div>مفيش نشاط لحد دلوقتي</div>';
+      return;
+    }
+    div.innerHTML = log.slice(0, 50).map(l => `
+      <div class="log-item">
+        <div style="flex:1;">
+          <span class="log-user">${l.user}</span>
+          <span style="color:#555;"> — ${l.action}</span>
+        </div>
+        <div class="log-time">${l.time}</div>
+      </div>
+    `).join('');
+  }
+
+  // === BRANCHES ===
+  function loadBranchStats() {
+    if (!allCustomers.length) return;
+    const branches = { alfmosken: { name: 'الف مسكن', customers: 0, sales: 0, pts: 0 },
+                       matriya:   { name: 'المطرية',  customers: 0, sales: 0, pts: 0 },
+                       shorouk:   { name: 'الشروق',   customers: 0, sales: 0, pts: 0 } };
+
+    allCustomers.forEach(c => {
+      const b = c.branch || 'alfmosken';
+      if (branches[b]) {
+        branches[b].customers++;
+        branches[b].sales += c.totalSpent || 0;
+        branches[b].pts   += c.points || 0;
+      }
+    });
+
+    document.getElementById('b1Total').textContent  = branches.alfmosken.customers;
+    document.getElementById('b2Total').textContent  = branches.matriya.customers;
+    document.getElementById('b3Total').textContent  = branches.shorouk.customers;
+    document.getElementById('b1Sales').textContent  = branches.alfmosken.sales + ' ج';
+    document.getElementById('b2Sales').textContent  = branches.matriya.sales + ' ج';
+    document.getElementById('b3Sales').textContent  = branches.shorouk.sales + ' ج';
+
+    const maxPts = Math.max(...Object.values(branches).map(b => b.pts), 1);
+    document.getElementById('branchChart').innerHTML = Object.values(branches).map(b => `
+      <div class="chart-bar-item">
+        <div class="chart-bar-val">${b.pts}</div>
+        <div class="chart-bar" style="height:${Math.max((b.pts/maxPts)*100, 4)}%"></div>
+        <div class="chart-bar-lbl">${b.name}</div>
+      </div>
+    `).join('');
+  }
+
+  // === EXPORT ===
+  function exportCSV() {
+    if (!allCustomers.length) { showToast('مفيش بيانات', 'error'); return; }
+    const rows = [['الاسم','التليفون','النقاط','إجمالي الإنفاق','الحالة']];
+    allCustomers.forEach(c => {
+      rows.push([c.name, c.phone, c.points, c.totalSpent || 0, c.pendingRedemption ? 'طلب معلق' : 'عادي']);
+    });
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'sheikh_customers_' + new Date().toLocaleDateString('ar-EG').replace(/\//g,'-') + '.csv';
+    a.click();
+    logActivity('تصدير بيانات العملاء CSV');
+    showToast('تم التصدير ✅', 'success');
+  }
+
+  function exportReport() {
+    if (!allCustomers.length) { showToast('مفيش بيانات', 'error'); return; }
+    const total = allCustomers.length;
+    const totalPts = allCustomers.reduce((s,c) => s + (c.points||0), 0);
+    const totalSales = allCustomers.reduce((s,c) => s + (c.totalSpent||0), 0);
+    const ready = allCustomers.filter(c => c.points >= 100).length;
+    const report = `تقرير شيخ البلد\n${new Date().toLocaleDateString('ar-EG')}\n\nإجمالي العملاء: ${total}\nإجمالي النقاط: ${totalPts}\nإجمالي المبيعات: ${totalSales} جنيه\nجاهزين للخصم: ${ready}`;
+    const blob = new Blob([report], { type: 'text/plain;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'sheikh_report.txt';
+    a.click();
+    showToast('تم تصدير التقرير ✅', 'success');
+  }
+
+  function loadAbsentCustomers() {
+    const div = document.getElementById('absentList');
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    // نعرض العملاء اللي نقاطهم مش اتحدثت - نستخدم allCustomers
+    if (!allCustomers.length) {
+      div.innerHTML = '<div class="empty-state">جاري تحميل البيانات...</div>';
+      return;
+    }
+    div.innerHTML = allCustomers.slice(0, 5).map(c => `
+      <div style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">
+        <strong>${c.name}</strong> — ${c.phone}
+        <div style="color:#aaa;font-size:11px;">آخر نشاط غير محدد</div>
+      </div>
+    `).join('') || '<div class="empty-state">مفيش عملاء غايبين</div>';
+  }
+
+  // تحديث loadAll لتحميل إحصائيات الفروع
+  async function loadAll() {
+    try {
+      const data = await api({ action: 'getAllCustomers', password: adminPassword });
+      if (data.success) {
+        allCustomers = data.customers;
+        renderStats();
+        renderCustomers();
+        loadBranchStats();
+      }
+      const pd = await api({ action: 'getPendingRedemptions', password: adminPassword });
+      if (pd.success) renderPending(pd.pending);
+    } catch (e) {
+      showToast('خطأ في تحميل البيانات', 'error');
+    }
+  }
+
+  // ===== STAMPS =====
+  async function loadStampRequests() {
+    try {
+      const data = await api({ action: 'getPendingStamps', password: adminPassword });
+      const div = document.getElementById('stampPendingList');
+      if (!data.success || !data.stamps || !data.stamps.length) {
+        div.innerHTML = '<div class="empty-state"><div class="icon">✅</div>مفيش طلبات أختام دلوقتي</div>';
+        return;
+      }
+      div.innerHTML = data.stamps.map(s => `
+        <div class="pending-item">
+          <div class="pending-info">
+            <div class="name">${s.name}</div>
+            <div class="phone">${s.phone}</div>
+            <div class="pts">عنده ${s.stamps || 0} أختام</div>
+          </div>
+          <div class="pending-actions">
+            <button class="btn btn-green btn-sm" onclick="approveStamp('${s.phone}', '${s.name}')">✅ موافقة</button>
+            <button class="btn btn-danger btn-sm" onclick="rejectStamp('${s.phone}')">✕ رفض</button>
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      document.getElementById('stampPendingList').innerHTML = '<div class="empty-state">خطأ في التحميل</div>';
+    }
+  }
+
+  async function approveStamp(phone, name) {
+    try {
+      const data = await api({ action: 'approveStamp', phone, password: adminPassword });
+      if (data.success) {
+        showToast(`تم إضافة ختم لـ ${name} ✅`, 'success');
+        if (data.completed) showToast(`🎉 ${name} أكمل 10 أختام! صينية هدية`, 'success');
+        loadStampRequests();
+      } else {
+        showToast(data.message || 'فيه مشكلة', 'error');
+      }
+    } catch (e) { showToast('مشكلة في الاتصال', 'error'); }
+  }
+
+  async function rejectStamp(phone) {
+    try {
+      const data = await api({ action: 'rejectStamp', phone, password: adminPassword });
+      if (data.success) {
+        showToast('تم رفض طلب الختم', 'error');
+        loadStampRequests();
+      }
+    } catch (e) { showToast('مشكلة في الاتصال', 'error'); }
+  }
+
+  async function addStampManual() {
+    const phone = document.getElementById('stampPhone').value.trim();
+    if (!phone) { showToast('ادخل رقم التليفون', 'error'); return; }
+    try {
+      const data = await api({ action: 'addStamp', phone, password: adminPassword });
+      if (data.success) {
+        showToast(`✅ تم إضافة ختم — عنده دلوقتي ${data.stamps} أختام`, 'success');
+        if (data.completed) showToast('🎉 اكتملت البطاقة! صينية هدية', 'success');
+        document.getElementById('stampPhone').value = '';
+        document.getElementById('stampCustomerInfo').style.display = 'none';
+      } else {
+        showToast(data.message || 'مشكلة', 'error');
+      }
+    } catch (e) { showToast('مشكلة في الاتصال', 'error'); }
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = type;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+</script>
+
+
+<script>
+  function closeSalah() {
+    const overlay = document.getElementById('salahOverlay');
+    overlay.style.animation = 'fadeInOverlay 0.3s ease reverse';
+    setTimeout(() => overlay.remove(), 280);
+  }
+</script>
+</body>
+</html>
