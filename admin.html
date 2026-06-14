@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://script.google.com https://script.googleusercontent.com; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>شيخ البلد - لوحة الإدارة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #8B0000; --red2: #A50000; --gold: #D4AF37; --gold2: #F0C93A;
+      --cream: #F4F1E8; --dark: #1a0000; --green: #27AE60; --blue: #3498DB;
+      --shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Cairo', sans-serif; background: var(--cream); color: var(--dark); min-height: 100vh; }
+
+    /* ===== LOGIN SCREEN ===== */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--red) 0%, var(--red2) 60%, #6B0000 100%);
+      padding: 24px;
+    }
+    .login-box {
+      background: #fff;
+      border-radius: 24px;
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      border: 2px solid var(--gold);
+    }
+    .login-box .logo-emoji { font-size: 56px; margin-bottom: 12px; display: block; }
+    .login-box h2 { font-size: 22px; font-weight: 900; margin-bottom: 4px; color: var(--dark); }
+    .login-box p { color: #888; font-size: 13px; margin-bottom: 24px; }
+
+    .field-error {
+      color: #c0392b;
+      font-size: 12px;
+      margin-bottom: 8px;
+      display: none;
+    }
+    .lockout-banner {
+      background: #fde8e8;
+      color: #c0392b;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      display: none;
+    }
+    .security-hint {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+
+    input[type="password"], input[type="text"], input[type="number"], select {
+      width: 100%;
+      border: 2px solid #eee;
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-size: 15px;
+      font-family: 'Cairo', sans-serif;
+      text-align: right;
+      transition: border-color 0.2s;
+      outline: none;
+      color: var(--dark);
+      margin-bottom: 12px;
+    }
+    input:focus, select:focus { border-color: var(--gold); }
+    input.error { border-color: #e74c3c; background: #fdf2f2; }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-red { background: linear-gradient(135deg, var(--red), var(--red2)); color: var(--gold2); border: 2px solid var(--gold); box-shadow: 0 4px 16px rgba(139,0,0,0.4); }
+    .btn-green { background: linear-gradient(135deg, var(--green), #2ECC71); color: #fff; box-shadow: 0 4px 16px rgba(39,174,96,0.3); }
+    .btn-danger { background: #c0392b; color: #fff; }
+    .btn-outline { background: transparent; border: 2px solid var(--red); color: var(--red); }
+    .btn-sm { padding: 8px 16px; font-size: 13px; width: auto; }
+
+    #adminScreen { display: none; }
+
+    /* ===== TOPBAR ===== */
+    .topbar {
+      background: linear-gradient(135deg, var(--red) 0%, var(--red2) 60%, #6B0000 100%);
+      color: #fff;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 3px solid var(--gold);
+    }
+    .topbar h1 { font-size: 18px; font-weight: 900; color: var(--gold2); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .logout-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(212,175,55,0.5);
+      color: var(--gold2);
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 99px;
+      cursor: pointer;
+    }
+
+    /* ===== TABS ===== */
+    .tabs {
+      background: #fff;
+      display: flex;
+      border-bottom: 2px solid #eee;
+      position: sticky;
+      top: 57px;
+      z-index: 99;
+      overflow-x: auto;
+    }
+    .tab {
+      flex: 1;
+      min-width: 80px;
+      padding: 14px 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #aaa;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+    .tab.active { color: var(--red); border-bottom-color: var(--red); }
+    .tab:hover { color: var(--dark); }
+
+    .tab-content { display: none; padding: 16px; max-width: 600px; margin: 0 auto; }
+    .tab-content.active { display: block; }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(212,175,55,0.15);
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--dark);
+    }
+
+    /* ===== STATS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(212,175,55,0.2);
+    }
+    .stat-icon { font-size: 32px; margin-bottom: 8px; }
+    .stat-num { font-size: 28px; font-weight: 900; color: var(--red); }
+    .stat-lbl { font-size: 12px; color: #aaa; margin-top: 4px; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #f8f8f8; padding: 10px 12px; text-align: right; font-weight: 700; color: #666; }
+    td { padding: 12px; border-bottom: 1px solid #f0f0f0; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge-green { background: #d4edda; color: var(--green); }
+    .badge-gold { background: #fff3cd; color: #856404; }
+
+    .pending-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid #f0f0f0;
+      gap: 12px;
+    }
+    .pending-item:last-child { border-bottom: none; }
+    .pending-info .name { font-weight: 700; font-size: 15px; }
+    .pending-info .phone { font-size: 12px; color: #888; }
+    .pending-info .pts { font-size: 13px; color: var(--red); font-weight: 600; }
+    .pending-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--dark);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 99px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.3s;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.success { background: var(--green); }
+    #toast.error { background: #c0392b; }
+
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .stamp-mini { display: inline-flex; gap: 3px; flex-wrap: wrap; margin-top: 4px; }
+    .stamp-dot { width: 14px; height: 14px; border-radius: 4px; border: 1px solid #ddd; background: #f5f5f5; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+    .stamp-dot.filled { background: #fff3cd; border-color: var(--gold); }
+
+    .empty-state { text-align: center; padding: 32px; color: #ccc; font-size: 14px; }
+    .empty-state .icon { font-size: 40px; margin-bottom: 8px; }
+
+    /* ===== CHART ===== */
+    .chart-bar-wrap { display: flex; align-items: flex-end; gap: 8px; height: 120px; margin-top: 12px; }
+    .chart-bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+    .chart-bar { width: 100%; background: linear-gradient(var(--red), var(--red2)); border-radius: 6px 6px 0 0; min-height: 4px; transition: height 0.8s; }
+    .chart-bar-lbl { font-size: 10px; color: #888; }
+    .chart-bar-val { font-size: 11px; font-weight: 700; color: var(--red); }
+
+    /* ===== ACTIVITY LOG ===== */
+    .log-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+    .log-item:last-child { border-bottom: none; }
+    .log-time { color: #aaa; font-size: 11px; flex-shrink: 0; }
+    .log-user { font-weight: 700; color: var(--red); }
+
+    /* ===== DARK MODE ===== */
+    body.dark { background: #1a0a0a; color: #f0e6d3; }
+    body.dark .card { background: #2a1010; border-color: rgba(212,175,55,0.2); }
+    body.dark .tabs { background: #2a1010; }
+    body.dark .tab { color: #888; }
+    body.dark .tab.active { color: var(--gold2); border-bottom-color: var(--gold2); }
+    body.dark input, body.dark select { background: #2a1010; border-color: #444; color: #f0e6d3; }
+    body.dark table th { background: #1a0a0a; }
+    body.dark td { border-color: #333; }
+    body.dark .stat-card { background: #2a1010; }
+
+    /* ===== DARK TOGGLE ===== */
+    .dark-toggle {
+      position: fixed; bottom: 20px; left: 16px;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--red); border: 2px solid var(--gold);
+      color: #fff; font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 100;
+    }
+
+    /* ===== USERS ===== */
+    .user-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+    .user-item:last-child { border-bottom: none; }
+    .user-role { font-size: 11px; padding: 3px 10px; border-radius: 99px; font-weight: 700; }
+    .role-super { background: #fff3cd; color: #856404; }
+    .role-cashier { background: #d4edda; color: #27AE60; }
+    .perm-check { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .perm-tag { background: #f0f0f0; border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #555; }
+
+    /* ===== HAMBURGER & DRAWER ===== */
+    .menu-btn {
+      position: fixed; top: 14px; left: 16px;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(255,255,255,0.15); border: 1.5px solid rgba(212,175,55,0.5);
+      color: var(--gold2); font-size: 20px; cursor: pointer;
+      display: none; align-items: center; justify-content: center;
+      z-index: 200;
+    }
+    .menu-btn.visible { display: flex; }
+
+    .drawer-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 400; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .drawer-overlay.show { opacity: 1; pointer-events: auto; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; height: 100%; width: 78%; max-width: 300px;
+      background: #fff; z-index: 401; padding: 24px 18px;
+      transform: translateX(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+      box-shadow: -6px 0 30px rgba(0,0,0,0.25);
+      display: flex; flex-direction: column; gap: 6px;
+      overflow-y: auto;
+    }
+    .drawer.open { transform: translateX(0); }
+    body.dark .drawer { background: #1e1208; }
+
+    .drawer-header {
+      font-size: 17px; font-weight: 900; color: var(--red);
+      margin-bottom: 10px; padding-bottom: 10px;
+      border-bottom: 2px solid var(--gold);
+    }
+    body.dark .drawer-header { color: var(--gold2); }
+
+    .drawer-item {
+      display: flex; align-items: center; gap: 12px;
+      background: none; border: none; cursor: pointer;
+      font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700;
+      color: var(--dark); padding: 13px 10px; border-radius: 12px;
+      text-align: right; transition: background 0.15s;
+    }
+    body.dark .drawer-item { color: #f0e6d3; }
+    .drawer-item .d-icon { font-size: 20px; }
+    .drawer-item:hover, .drawer-item.active { background: rgba(212,175,55,0.15); }
+    .drawer-item.active { color: var(--red); }
+    body.dark .drawer-item.active { color: var(--gold2); }
+    .drawer-logout { color: #c0392b !important; }
+    .drawer-dev { color: #25D366 !important; }
+
+    /* ===== CHANGE PASSWORD MODAL ===== */
+    #changePassModal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 9999;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-box {
+      background: #fff; border-radius: 20px;
+      padding: 28px 24px; width: 100%; max-width: 340px;
+      border: 2px solid var(--gold);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-title { font-size: 22px; font-weight: 900; text-align: center; margin-bottom: 6px; color: var(--dark); }
+    .modal-sub { text-align: center; color: #888; font-size: 13px; margin-bottom: 20px; }
+
+    /* ===== SALAH POPUP ===== */
+    #salahOverlay2 {
+      position: fixed; inset: 0; z-index: 99999;
+      background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fadeInOverlay 0.4s ease;
+    }
+    @keyframes fadeInOverlay { from { opacity:0 } to { opacity:1 } }
+    #salahBox2 {
+      background: linear-gradient(160deg, #fff9ee 0%, #fff3cd 100%);
+      border: 3px solid var(--gold);
+      border-radius: 24px;
+      padding: 32px 24px;
+      text-align: center;
+      max-width: 320px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn { from { transform: scale(0.7); opacity:0 } to { transform: scale(1); opacity:1 } }
+    #salahBox2 .salah-icon { font-size: 52px; margin-bottom: 12px; display: block; }
+    #salahBox2 .salah-main {
+      font-size: 22px; font-weight: 900; color: var(--red);
+      line-height: 1.6; margin-bottom: 8px;
+    }
+    #salahBox2 .salah-sub {
+      font-size: 14px; color: #7a6000; margin-bottom: 24px; line-height: 1.8;
+    }
+    #salahBox2 .salah-btn {
+      background: linear-gradient(135deg, var(--red), var(--red2));
+      color: var(--gold2); border: 2px solid var(--gold);
+      border-radius: 12px; padding: 12px 32px;
+      font-size: 15px; font-weight: 700; font-family: 'Cairo', sans-serif;
+      cursor: pointer; box-shadow: 0 4px 16px rgba(139,0,0,0.3);
+      transition: transform 0.15s;
+    }
+    #salahBox2 .salah-btn:hover { transform: translateY(-2px); }
+
+    .security-badge {
+      position: fixed; bottom: 20px; left: 70px;
+      font-size: 11px; color: #aaa; z-index: 100;
+      background: rgba(255,255,255,0.8); padding: 4px 10px;
+      border-radius: 99px; backdrop-filter: blur(4px);
+    }
+    body.dark .security-badge { background: rgba(0,0,0,0.5); color: #888; }
+  </style>
+</head>
+<body>
+
+<!-- SALAH POPUP -->
+<div id="salahOverlay2">
+  <div id="salahBox2">
+    <span class="salah-icon">&#x262A;</span>
+    <div class="salah-main">اللهم صلِّ وسلم<br>على سيدنا محمد &#xFDFA;</div>
+    <div class="salah-sub">صلى الله عليه وسلم<br>&laquo; من صلى عليّ صلاةً صلى الله عليه بها عشراً &raquo;</div>
+    <button class="salah-btn" id="salahCloseBtn2">آمين &#x1F932;</button>
+  </div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <span class="logo-emoji">&#x1F510;</span>
+    <h2>لوحة الإدارة</h2>
+    <p>شيخ البلد — اختار اسمك وادخل الباسورد</p>
+    <div class="lockout-banner" id="loginLockoutBanner">
+      &#x1F512; الحساب مقفول مؤقتاً. انتظر <span id="loginLockoutMinutes">15</span> دقيقة.
+    </div>
+    <select id="userSelect">
+      <option value="">— اختار المستخدم —</option>
+    </select>
+    <input type="password" id="passInput" placeholder="الباسورد" autocomplete="current-password">
+    <div class="field-error" id="loginFieldError">الباسورد غلط أو مستخدم مش موجود</div>
+    <button class="btn btn-red" id="adminLoginBtn" style="margin-top:4px;">دخول</button>
+    <div class="security-hint">
+      &#x1F512; الباسورد بتاعك مش بتخزن هنا. الاتصال مشفر بـ HTTPS.<br>
+      اختار المستخدم الصح واكتب الباسورد بتاعه.
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div id="changePassModal">
+  <div class="modal-box">
+    <div class="modal-title">&#x1F511; تغيير الباسورد</div>
+    <div class="modal-sub" id="changePassUserLabel"></div>
+    <input type="password" id="oldPassInput" placeholder="الباسورد الحالي">
+    <input type="password" id="newPassInput" placeholder="الباسورد الجديد">
+    <input type="password" id="confirmPassInput" placeholder="تأكيد الباسورد الجديد">
+    <div class="field-error" id="changePassError" style="margin-bottom:12px;"></div>
+    <button class="btn btn-red" id="changePassBtn" style="margin-bottom:10px;">تغيير الباسورد</button>
+    <button class="btn btn-outline" id="closeChangePassBtn">إلغاء</button>
+  </div>
+</div>
+
+<!-- ADMIN SCREEN -->
+<div id="adminScreen">
+
+  <div class="topbar">
+    <h1>شيخ البلد</h1>
+    <div class="topbar-right">
+      <span style="font-size:13px;opacity:0.85;color:var(--gold2);" id="pendingCount"></span>
+      <span style="font-size:13px;color:var(--gold2);font-weight:700;" id="currentUserLabel"></span>
+      <button class="logout-btn" id="changePassOpenBtn" style="border-color:rgba(212,175,55,0.5);">&#x1F511; باسورد</button>
+      <button class="logout-btn" id="adminLogoutBtn">خروج</button>
+      <button class="logout-btn" id="menuToggleBtn" style="font-size:18px;padding:6px 12px;">&#x2630;</button>
+    </div>
+  </div>
+
+  <div class="tabs" style="display:none;" id="tabsBar">
+    <div class="tab active" data-tab="home" id="tab-home-btn">&#x1F3E0; الرئيسية</div>
+    <div class="tab" data-tab="addPoints" id="tab-addPoints-btn">&#x2795; إضافة نقط</div>
+    <div class="tab" data-tab="pending" id="tab-pending-btn">&#x23F3; طلبات</div>
+    <div class="tab" data-tab="stamps" id="tab-stamps-btn">&#x1F37D; الأختام</div>
+    <div class="tab" data-tab="customers" id="tab-customers-btn">&#x1F465; العملاء</div>
+    <div class="tab" data-tab="addCustomer" id="tab-addCustomer-btn">&#x1F464; عميل جديد</div>
+    <div class="tab" data-tab="leaderboard" id="tab-leaderboard-btn">&#x1F3C5; المتصدرين</div>
+    <div class="tab" data-tab="branches" id="tab-branches-btn">&#x1F3EA; الفروع</div>
+    <div class="tab" data-tab="activity" id="tab-activity-btn">&#x1F4CB; السجل</div>
+    <div class="tab" data-tab="users" id="tab-users-btn">&#x1F454; المستخدمين</div>
+    <div class="tab" data-tab="export" id="tab-export-btn">&#x1F4E4; تصدير</div>
+  </div>
+
+  <!-- HOME -->
+  <div id="tab-home" class="tab-content active">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">&#x1F465;</div>
+        <div class="stat-num" id="statTotal">—</div>
+        <div class="stat-lbl">إجمالي العملاء</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">&#x23F3;</div>
+        <div class="stat-num" id="statPending">—</div>
+        <div class="stat-lbl">طلبات معلقة</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">&#x2B50;</div>
+        <div class="stat-num" id="statTotalPts">—</div>
+        <div class="stat-lbl">إجمالي النقاط</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">&#x1F3C6;</div>
+        <div class="stat-num" id="statReady">—</div>
+        <div class="stat-lbl">جاهزين للخصم</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#x26A1; بحث سريع عن عميل</div>
+      <input type="text" inputmode="numeric" id="quickSearchPhone" placeholder="ابحث برقم التليفون" maxlength="11">
+      <button class="btn btn-red" id="quickSearchBtn">بحث</button>
+      <div id="quickResult" style="margin-top:16px;"></div>
+    </div>
+  </div>
+
+  <!-- ADD POINTS -->
+  <div id="tab-addPoints" class="tab-content">
+    <div class="card">
+      <div class="card-title">&#x2795; إضافة نقاط لعميل</div>
+      <input type="text" inputmode="numeric" id="ptPhone" placeholder="رقم التليفون" maxlength="11">
+      <input type="number" id="ptAmount" placeholder="المبلغ المدفوع (جنيه)" min="1" max="1000000">
+      <div id="ptPreview" style="background:#f9f9f9;border-radius:12px;padding:12px;text-align:center;margin-bottom:12px;font-size:14px;color:#666;display:none;">
+        سيتم إضافة <strong id="ptCalc" style="color:var(--red);font-size:18px;">0</strong> نقطة
+      </div>
+      <button class="btn btn-green" id="addPointsBtn">إضافة النقاط &#x2705;</button>
+    </div>
+  </div>
+
+  <!-- PENDING -->
+  <div id="tab-pending" class="tab-content">
+    <div class="card">
+      <div class="card-title">&#x23F3; طلبات الاسترداد المعلقة</div>
+      <div id="pendingList">
+        <div class="empty-state"><div class="icon">&#x23F3;</div>جاري التحميل...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAMPS -->
+  <div id="tab-stamps" class="tab-content">
+    <div class="card">
+      <div class="card-title">&#x1F3C6; طلبات المكافآت المكتملة (10 أختام)</div>
+      <div id="stampRewardPendingList">
+        <div class="empty-state"><div class="icon">&#x1F3C6;</div>جاري التحميل...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">&#x1F37D; طلبات الأختام المعلقة</div>
+      <div id="stampPendingList">
+        <div class="empty-state"><div class="icon">&#x1F37D;</div>جاري التحميل...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">&#x1FA84; إضافة ختم يدوي</div>
+      <input type="text" inputmode="numeric" id="stampPhone" placeholder="رقم التليفون" maxlength="11">
+      <div id="stampCustomerInfo" style="background:#f9f9f9;border-radius:12px;padding:12px;text-align:center;margin-bottom:12px;font-size:14px;color:#666;display:none;"></div>
+      <button class="btn btn-green" id="addStampManualBtn">إضافة ختم &#x2705;</button>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS -->
+  <div id="tab-customers" class="tab-content">
+    <div class="card">
+      <div class="card-title">&#x1F465; كل العملاء</div>
+      <div class="table-wrap">
+        <table id="customersTable">
+          <thead>
+            <tr>
+              <th>الاسم</th><th>التليفون</th><th>النقاط</th><th>الحالة</th><th>حذف</th>
+            </tr>
+          </thead>
+          <tbody id="customersBody">
+            <tr><td colspan="5" class="empty-state">جاري التحميل...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD CUSTOMER -->
+  <div id="tab-addCustomer" class="tab-content">
+    <div class="card">
+      <div class="card-title">&#x1F464; تسجيل عميل جديد</div>
+      <input type="text" id="newName" placeholder="اسم العميل" maxlength="50">
+      <input type="text" inputmode="numeric" id="newPhone" placeholder="رقم التليفون" maxlength="11">
+      <div class="field-error" id="addCustomerError"></div>
+      <button class="btn btn-red" id="addCustomerBtn">تسجيل العميل &#x1F389;</button>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div id="tab-leaderboard" class="tab-content">
+    <div class="card">
+      <div class="card-title">&#x1F3C5; أكثر العملاء ولاءً</div>
+      <div id="adminLeaderboard">
+        <div class="empty-state"><div class="icon">&#x1F3C5;</div>جاري التحميل...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRANCHES -->
+  <div id="tab-branches" class="tab-content">
+    <div class="stats-grid" id="branchStats" style="grid-template-columns:1fr 1fr;">
+      <div class="stat-card"><div class="stat-icon">&#x1F3EA;</div><div class="stat-num" id="b1Total">—</div><div class="stat-lbl">الف مسكن - عملاء</div></div>
+      <div class="stat-card"><div class="stat-icon">&#x1F3EA;</div><div class="stat-num" id="b2Total">—</div><div class="stat-lbl">المطرية - عملاء</div></div>
+      <div class="stat-card"><div class="stat-icon">&#x1F3EA;</div><div class="stat-num" id="b3Total">—</div><div class="stat-lbl">الشروق - عملاء</div></div>
+      <div class="stat-card"><div class="stat-icon">&#x1F4DE;</div><div class="stat-num" id="b4Total">—</div><div class="stat-lbl">كول سنتر - عملاء</div></div>
+      <div class="stat-card"><div class="stat-icon">&#x1F4B0;</div><div class="stat-num" id="b1Sales">—</div><div class="stat-lbl">الف مسكن - مبيعات</div></div>
+      <div class="stat-card"><div class="stat-icon">&#x1F4B0;</div><div class="stat-num" id="b2Sales">—</div><div class="stat-lbl">المطرية - مبيعات</div></div>
+      <div class="stat-card"><div class="stat-icon">&#x1F4B0;</div><div class="stat-num" id="b3Sales">—</div><div class="stat-lbl">الشروق - مبيعات</div></div>
+      <div class="stat-card"><div class="stat-icon">&#x1F4B0;</div><div class="stat-num" id="b4Sales">—</div><div class="stat-lbl">كول سنتر - مبيعات</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">&#x1F4CA; مقارنة الفروع - النقاط</div>
+      <div class="chart-bar-wrap" id="branchChart"></div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY -->
+  <div id="tab-activity" class="tab-content">
+    <div class="card">
+      <div class="card-title">&#x1F4CB; سجل النشاط</div>
+      <div id="activityLog"><div class="empty-state"><div class="icon">&#x1F4CB;</div>جاري التحميل...</div></div>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div id="tab-users" class="tab-content">
+    <div class="card">
+      <div class="card-title">&#x1F454; إدارة المستخدمين</div>
+      <div id="usersList"></div>
+    </div>
+    <div class="card" id="addUserCard">
+      <div class="card-title">&#x2795; إضافة مستخدم جديد</div>
+      <input type="text" id="newUserName" placeholder="اسم المستخدم" maxlength="50">
+      <input type="password" id="newUserPass" placeholder="الباسورد" maxlength="50">
+      <select id="newUserRole">
+        <option value="cashier_alfmosken">كاشير - الف مسكن</option>
+        <option value="cashier_matriya">كاشير - المطرية</option>
+        <option value="cashier_shorouk">كاشير - الشروق</option>
+        <option value="callcenter">كول سنتر</option>
+        <option value="super">سوبر أدمن</option>
+      </select>
+      <div style="margin-bottom:12px;">
+        <div style="font-weight:700;margin-bottom:8px;font-size:14px;">الصلاحيات:</div>
+        <div class="perm-check">
+          <label><input type="checkbox" id="perm_addPoints" checked> إضافة نقاط</label>
+          <label><input type="checkbox" id="perm_addCustomer" checked> تسجيل عملاء</label>
+          <label><input type="checkbox" id="perm_approve" checked> موافقة خصومات</label>
+          <label><input type="checkbox" id="perm_delete"> حذف عملاء</label>
+          <label><input type="checkbox" id="perm_export"> تصدير</label>
+          <label><input type="checkbox" id="perm_users"> إدارة المستخدمين</label>
+          <label><input type="checkbox" id="perm_branches"> إحصائيات الفروع</label>
+        </div>
+      </div>
+      <button class="btn btn-red" id="addUserBtn">إضافة المستخدم</button>
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div id="tab-export" class="tab-content">
+    <div class="card">
+      <div class="card-title">&#x1F4E4; تصدير البيانات</div>
+      <button class="btn btn-green" id="exportCSVBtn" style="margin-bottom:12px;">تصدير العملاء CSV</button>
+      <button class="btn btn-red" id="exportReportBtn">تصدير تقرير الفروع</button>
+    </div>
+    <div class="card">
+      <div class="card-title">&#x26A0; العملاء الغايبين</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px;">عملاء مجاش من أكتر من 30 يوم</p>
+      <div id="absentList"><div class="empty-state">جاري التحميل...</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">شيخ البلد &#x1F37D;</div>
+  <button class="drawer-item active" data-tab="home" id="drawer-home">
+    <span class="d-icon">&#x1F3E0;</span><span>الرئيسية</span>
+  </button>
+  <button class="drawer-item" data-tab="addPoints" id="drawer-addPoints">
+    <span class="d-icon">&#x2795;</span><span>إضافة نقاط</span>
+  </button>
+  <button class="drawer-item" data-tab="pending" id="drawer-pending">
+    <span class="d-icon">&#x23F3;</span><span>طلبات</span>
+  </button>
+  <button class="drawer-item" data-tab="stamps" id="drawer-stamps">
+    <span class="d-icon">&#x1F37D;</span><span>الأختام</span>
+  </button>
+  <button class="drawer-item" data-tab="customers" id="drawer-customers">
+    <span class="d-icon">&#x1F465;</span><span>العملاء</span>
+  </button>
+  <button class="drawer-item" data-tab="addCustomer" id="drawer-addCustomer">
+    <span class="d-icon">&#x1F464;</span><span>عميل جديد</span>
+  </button>
+  <button class="drawer-item" data-tab="leaderboard" id="drawer-leaderboard">
+    <span class="d-icon">&#x1F3C5;</span><span>المتصدرين</span>
+  </button>
+  <button class="drawer-item" data-tab="branches" id="drawer-branches">
+    <span class="d-icon">&#x1F3EA;</span><span>الفروع</span>
+  </button>
+  <button class="drawer-item" data-tab="activity" id="drawer-activity">
+    <span class="d-icon">&#x1F4CB;</span><span>السجل</span>
+  </button>
+  <button class="drawer-item" data-tab="users" id="drawer-users">
+    <span class="d-icon">&#x1F454;</span><span>المستخدمين</span>
+  </button>
+  <button class="drawer-item" data-tab="export" id="drawer-export">
+    <span class="d-icon">&#x1F4E4;</span><span>تصدير</span>
+  </button>
+  <button class="drawer-item drawer-dev" id="drawer-contact">
+    <span class="d-icon">&#x1F4AC;</span><span>اتصل بالمطور</span>
+  </button>
+  <button class="drawer-item drawer-logout" id="drawer-logout">
+    <span class="d-icon">&#x21A9;</span><span>تسجيل خروج</span>
+  </button>
+</div>
+
+<button class="dark-toggle" id="darkBtnAdmin">&#x1F319;</button>
+<div id="toast"></div>
+<div class="security-badge">&#x1F512; TLS Secured</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
