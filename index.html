@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://script.google.com; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'nonce-secure2024';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>شيخ البلد - نقاط الولاء</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#8B0000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="شيخ البلد">
+  <link rel="apple-touch-icon" href="icon-192x192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #8B0000; --red2: #A50000; --gold: #D4AF37; --gold2: #F0C93A;
+      --cream: #F8F4ED; --dark: #1a0000; --green: #27AE60; --shadow: 0 4px 24px rgba(0,0,0,0.12);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Cairo',sans-serif; background:var(--cream); color:var(--dark); min-height:100vh; }
+
+    header {
+      background: linear-gradient(160deg, #6B0000 0%, #8B0000 50%, #A50000 100%);
+      padding: 32px 20px 52px;
+      text-align: center; position: relative; overflow: hidden;
+      border-bottom: 3px solid var(--gold);
+    }
+    header::before {
+      content:''; position:absolute; inset:0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.15) 0%, transparent 70%);
+    }
+    .header-logo {
+      width:88px; height:88px; border-radius:50%;
+      border:3px solid var(--gold); object-fit:cover;
+      margin-bottom:10px; box-shadow:0 4px 20px rgba(0,0,0,0.4);
+      position:relative;
+    }
+    header h1 { color:var(--gold2); font-size:24px; font-weight:900; position:relative; text-shadow:0 2px 8px rgba(0,0,0,0.4); }
+    header p { color:rgba(255,255,255,0.75); font-size:12px; margin-top:3px; position:relative; }
+
+    main { max-width:430px; margin:-22px auto 0; padding:0 14px 60px; }
+
+    .card {
+      background:#fff; border-radius:20px; box-shadow:var(--shadow);
+      padding:20px; margin-bottom:14px;
+      border:1px solid rgba(212,175,55,0.12);
+    }
+    .card-title {
+      font-size:14px; font-weight:700; color:var(--dark);
+      margin-bottom:14px; display:flex; align-items:center; gap:7px;
+    }
+
+    .logo-img {
+      width:76px; height:76px; border-radius:50%; object-fit:cover;
+      display:block; margin:0 auto 10px;
+      border:3px solid var(--gold); box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    }
+    .login-title { text-align:center; font-size:20px; font-weight:900; color:var(--dark); margin-bottom:4px; }
+    .login-sub { text-align:center; color:#999; font-size:12px; margin-bottom:20px; }
+
+    input[type="text"], input[type="file"] {
+      width:100%; border:2px solid #eee; border-radius:12px;
+      padding:13px 16px; font-size:15px; font-family:'Cairo',sans-serif;
+      text-align:center; transition:border-color 0.2s; outline:none; color:var(--dark);
+    }
+    input:focus { border-color:var(--gold); }
+    input.error { border-color:#e74c3c; background:#fdf2f2; }
+    .field-error { color:#e74c3c; font-size:12px; margin-top:4px; text-align:center; display:none; }
+
+    .btn-primary {
+      width:100%; background:linear-gradient(135deg, var(--red), var(--red2));
+      color:var(--gold2); border:2px solid var(--gold); border-radius:12px;
+      padding:14px; font-size:15px; font-weight:700; font-family:'Cairo',sans-serif;
+      cursor:pointer; margin-top:10px; transition:transform 0.15s, box-shadow 0.15s;
+      box-shadow:0 4px 16px rgba(139,0,0,0.35);
+    }
+    .btn-primary:hover { transform:translateY(-1px); }
+    .btn-primary:active { transform:translateY(0); }
+    .btn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+    .points-hero {
+      background:linear-gradient(150deg, #6B0000 0%, #8B0000 50%, #A50000 100%);
+      border-radius:20px; padding:24px 20px; text-align:center; color:#fff;
+      margin-bottom:14px; position:relative; overflow:hidden;
+      border:2px solid rgba(212,175,55,0.6);
+      box-shadow:0 8px 32px rgba(139,0,0,0.35);
+    }
+    .points-hero::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at 50% -20%, rgba(212,175,55,0.2) 0%, transparent 65%);
+    }
+    .points-name { font-size:15px; font-weight:600; opacity:0.9; margin-bottom:6px; position:relative; }
+    .points-number {
+      font-size:72px; font-weight:900; line-height:1;
+      margin-bottom:2px; color:var(--gold2); position:relative;
+      text-shadow:0 2px 12px rgba(0,0,0,0.3);
+    }
+    .points-label { font-size:13px; opacity:0.8; position:relative; }
+    .level-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:5px 14px; border-radius:99px; font-size:12px; font-weight:700;
+      margin:8px auto 0; position:relative;
+    }
+    .level-bronze { background:rgba(205,133,63,0.25); color:#FFD89A; border:1.5px solid #CD853F; }
+    .level-silver  { background:rgba(192,192,192,0.2); color:#ddd; border:1.5px solid #aaa; }
+    .level-gold    { background:rgba(212,175,55,0.25); color:var(--gold2); border:1.5px solid var(--gold); }
+    .level-plat    { background:rgba(52,152,219,0.2); color:#a8d8f0; border:1.5px solid #3498DB; }
+
+    .progress-section { margin-top:14px; position:relative; }
+    .progress-label {
+      display:flex; justify-content:space-between;
+      font-size:12px; margin-bottom:6px; color:rgba(255,255,255,0.85); position:relative;
+    }
+    .progress-track { height:9px; background:rgba(255,255,255,0.18); border-radius:99px; overflow:hidden; }
+    .progress-fill {
+      height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2));
+      border-radius:99px; transition:width 1.2s cubic-bezier(.4,0,.2,1);
+    }
+    .last-visit { font-size:11px; color:rgba(255,255,255,0.6); margin-top:5px; position:relative; }
+
+    .reward-ready {
+      background:linear-gradient(135deg,#27AE60,#2ECC71);
+      color:#fff; border-radius:18px; padding:18px 16px; text-align:center;
+      margin-bottom:14px; animation:pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow:0 0 0 0 rgba(39,174,96,0.4); }
+      50%      { box-shadow:0 0 0 10px rgba(39,174,96,0); }
+    }
+    .reward-ready .icon { font-size:32px; margin-bottom:6px; }
+    .reward-ready h3 { font-size:16px; font-weight:900; margin-bottom:3px; }
+    .reward-ready p  { font-size:12px; opacity:0.9; margin-bottom:10px; }
+    .btn-green {
+      width:100%; background:#fff; color:#27AE60;
+      border:none; border-radius:10px; padding:12px;
+      font-size:14px; font-weight:700; font-family:'Cairo',sans-serif;
+      cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.15);
+    }
+    .btn-green:disabled { opacity:0.6; cursor:not-allowed; }
+    .pending-badge {
+      background:#FFF8E1; border:2px solid var(--gold); border-radius:16px;
+      padding:14px 16px; text-align:center; margin-bottom:14px;
+    }
+    .pending-badge .icon { font-size:26px; margin-bottom:4px; }
+    .pending-badge p { font-size:12px; color:#856404; }
+
+    .stamp-card {
+      background:linear-gradient(135deg,#fffdf5,#fff8e7);
+      border:2px solid var(--gold); border-radius:20px;
+      padding:18px; margin-bottom:14px;
+      box-shadow:0 4px 20px rgba(212,175,55,0.18);
+    }
+    .stamp-card-title { text-align:center; font-size:15px; font-weight:900; color:var(--dark); margin-bottom:3px; }
+    .stamp-card-sub { text-align:center; font-size:11px; color:#aaa; margin-bottom:14px; }
+    .stamps-grid {
+      display:grid; grid-template-columns:repeat(5,1fr);
+      gap:8px; margin-bottom:12px;
+    }
+    .stamp {
+      aspect-ratio:1; border-radius:10px; border:2px dashed #ddd;
+      display:flex; align-items:center; justify-content:center;
+      font-size:22px; background:#f7f7f7; transition:all 0.3s;
+    }
+    .stamp.filled {
+      border:2px solid var(--gold);
+      background:linear-gradient(135deg,#fff3cd,#fff8e7);
+      box-shadow:0 2px 8px rgba(212,175,55,0.3);
+      animation:stampPop 0.4s ease;
+    }
+    @keyframes stampPop {
+      0% { transform:scale(0.5); opacity:0; }
+      70% { transform:scale(1.15); }
+      100% { transform:scale(1); opacity:1; }
+    }
+    .stamp-count { text-align:center; font-size:12px; color:#999; margin-bottom:10px; }
+    .stamp-count strong { color:var(--red); font-size:14px; }
+    .btn-stamp {
+      width:100%; background:linear-gradient(135deg,var(--gold),var(--gold2));
+      color:var(--dark); border:none; border-radius:12px;
+      padding:12px; font-size:14px; font-weight:700;
+      font-family:'Cairo',sans-serif; cursor:pointer;
+      box-shadow:0 4px 14px rgba(212,175,55,0.4); transition:transform 0.15s;
+    }
+    .btn-stamp:hover { transform:translateY(-1px); }
+    .btn-stamp:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+    .stamp-reward {
+      background:linear-gradient(135deg,var(--gold),var(--gold2));
+      color:var(--dark); border-radius:14px; padding:14px;
+      text-align:center; margin-top:10px; font-weight:700; font-size:14px; display:none;
+    }
+    .stamp-pending-msg {
+      background:#fff3cd; color:#856404; border-radius:10px; padding:10px;
+      text-align:center; font-size:12px; margin-top:8px; display:none;
+    }
+    .btn-claim-reward {
+      width:100%; background:linear-gradient(135deg,var(--green),#2ECC71);
+      color:#fff; border:none; border-radius:12px;
+      padding:13px; font-size:14px; font-weight:700;
+      font-family:'Cairo',sans-serif; cursor:pointer; margin-top:10px;
+      box-shadow:0 4px 14px rgba(39,174,96,0.35); transition:transform 0.15s;
+      display:none;
+    }
+    .btn-claim-reward:hover { transform:translateY(-1px); }
+    .btn-claim-reward:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+    .completed-card {
+      background:linear-gradient(135deg,#fffdf5,#fff3cd);
+      border:3px solid var(--gold); border-radius:22px;
+      padding:24px; text-align:center; position:relative; overflow:hidden;
+      box-shadow:0 8px 28px rgba(212,175,55,0.3);
+    }
+    .completed-card .stamps-grid { margin-top:16px; }
+    .completed-seal {
+      position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%) rotate(-18deg);
+      border:6px solid var(--red); color:var(--red);
+      border-radius:16px; padding:10px 24px;
+      font-size:28px; font-weight:900; letter-spacing:2px;
+      opacity:0.85; pointer-events:none;
+      text-shadow:0 2px 4px rgba(0,0,0,0.1);
+      box-shadow:0 0 0 4px rgba(139,0,0,0.08);
+      font-family:'Cairo',sans-serif;
+      animation:sealPop 0.5s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes sealPop {
+      0% { transform:translate(-50%,-50%) rotate(-18deg) scale(0); opacity:0; }
+      70% { transform:translate(-50%,-50%) rotate(-18deg) scale(1.15); }
+      100% { transform:translate(-50%,-50%) rotate(-18deg) scale(1); opacity:0.85; }
+    }
+    .completed-title { font-size:17px; font-weight:900; color:var(--dark); margin-bottom:4px; }
+    .completed-sub { font-size:12px; color:#999; margin-bottom:4px; }
+
+    .tx-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #f0f0f0; }
+    .tx-item:last-child { border-bottom:none; }
+    .tx-icon { font-size:22px; flex-shrink:0; }
+    .tx-info { flex:1; }
+    .tx-type { font-size:12px; font-weight:600; color:var(--dark); }
+    .tx-date { font-size:10px; color:#bbb; margin-top:1px; }
+    .tx-points { font-size:14px; font-weight:900; }
+    .tx-points.earn   { color:var(--green); }
+    .tx-points.redeem { color:var(--red); }
+
+    .leader-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #f5f5f5; }
+    .leader-item:last-child { border-bottom:none; }
+    .leader-rank {
+      width:30px; height:30px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:900; font-size:13px; flex-shrink:0;
+    }
+    .rank-1 { background:#FFD700; color:#8B4513; }
+    .rank-2 { background:#C0C0C0; color:#333; }
+    .rank-3 { background:#CD853F; color:#fff; }
+    .rank-other { background:#f0f0f0; color:#888; }
+    .leader-name { flex:1; font-weight:600; font-size:13px; }
+    .leader-pts  { font-weight:900; color:var(--red); font-size:13px; }
+
+    .warning-80 {
+      background:#fffbeb; border:2px solid var(--gold); border-radius:14px;
+      padding:12px; text-align:center; margin-bottom:14px;
+      font-size:12px; color:#856404; font-weight:600;
+    }
+
+    .btn-share {
+      width:100%; background:#25D366; color:#fff; border:none;
+      border-radius:12px; padding:12px; font-size:14px; font-weight:700;
+      font-family:'Cairo',sans-serif; cursor:pointer; margin-top:6px;
+      display:flex; align-items:center; justify-content:center; gap:7px;
+    }
+
+    .logout-btn {
+      display:block; margin:4px auto 0;
+      background:transparent; border:2px solid #e0e0e0; color:#ccc;
+      font-family:'Cairo',sans-serif; font-size:12px;
+      padding:9px 24px; border-radius:99px; cursor:pointer;
+    }
+
+    #toast {
+      position:fixed; bottom:24px; left:50%;
+      transform:translateX(-50%) translateY(80px);
+      background:var(--dark); color:#fff;
+      padding:11px 22px; border-radius:99px; font-size:13px; font-weight:600;
+      transition:transform 0.3s; z-index:999; white-space:nowrap;
+    }
+    #toast.show    { transform:translateX(-50%) translateY(0); }
+    #toast.success { background:var(--green); }
+    #toast.error   { background:#c0392b; }
+
+    .confetti-piece {
+      position:fixed; width:10px; height:10px; top:-20px;
+      border-radius:2px; animation:confettiFall linear forwards;
+      pointer-events:none; z-index:9999;
+    }
+    @keyframes confettiFall {
+      0%   { transform:translateY(0) rotate(0deg); opacity:1; }
+      100% { transform:translateY(110vh) rotate(720deg); opacity:0; }
+    }
+
+    body.dark { background:#1a0a0a; color:#f0e6d3; }
+    body.dark .card { background:#2a1010; border-color:rgba(212,175,55,0.15); }
+    body.dark .stat-card { background:#2a1010; }
+    body.dark input[type="text"] { background:#2a1010; border-color:#444; color:#f0e6d3; }
+    body.dark .tx-item { border-color:#333; }
+    body.dark .tx-type { color:#f0e6d3; }
+    body.dark .leader-item { border-color:#2a2a2a; }
+    body.dark .stamp-card { background:#1e1208; border-color:rgba(212,175,55,0.4); }
+    body.dark .stamp { background:#2a2a2a; border-color:#444; }
+    body.dark .stamp.filled { background:#2a1e00; }
+    body.dark .invoice-card { background:#0a1e2a; border-color:#3498DB; }
+
+    #installBanner {
+      display:none; background:linear-gradient(135deg,var(--red),var(--red2));
+      color:#fff; padding:10px 14px; text-align:center; font-size:12px;
+      border-bottom:2px solid var(--gold); gap:8px;
+      align-items:center; justify-content:center;
+    }
+    #installBanner.show { display:flex; }
+    #installBanner button {
+      background:var(--gold2); color:var(--dark); border:none; border-radius:7px;
+      padding:5px 12px; font-size:11px; font-weight:700;
+      font-family:'Cairo',sans-serif; cursor:pointer;
+    }
+
+    .dark-toggle {
+      position:fixed; bottom:24px; left:16px;
+      width:42px; height:42px; border-radius:50%;
+      background:var(--red); border:2px solid var(--gold);
+      color:#fff; font-size:18px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 16px rgba(0,0,0,0.3); z-index:100;
+    }
+
+    .tab-page { display:none; }
+    .tab-page.active { display:block; }
+
+    .menu-btn {
+      position:fixed; top:18px; right:14px; z-index:300;
+      width:44px; height:44px; border-radius:50%;
+      background:rgba(0,0,0,0.25); border:2px solid var(--gold);
+      color:#fff; font-size:20px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 14px rgba(0,0,0,0.25);
+    }
+    body.dark .menu-btn { background:rgba(0,0,0,0.4); }
+
+    .drawer-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      z-index:400; opacity:0; pointer-events:none; transition:opacity 0.3s;
+    }
+    .drawer-overlay.show { opacity:1; pointer-events:auto; }
+
+    .drawer {
+      position:fixed; top:0; right:0; height:100%; width:78%; max-width:300px;
+      background:#fff; z-index:401; padding:24px 18px;
+      transform:translateX(100%); transition:transform 0.3s cubic-bezier(.4,0,.2,1);
+      box-shadow:-6px 0 30px rgba(0,0,0,0.25);
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .drawer.open { transform:translateX(0); }
+    body.dark .drawer { background:#1e1208; }
+    .drawer-header {
+      font-size:17px; font-weight:900; color:var(--red);
+      margin-bottom:10px; padding-bottom:10px;
+      border-bottom:2px solid var(--gold);
+    }
+    body.dark .drawer-header { color:var(--gold2); }
+    .drawer-item {
+      display:flex; align-items:center; gap:12px;
+      background:none; border:none; cursor:pointer;
+      font-family:'Cairo',sans-serif; font-size:15px; font-weight:700;
+      color:var(--dark); padding:13px 10px; border-radius:12px;
+      text-align:right; transition:background 0.15s;
+    }
+    body.dark .drawer-item { color:#f0e6d3; }
+    .drawer-item .d-icon { font-size:20px; }
+    .drawer-item:hover, .drawer-item.active {
+      background:rgba(212,175,55,0.15);
+    }
+    .drawer-item.active { color:var(--red); }
+    body.dark .drawer-item.active { color:var(--gold2); }
+    .drawer-logout {
+      margin-top:auto; color:#c0392b !important;
+    }
+    .drawer-dev { color:#25D366 !important; }
+
+    .spinner {
+      display:inline-block; width:18px; height:18px;
+      border:2.5px solid rgba(255,255,255,0.3);
+      border-top-color:#fff; border-radius:50%;
+      animation:spin 0.7s linear infinite;
+      vertical-align:middle; margin-left:5px;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .hidden { display:none !important; }
+
+    #salahOverlay {
+      position:fixed; inset:0; z-index:99999;
+      background:rgba(0,0,0,0.75);
+      display:flex; align-items:center; justify-content:center; padding:20px;
+      animation:fadeInOv 0.4s ease;
+    }
+    @keyframes fadeInOv { from { opacity:0 } to { opacity:1 } }
+    #salahBox {
+      background:linear-gradient(160deg,#fff9ee 0%,#fff3cd 100%);
+      border:3px solid var(--gold); border-radius:24px;
+      padding:30px 22px; text-align:center; max-width:310px; width:100%;
+      box-shadow:0 20px 60px rgba(0,0,0,0.4);
+      animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn { from { transform:scale(0.7); opacity:0 } to { transform:scale(1); opacity:1 } }
+    #salahBox .s-icon { font-size:48px; margin-bottom:10px; display:block; }
+    #salahBox .s-main { font-size:20px; font-weight:900; color:var(--red); line-height:1.6; margin-bottom:6px; }
+    #salahBox .s-sub  { font-size:13px; color:#7a6000; margin-bottom:22px; line-height:1.8; }
+    #salahBox .s-btn  {
+      background:linear-gradient(135deg,var(--red),var(--red2));
+      color:var(--gold2); border:2px solid var(--gold);
+      border-radius:12px; padding:11px 30px;
+      font-size:14px; font-weight:700; font-family:'Cairo',sans-serif;
+      cursor:pointer; transition:transform 0.15s;
+    }
+    #salahBox .s-btn:hover { transform:translateY(-2px); }
+
+    .lockout-msg {
+      background:#fde8e8; color:#c0392b; border-radius:10px;
+      padding:10px; text-align:center; font-size:13px; margin-top:8px;
+      display:none;
+    }
+    .security-badge {
+      position:fixed; bottom:24px; right:16px;
+      font-size:11px; color:#aaa; z-index:100;
+      background:rgba(255,255,255,0.8); padding:4px 10px;
+      border-radius:99px; backdrop-filter:blur(4px);
+    }
+    body.dark .security-badge { background:rgba(0,0,0,0.5); color:#888; }
+  </style>
+</head>
+<body>
+
+<!-- SALAH POPUP -->
+<div id="salahOverlay">
+  <div id="salahBox">
+    <span class="s-icon">&#x262A;</span>
+    <div class="s-main">اللهم صلِّ وسلم<br>على سيدنا محمد ﷺ</div>
+    <div class="s-sub">صلى الله عليه وسلم<br>&laquo; من صلى عليّ صلاةً صلى الله عليه بها عشراً &raquo;</div>
+    <button class="s-btn" id="salahCloseBtn">آمين &#x1F932;</button>
+  </div>
+</div>
+
+<div id="installBanner">
+  <span>حمّل التطبيق على موبايلك!</span>
+  <button id="installBtn">تثبيت</button>
+  <button id="dismissInstallBtn" style="background:rgba(255,255,255,0.2);color:#fff;">&#x2715;</button>
+</div>
+
+<header>
+  <img src="icon-192x192.png" class="header-logo" alt="شيخ البلد" onerror="this.style.display='none'">
+  <h1>شيخ البلد</h1>
+  <p>نقاط الولاء</p>
+</header>
+
+<main>
+
+  <!-- LOGIN CARD -->
+  <div id="loginCard" class="card">
+    <img src="icon-192x192.png" class="logo-img" alt="شيخ البلد" onerror="this.style.display='none'">
+    <div class="login-title">أهلاً بك!</div>
+    <div class="login-sub">ادخل رقم تليفونك عشان تشوف نقاطك</div>
+    <input type="text" id="phoneInput" placeholder="01XXXXXXXXX" maxlength="11" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <div class="field-error" id="phoneError">ادخل رقم مصري صحيح (11 رقم يبدأ بـ 01)</div>
+    <button class="btn-primary" id="lookupBtn">
+      <span id="loginBtnText">عرض نقاطي</span>
+    </button>
+    <div class="lockout-msg" id="lockoutMsg">تم تأمين الحساب مؤقتاً بسبب محاولات كثيرة. انتظر <span id="lockoutTimer">15</span> دقيقة.</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="hidden">
+
+    <div id="tab-home" class="tab-page active">
+      <!-- POINTS HERO -->
+      <div class="points-hero">
+        <div class="points-name" id="custName">—</div>
+        <div class="points-number" id="custPoints">0</div>
+        <div class="points-label">نقطة مجمّعة</div>
+        <div id="levelBadge" style="margin-top:8px;"></div>
+        <div class="last-visit" id="lastVisitTxt"></div>
+        <div class="progress-section">
+          <div class="progress-label">
+            <span>نحو مكافأتك</span>
+            <span id="progressText">0 / 100</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressBar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REWARD READY -->
+      <div id="rewardReady" class="reward-ready hidden">
+        <div class="icon">&#x1F389;</div>
+        <h3>مبروك! معاك خصم جاهز</h3>
+        <p>اضغط واطلب خصم 15% على طلبك</p>
+        <button class="btn-green" id="redeemBtn">استخدم الخصم &#x1F381;</button>
+      </div>
+
+      <!-- PENDING REDEMPTION -->
+      <div id="pendingBadge" class="pending-badge hidden">
+        <div class="icon">&#x23F3;</div>
+        <p>طلب الخصم بيتراجع دلوقتي.. انتظر الموافقة من الكاشير</p>
+      </div>
+
+      <!-- WARNING 80% -->
+      <div id="warning80" class="warning-80 hidden">
+        &#x26A0; اقتربت! بعدك بس <strong id="warning80pts"></strong> نقطة للمكافأة
+      </div>
+
+      <!-- STAMP CARD -->
+      <div class="stamp-card">
+        <div class="stamp-card-title">&#x1F37D; بطاقة الصواني</div>
+        <div class="stamp-card-sub">اجمع 10 أختام واحصل على صينية هدية!</div>
+        <div class="stamps-grid" id="stampsGrid"></div>
+        <div class="stamp-count">عندك <strong id="stampCount">0</strong> من 10 أختام</div>
+        <button class="btn-stamp" id="stampRequestBtn">&#x1FA84; طلب ختم جديد</button>
+        <div class="stamp-reward" id="stampRewardReady">
+          &#x1F389; مبروك! اكتملت البطاقة — صينية هدية في انتظارك!<br>
+          <small style="font-weight:400;font-size:11px;">أبلّغ الكاشير عشان تاخد هديتك &#x1F381;</small>
+        </div>
+        <div class="stamp-pending-msg" id="stampPending">
+          &#x23F3; طلب الختم بيتراجع من الأدمن...
+        </div>
+        <button class="btn-claim-reward" id="claimRewardBtn">&#x1F3C6; المطالبة بالمكافأة</button>
+        <div class="stamp-pending-msg" id="rewardClaimPending">
+          &#x23F3; طلب المكافأة بيتراجع من الأدمن...
+        </div>
+      </div>
+
+      <!-- HOW IT WORKS -->
+      <div class="card">
+        <div class="card-title">&#x2B50; كيف يشتغل النظام؟</div>
+        <div style="font-size:12px;color:#777;line-height:2.2;" id="howItWorks">
+          <!-- populated securely -->
+        </div>
+      </div>
+
+      <button class="logout-btn" id="logoutBtn">&#x21A9; تسجيل خروج</button>
+    </div>
+    <!-- END tab-home -->
+
+    <div id="tab-history" class="tab-page">
+      <div class="card">
+        <div class="card-title">&#x1F4CB; آخر المعاملات</div>
+        <div id="txList">
+          <p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">جاري التحميل...</p>
+        </div>
+      </div>
+    </div>
+    <!-- END tab-history -->
+
+    <div id="tab-leader" class="tab-page">
+      <div class="card">
+        <div class="card-title">&#x1F3C5; أكثر العملاء ولاءً</div>
+        <div id="leaderboardList">
+          <p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">جاري التحميل...</p>
+        </div>
+      </div>
+
+      <!-- SHARE -->
+      <div class="card" id="shareCard" style="display:none;">
+        <div class="card-title">&#x1F4F2; شارك نقاطك</div>
+        <button class="btn-share" id="shareBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          شارك على واتساب
+        </button>
+      </div>
+    </div>
+    <!-- END tab-leader -->
+
+    <div id="tab-completed" class="tab-page">
+      <div class="completed-card">
+        <div class="completed-seal">مكتمل &#x2705;</div>
+        <div class="completed-title">&#x1F37D; بطاقة الصواني — مكتملة</div>
+        <div class="completed-sub">تهانينا! استلمت صينية الهدية &#x1F381;</div>
+        <div class="stamps-grid" id="completedStampsGrid"></div>
+      </div>
+    </div>
+    <!-- END tab-completed -->
+
+  </div>
+
+</main>
+
+<!-- HAMBURGER MENU -->
+<button class="menu-btn hidden" id="menuBtn">&#x2630;</button>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">شيخ البلد &#x1F37D;</div>
+  <button class="drawer-item active" data-tab="tab-home" id="nav-home">
+    <span class="d-icon">&#x1F3E0;</span><span>الرئيسية</span>
+  </button>
+  <button class="drawer-item" data-tab="tab-history" id="nav-history">
+    <span class="d-icon">&#x1F4CB;</span><span>السجل</span>
+  </button>
+  <button class="drawer-item" data-tab="tab-leader" id="nav-leader">
+    <span class="d-icon">&#x1F3C5;</span><span>الترتيب</span>
+  </button>
+  <button class="drawer-item hidden" id="drawerCompletedBtn" data-tab="tab-completed">
+    <span class="d-icon">&#x1F3C6;</span><span>بطاقة مكتملة</span>
+  </button>
+  <button class="drawer-item drawer-dev" id="nav-contact">
+    <span class="d-icon">&#x1F4AC;</span><span>اتصل بالمطور</span>
+  </button>
+  <button class="drawer-item drawer-logout" id="nav-logout">
+    <span class="d-icon">&#x21A9;</span><span>تسجيل خروج</span>
+  </button>
+</div>
+
+<button class="dark-toggle" id="darkBtn">&#x1F319;</button>
+<div id="toast"></div>
+<div id="confettiContainer"></div>
+<div class="security-badge">&#x1F512; TLS Secured</div>
+
+<script nonce="secure2024">
+  // ===== SECURITY MODULE =====
+  (function() {
+    'use strict';
+
+    // 1. Enforce HTTPS (except localhost)
+    if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      window.location.href = window.location.href.replace(/^http:/, 'https:');
+      return;
+    }
+
+    // 2. API URL hidden inside closure - not exposed globally
+    const SCRIPT_URL = atob('aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4ZGZyajJRRnFqN2lreWhySUJMUUxRdGFUT0ctcnQ4M1hhUnAzTGtvc3ZHZE1mN0VpOGRqYTBjVmswcF91bGhZVW8vZXhlYw==');
+    // Base64 decoded: https://script.google.com/macros/s/AKfycbxdfrj2QFqj7ikyhrIBLQLQtaTOG-rt83XaRp3LkosvGdMf7Ei8dja0cVk0p_ulhYUo/exec
+
+    // 3. Escape HTML to prevent XSS
+    function escapeHTML(str) {
+      if (typeof str !== 'string') return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // 4. Sanitize phone number
+    function sanitizePhone(phone) {
+      return String(phone).replace(/\D/g, '').slice(0, 11);
+    }
+
+    // 5. Validate Egyptian phone
+    function isValidEgyptianPhone(phone) {
+      return /^01[0-2,5]{1}[0-9]{8}$/.test(phone);
+    }
+
+    // 6. Rate limiter
+    const rateLimiter = {
+      timestamps: [],
+      maxRequests: 10,
+      windowMs: 60000, // 1 minute
+      canProceed() {
+        const now = Date.now();
+        this.timestamps = this.timestamps.filter(t => now - t < this.windowMs);
+        if (this.timestamps.length >= this.maxRequests) return false;
+        this.timestamps.push(now);
+        return true;
+      }
+    };
+
+    // 7. Brute force protection for login
+    const bruteForce = {
+      attempts: parseInt(sessionStorage.getItem('bf_attempts') || '0', 10),
+      lockoutEnd: parseInt(sessionStorage.getItem('bf_lockout') || '0', 10),
+      maxAttempts: 5,
+      lockoutMinutes: 15,
+      isLocked() {
+        const now = Date.now();
+        if (now < this.lockoutEnd) return true;
+        if (this.lockoutEnd > 0 && now >= this.lockoutEnd) {
+          // Lockout expired, reset
+          this.attempts = 0;
+          this.lockoutEnd = 0;
+          sessionStorage.removeItem('bf_attempts');
+          sessionStorage.removeItem('bf_lockout');
+        }
+        return false;
+      },
+      recordFail() {
+        this.attempts++;
+        sessionStorage.setItem('bf_attempts', String(this.attempts));
+        if (this.attempts >= this.maxAttempts) {
+          this.lockoutEnd = Date.now() + (this.lockoutMinutes * 60000);
+          sessionStorage.setItem('bf_lockout', String(this.lockoutEnd));
+        }
+      },
+      recordSuccess() {
+        this.attempts = 0;
+        this.lockoutEnd = 0;
+        sessionStorage.removeItem('bf_attempts');
+        sessionStorage.removeItem('bf_lockout');
+      },
+      getRemainingMinutes() {
+        return Math.ceil((this.lockoutEnd - Date.now()) / 60000);
+      }
+    };
+
+    // 8. Secure API call wrapper
+    async function api(params) {
+      if (!rateLimiter.canProceed()) {
+        throw new Error('Rate limit exceeded. Please wait a minute.');
+      }
+      try {
+        const url = new URL(SCRIPT_URL);
+        Object.entries(params).forEach(([k, v]) => {
+          if (typeof v === 'string') {
+            url.searchParams.set(k, v);
+          } else {
+            url.searchParams.set(k, String(v));
+          }
+        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+        const res = await fetch(url.toString(), { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (e) {
+        if (e.name === 'AbortError') throw new Error('Request timed out');
+        throw e;
+      }
+    }
+
+    // ===== STATE =====
+    let currentPhone = '';
+    let rewardPollInterval = null;
+    const STAMPS_REQUIRED_CLIENT = 10;
+
+    // ===== DOM REFERENCES =====
+    const els = {
+      phoneInput: document.getElementById('phoneInput'),
+      phoneError: document.getElementById('phoneError'),
+      lookupBtn: document.getElementById('lookupBtn'),
+      loginBtnText: document.getElementById('loginBtnText'),
+      loginCard: document.getElementById('loginCard'),
+      dashboard: document.getElementById('dashboard'),
+      menuBtn: document.getElementById('menuBtn'),
+      custName: document.getElementById('custName'),
+      custPoints: document.getElementById('custPoints'),
+      levelBadge: document.getElementById('levelBadge'),
+      lastVisitTxt: document.getElementById('lastVisitTxt'),
+      progressBar: document.getElementById('progressBar'),
+      progressText: document.getElementById('progressText'),
+      rewardReady: document.getElementById('rewardReady'),
+      redeemBtn: document.getElementById('redeemBtn'),
+      pendingBadge: document.getElementById('pendingBadge'),
+      warning80: document.getElementById('warning80'),
+      warning80pts: document.getElementById('warning80pts'),
+      stampsGrid: document.getElementById('stampsGrid'),
+      stampCount: document.getElementById('stampCount'),
+      stampRequestBtn: document.getElementById('stampRequestBtn'),
+      stampRewardReady: document.getElementById('stampRewardReady'),
+      stampPending: document.getElementById('stampPending'),
+      claimRewardBtn: document.getElementById('claimRewardBtn'),
+      rewardClaimPending: document.getElementById('rewardClaimPending'),
+      drawerCompletedBtn: document.getElementById('drawerCompletedBtn'),
+      txList: document.getElementById('txList'),
+      leaderboardList: document.getElementById('leaderboardList'),
+      shareCard: document.getElementById('shareCard'),
+      completedStampsGrid: document.getElementById('completedStampsGrid'),
+      toast: document.getElementById('toast'),
+      confettiContainer: document.getElementById('confettiContainer'),
+      darkBtn: document.getElementById('darkBtn'),
+      salahOverlay: document.getElementById('salahOverlay'),
+      drawer: document.getElementById('drawer'),
+      drawerOverlay: document.getElementById('drawerOverlay'),
+      installBanner: document.getElementById('installBanner'),
+      lockoutMsg: document.getElementById('lockoutMsg'),
+      lockoutTimer: document.getElementById('lockoutTimer'),
+    };
+
+    // ===== SALAH POPUP =====
+    const salahClosed = localStorage.getItem('salahClosed');
+    if (salahClosed === '1') {
+      els.salahOverlay.style.display = 'none';
+    }
+    document.getElementById('salahCloseBtn').addEventListener('click', function() {
+      localStorage.setItem('salahClosed', '1');
+      els.salahOverlay.style.animation = 'fadeInOv 0.3s ease reverse';
+      setTimeout(function() { els.salahOverlay.remove(); }, 280);
+    });
+
+    // ===== TOAST =====
+    function showToast(msg, type) {
+      els.toast.textContent = msg;
+      els.toast.className = (type || '') + ' show';
+      setTimeout(function() { els.toast.classList.remove('show'); }, 3000);
+    }
+
+    // ===== LOGIN / LOOKUP =====
+    function setLoading(isLoading) {
+      els.lookupBtn.disabled = isLoading;
+      els.loginBtnText.innerHTML = isLoading ? 'جاري البحث <span class="spinner"></span>' : 'عرض نقاطي';
+    }
+
+    async function lookupCustomer() {
+      // Check brute force lockout
+      if (bruteForce.isLocked()) {
+        const mins = bruteForce.getRemainingMinutes();
+        els.lockoutTimer.textContent = mins;
+        els.lockoutMsg.style.display = 'block';
+        showToast('الحساب مقفول مؤقتاً. انتظر ' + mins + ' دقيقة.', 'error');
+        return;
+      }
+      els.lockoutMsg.style.display = 'none';
+
+      const rawPhone = els.phoneInput.value;
+      const phone = sanitizePhone(rawPhone);
+      els.phoneInput.value = phone;
+
+      if (!isValidEgyptianPhone(phone)) {
+        els.phoneInput.classList.add('error');
+        els.phoneError.style.display = 'block';
+        showToast('ادخل رقم مصري صحيح (11 رقم يبدأ بـ 01)', 'error');
+        bruteForce.recordFail();
+        return;
+      }
+      els.phoneInput.classList.remove('error');
+      els.phoneError.style.display = 'none';
+
+      setLoading(true);
+      try {
+        const data = await api({ action:'getCustomer', phone: phone });
+        if (data.success && data.customer) {
+          bruteForce.recordSuccess();
+          currentPhone = phone;
+          renderDashboard(data.customer);
+          loadTransactions(phone);
+        } else {
+          bruteForce.recordFail();
+          showToast('الرقم ده مش مسجل عندنا، تكلم الكاشير', 'error');
+        }
+      } catch (e) {
+        showToast('في مشكلة في الاتصال، حاول تاني', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    els.lookupBtn.addEventListener('click', lookupCustomer);
+    els.phoneInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') lookupCustomer();
+    });
+    els.phoneInput.addEventListener('input', function() {
+      // Auto-sanitize: digits only
+      this.value = this.value.replace(/\D/g, '').slice(0, 11);
+      if (this.classList.contains('error')) {
+        this.classList.remove('error');
+        els.phoneError.style.display = 'none';
+      }
+    });
+
+    // ===== RENDER DASHBOARD (XSS-SAFE) =====
+    function renderDashboard(c) {
+      if (!c || typeof c !== 'object') return;
+      els.loginCard.classList.add('hidden');
+      els.dashboard.classList.remove('hidden');
+      els.menuBtn.classList.remove('hidden');
+
+      // Use textContent for user data - XSS safe
+      els.custName.textContent = 'أهلاً ' + String(c.name || '').trim() + ' \uD83D\uDC4B';
+      els.custPoints.textContent = String(c.points || '0');
+
+      const threshold = c.threshold || 100;
+      const pts = Math.min(parseInt(c.points || 0, 10), 999999);
+      const pct = Math.min((pts / threshold) * 100, 100);
+      els.progressBar.style.width = pct + '%';
+      els.progressText.textContent = pts + ' / ' + threshold;
+
+      const remaining = Math.max(threshold - pts, 0);
+      renderLevel(pts);
+
+      // Last visit
+      const lastVisitKey = 'lastVisit_' + String(c.phone || '').replace(/\D/g, '');
+      const now = new Date();
+      try {
+        const lastVisit = localStorage.getItem(lastVisitKey);
+        if (lastVisit) {
+          const diff = Math.floor((now - new Date(lastVisit)) / (1000*60*60*24));
+          let txt;
+          if (diff === 0) txt = 'آخر زيارة: النهارده';
+          else if (diff === 1) txt = 'آخر زيارة: إمبارح';
+          else txt = 'آخر زيارة: منذ ' + diff + ' يوم';
+          els.lastVisitTxt.textContent = txt;
+        }
+        localStorage.setItem(lastVisitKey, now.toISOString());
+      } catch(e) { /* localStorage blocked */ }
+
+      els.rewardReady.classList.toggle('hidden', pts < threshold || !!c.pendingRedemption);
+      els.pendingBadge.classList.toggle('hidden', !c.pendingRedemption);
+
+      if (pts >= threshold && !c.pendingRedemption) launchConfetti();
+
+      loadLeaderboard();
+      renderStamps(
+        c.stamps || 0,
+        c.pendingStamp || false,
+        c.stampRewardCompleted || false,
+        c.pendingStampReward || false
+      );
+
+      els.shareCard.style.display = 'block';
+      if (pts >= threshold * 0.8 && pts < threshold) {
+        els.warning80.classList.remove('hidden');
+        els.warning80pts.textContent = String(remaining);
+      } else {
+        els.warning80.classList.add('hidden');
+      }
+    }
+
+    function renderLevel(points) {
+      let level, cls;
+      if (points >= 500)      { level = 'بلاتيني \uD83D\uDC8E'; cls = 'level-plat'; }
+      else if (points >= 200) { level = 'ذهبي \uD83E\uDD47'; cls = 'level-gold'; }
+      else if (points >= 100) { level = 'فضي \uD83E\uDD48'; cls = 'level-silver'; }
+      else                    { level = 'برونزي \uD83E\uDD49'; cls = 'level-bronze'; }
+      els.levelBadge.innerHTML = '<span class="level-badge ' + cls + '">' + escapeHTML(level) + '</span>';
+    }
+
+    // ===== STAMPS (XSS-SAFE) =====
+    function renderStamps(stamps, pendingStamp, rewardCompleted, pendingStampReward) {
+      const count = Math.min(Math.max(parseInt(stamps || 0, 10), 0), 999);
+      els.stampCount.textContent = String(count);
+      els.stampsGrid.innerHTML = '';
+
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < 10; i++) {
+        const div = document.createElement('div');
+        div.className = 'stamp' + (i < count ? ' filled' : '');
+        div.textContent = i < count ? '\uD83C\uDF7D' : '';
+        fragment.appendChild(div);
+      }
+      els.stampsGrid.appendChild(fragment);
+
+      els.stampRewardReady.style.display = 'none';
+      els.stampPending.style.display = 'none';
+      els.claimRewardBtn.style.display = 'none';
+      els.rewardClaimPending.style.display = 'none';
+      els.stampRequestBtn.style.display = 'none';
+
+      if (rewardCompleted) {
+        els.drawerCompletedBtn.classList.remove('hidden');
+        renderCompletedCard();
+        return;
+      }
+
+      els.drawerCompletedBtn.classList.add('hidden');
+
+      if (count >= 10) {
+        if (pendingStampReward) {
+          els.stampRewardReady.style.display = 'block';
+          els.rewardClaimPending.style.display = 'block';
+          startRewardPolling();
+        } else {
+          els.stampRewardReady.style.display = 'block';
+          els.claimRewardBtn.style.display = 'block';
+          els.claimRewardBtn.disabled = false;
+          els.claimRewardBtn.textContent = '\uD83C\uDFC6 المطالبة بالمكافأة';
+          stopRewardPolling();
+        }
+      } else if (pendingStamp) {
+        els.stampPending.style.display = 'block';
+        els.stampRequestBtn.disabled = true;
+        els.stampRequestBtn.textContent = '\u23F3 في انتظار الموافقة';
+        els.stampRequestBtn.style.display = 'block';
+        stopRewardPolling();
+      } else {
+        els.stampRequestBtn.style.display = 'block';
+        els.stampRequestBtn.disabled = false;
+        els.stampRequestBtn.textContent = '\u1FA84 طلب ختم جديد';
+        stopRewardPolling();
+      }
+    }
+
+    function renderCompletedCard() {
+      els.completedStampsGrid.innerHTML = '';
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < 10; i++) {
+        const div = document.createElement('div');
+        div.className = 'stamp filled';
+        div.textContent = '\uD83C\uDF7D';
+        fragment.appendChild(div);
+      }
+      els.completedStampsGrid.appendChild(fragment);
+    }
+
+    // ===== STAMP ACTIONS =====
+    async function requestStamp() {
+      const btn = els.stampRequestBtn;
+      btn.disabled = true;
+      btn.textContent = 'جاري الإرسال...';
+      try {
+        const data = await api({ action:'requestStamp', phone: currentPhone });
+        if (data.success) {
+          showToast('تم إرسال طلب الختم للأدمن \u2705', 'success');
+          els.stampPending.style.display = 'block';
+          btn.textContent = '\u23F3 في انتظار الموافقة';
+        } else {
+          showToast(data.message || 'مشكلة في الإرسال', 'error');
+          btn.disabled = false;
+          btn.textContent = '\u1FA84 طلب ختم جديد';
+        }
+      } catch (e) {
+        showToast('مشكلة في الاتصال', 'error');
+        btn.disabled = false;
+        btn.textContent = '\u1FA84 طلب ختم جديد';
+      }
+    }
+    els.stampRequestBtn.addEventListener('click', requestStamp);
+
+    async function requestStampReward() {
+      const btn = els.claimRewardBtn;
+      btn.disabled = true;
+      btn.textContent = 'جاري الإرسال...';
+      try {
+        const data = await api({ action:'requestStampReward', phone: currentPhone });
+        if (data.success) {
+          showToast('تم إرسال طلب المكافأة للأدمن \u2705', 'success');
+          els.rewardClaimPending.style.display = 'block';
+          btn.style.display = 'none';
+        } else {
+          showToast(data.message || 'مشكلة في الإرسال', 'error');
+          btn.disabled = false;
+          btn.textContent = '\uD83C\uDFC6 المطالبة بالمكافأة';
+        }
+      } catch (e) {
+        showToast('مشكلة في الاتصال', 'error');
+        btn.disabled = false;
+        btn.textContent = '\uD83C\uDFC6 المطالبة بالمكافأة';
+      }
+    }
+    els.claimRewardBtn.addEventListener('click', requestStampReward);
+
+    // ===== AUTO-REFRESH POLLING =====
+    function startRewardPolling() {
+      if (rewardPollInterval) return;
+      rewardPollInterval = setInterval(async function() {
+        if (!currentPhone) { stopRewardPolling(); return; }
+        try {
+          const data = await api({ action:'getCustomer', phone: currentPhone });
+          if (data.success && data.customer) {
+            const c = data.customer;
+            if (!c.pendingStampReward && (c.stamps || 0) < STAMPS_REQUIRED_CLIENT) {
+              stopRewardPolling();
+              renderStamps(c.stamps || 0, c.pendingStamp || false, c.stampRewardCompleted || false, c.pendingStampReward || false);
+              showToast('\uD83C\uDF89 تمت الموافقة على المكافأة! البطاقة بدأت من جديد', 'success');
+              launchConfetti();
+            }
+          }
+        } catch (e) {}
+      }, 5000);
+    }
+    function stopRewardPolling() {
+      if (rewardPollInterval) { clearInterval(rewardPollInterval); rewardPollInterval = null; }
+    }
+
+    // ===== REDEMPTION =====
+    async function requestRedemption() {
+      const btn = els.redeemBtn;
+      btn.disabled = true;
+      btn.textContent = 'جاري الإرسال...';
+      try {
+        const data = await api({ action:'requestRedemption', phone: currentPhone });
+        if (data.success) {
+          showToast('تم إرسال طلبك للكاشير! \u2705', 'success');
+          els.rewardReady.classList.add('hidden');
+          els.pendingBadge.classList.remove('hidden');
+        } else {
+          showToast(data.message || 'مشكلة في الإرسال', 'error');
+        }
+      } catch (e) {
+        showToast('مشكلة في الاتصال', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'استخدم الخصم \u1F381';
+      }
+    }
+    els.redeemBtn.addEventListener('click', requestRedemption);
+
+    // ===== TRANSACTIONS (XSS-SAFE DOM RENDERING) =====
+    async function loadTransactions(phone) {
+      try {
+        const data = await api({ action:'getTransactions', phone: phone });
+        const list = els.txList;
+        if (!data.success || !data.transactions || data.transactions.length === 0) {
+          list.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">مفيش معاملات لحد دلوقتي</p>';
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        data.transactions.slice(0, 8).forEach(function(tx) {
+          const item = document.createElement('div');
+          item.className = 'tx-item';
+
+          const icon = document.createElement('span');
+          icon.className = 'tx-icon';
+          icon.textContent = tx.type === 'earn' ? '\u2B50' : '\u1F381';
+
+          const info = document.createElement('div');
+          info.className = 'tx-info';
+
+          const typeEl = document.createElement('div');
+          typeEl.className = 'tx-type';
+          typeEl.textContent = tx.type === 'earn' ? ('شراء بـ ' + String(tx.amount || 0) + ' جنيه') : 'استرداد خصم';
+
+          const dateEl = document.createElement('div');
+          dateEl.className = 'tx-date';
+          dateEl.textContent = String(tx.date || '');
+
+          info.appendChild(typeEl);
+          info.appendChild(dateEl);
+
+          const ptsEl = document.createElement('div');
+          ptsEl.className = 'tx-points ' + (tx.type === 'earn' ? 'earn' : 'redeem');
+          ptsEl.textContent = (tx.type === 'earn' ? '+' : '') + String(tx.points || 0);
+
+          item.appendChild(icon);
+          item.appendChild(info);
+          item.appendChild(ptsEl);
+          fragment.appendChild(item);
+        });
+        list.innerHTML = '';
+        list.appendChild(fragment);
+      } catch(e) {
+        els.txList.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">مشكلة في تحميل المعاملات</p>';
+      }
+    }
+
+    // ===== LEADERBOARD (XSS-SAFE DOM RENDERING) =====
+    async function loadLeaderboard() {
+      try {
+        const data = await api({ action:'getLeaderboard' });
+        const list = els.leaderboardList;
+        if (!data.success || !data.leaderboard || data.leaderboard.length === 0) {
+          list.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">مفيش بيانات لحد دلوقتي</p>';
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        data.leaderboard.forEach(function(c, i) {
+          const item = document.createElement('div');
+          item.className = 'leader-item';
+
+          const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+          const medal = i === 0 ? '\uD83E\uDD47' : i === 1 ? '\uD83E\uDD48' : i === 2 ? '\uD83E\uDD49' : ('#' + (i + 1));
+
+          const rank = document.createElement('div');
+          rank.className = 'leader-rank ' + rankClass;
+          rank.textContent = medal;
+
+          const name = document.createElement('div');
+          name.className = 'leader-name';
+          const firstName = String(c.name || '').split(' ')[0];
+          name.textContent = firstName;
+
+          const pts = document.createElement('div');
+          pts.className = 'leader-pts';
+          pts.textContent = String(c.points || '0') + ' نقطة';
+
+          item.appendChild(rank);
+          item.appendChild(name);
+          item.appendChild(pts);
+          fragment.appendChild(item);
+        });
+        list.innerHTML = '';
+        list.appendChild(fragment);
+      } catch(e) {
+        els.leaderboardList.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">مشكلة في تحميل البيانات</p>';
+      }
+    }
+
+    // ===== CONFETTI =====
+    function launchConfetti() {
+      const colors = ['#D4AF37', '#8B0000', '#F0C93A', '#fff', '#27AE60'];
+      els.confettiContainer.innerHTML = '';
+      for (let i = 0; i < 60; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        const size = 6 + Math.random() * 8;
+        piece.style.cssText = 'left:' + (Math.random() * 100) + 'vw;background:' + colors[Math.floor(Math.random() * colors.length)] + ';animation-duration:' + (1.5 + Math.random() * 2) + 's;animation-delay:' + (Math.random() * 0.5) + 's;transform:rotate(' + (Math.random() * 360) + 'deg);width:' + size + 'px;height:' + size + 'px;';
+        els.confettiContainer.appendChild(piece);
+      }
+      setTimeout(function() { els.confettiContainer.innerHTML = ''; }, 4000);
+    }
+
+    // ===== NAVIGATION =====
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-page').forEach(function(el) { el.classList.remove('active'); });
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+      document.querySelectorAll('.drawer-item[data-tab]').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+      });
+      closeDrawer();
+      window.scrollTo(0, 0);
+    }
+
+    // Drawer nav
+    document.getElementById('nav-home').addEventListener('click', function() { switchTab('tab-home'); });
+    document.getElementById('nav-history').addEventListener('click', function() { switchTab('tab-history'); });
+    document.getElementById('nav-leader').addEventListener('click', function() { switchTab('tab-leader'); });
+    document.getElementById('drawerCompletedBtn').addEventListener('click', function() { switchTab('tab-completed'); });
+    document.getElementById('nav-contact').addEventListener('click', function() {
+      var msg = 'مرحباً، أنا مهتم بتطوير تطبيق ولاء مشابه لشيخ البلد \u1F37D';
+      window.open('https://wa.me/201022390517?text=' + encodeURIComponent(msg), '_blank');
+      closeDrawer();
+    });
+    document.getElementById('nav-logout').addEventListener('click', logout);
+
+    function openDrawer() {
+      els.drawer.classList.add('open');
+      els.drawerOverlay.classList.add('show');
+    }
+    function closeDrawer() {
+      els.drawer.classList.remove('open');
+      els.drawerOverlay.classList.remove('show');
+    }
+    els.menuBtn.addEventListener('click', openDrawer);
+    els.drawerOverlay.addEventListener('click', closeDrawer);
+
+    // ===== LOGOUT =====
+    function logout() {
+      stopRewardPolling();
+      currentPhone = '';
+      els.dashboard.classList.add('hidden');
+      els.menuBtn.classList.add('hidden');
+      closeDrawer();
+      els.loginCard.classList.remove('hidden');
+      els.phoneInput.value = '';
+      els.phoneInput.classList.remove('error');
+      els.phoneError.style.display = 'none';
+      switchTab('tab-home');
+      // Clear session-sensitive data
+      try {
+        Object.keys(localStorage).forEach(function(k) {
+          if (k.startsWith('lastVisit_')) localStorage.removeItem(k);
+        });
+      } catch(e) {}
+    }
+
+    // ===== DARK MODE =====
+    function toggleDark() {
+      document.body.classList.toggle('dark');
+      var isDark = document.body.classList.contains('dark');
+      els.darkBtn.textContent = isDark ? '\u2600' : '\u1F319';
+      try { localStorage.setItem('darkMode', isDark); } catch(e) {}
+    }
+    els.darkBtn.addEventListener('click', toggleDark);
+    try {
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark');
+        els.darkBtn.textContent = '\u2600';
+      }
+    } catch(e) {}
+
+    // ===== HOW IT WORKS =====
+    var howItWorksItems = [
+      '\u1F6D2 كل 10 جنيه = نقطة واحدة',
+      '\u1F4F8 ارفع الفاتورة وانتظر الموافقة',
+      '\u1F381 لما توصل 100 نقطة تاخد خصم 15%',
+      '\u1F37D اجمع 10 أختام تاخد صينية هدية',
+      '\u267E\uFE0F النقاط مش بتنتهي أبداً'
+    ];
+    var howContainer = document.getElementById('howItWorks');
+    if (howContainer) {
+      howContainer.innerHTML = howItWorksItems.join('<br>');
+    }
+
+    // ===== SHARE =====
+    function shareOnWhatsapp() {
+      var pts = els.custPoints.textContent;
+      var nameRaw = els.custName.textContent || '';
+      var name = nameRaw.replace('أهلاً ', '').replace(' \uD83D\uDC4B', '');
+      var msg = 'مرحباً! أنا ' + name + ' عندي ' + pts + ' نقطة ولاء في شيخ البلد \u1F37D\nسجّل معانا: https://figo231.github.io/Sheikh-Elbalad/index.html';
+      window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msg), '_blank');
+    }
+    document.getElementById('shareBtn').addEventListener('click', shareOnWhatsapp);
+
+    // ===== PWA INSTALL =====
+    var deferredPrompt;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      els.installBanner.classList.add('show');
+    });
+    document.getElementById('installBtn').addEventListener('click', function() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function() {
+          deferredPrompt = null;
+          els.installBanner.classList.remove('show');
+        });
+      }
+    });
+    document.getElementById('dismissInstallBtn').addEventListener('click', function() {
+      els.installBanner.classList.remove('show');
+    });
+
+    // ===== SECURITY: Clear console hints =====
+    console.log('%c\u26A0 Attention', 'color:#c0392b;font-size:20px;font-weight:bold;');
+    console.log('%cThis is a browser feature intended for developers. Do not paste any code here.', 'color:#666;font-size:12px;');
+
+  })();
+</script>
+</body>
+</html>
