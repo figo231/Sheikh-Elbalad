@@ -435,28 +435,30 @@ async function apiCall(action, data = {}) {
 
 function refreshData() {
   if (!session?.phone) return;
-  apiCall('get')
+  apiCall('getCustomer')
     .then(data => {
-      if (data.found) {
+      const c = data.customer;
+      if (data.success && c) {
+        const pts = c.points || 0;
         saveSession({
           ...session,
-          name: data.name || session.name,
-          points: data.points || 0,
-          stamps: data.stamps || 0,
-          stampStatus: data.stampStatus || 'none',
-          stampClaimStatus: data.stampClaimStatus || 'none',
-          completedCards: data.completedCards || 0,
-          lastVisit: data.lastVisit || '',
-          pendingRedemption: data.pendingRedemption || false,
-          canRedeem: data.canRedeem || false,
-          level: data.level || 'bronze',
-          levelName: data.levelName || 'مشترك جديد',
-          progress: data.progress || 0,
-          progressText: data.progressText || '0 / 100',
-          redeemDiscountPercent: data.redeemDiscountPercent || 15,
-          warning80: data.warning80 || false,
-          warning80pts: data.warning80pts || 0,
-          transactions: data.transactions || session.transactions || [],
+          name: c.name || session.name,
+          points: pts,
+          stamps: c.stamps || 0,
+          stampStatus: c.pendingStamp ? 'pending' : 'none',
+          stampClaimStatus: c.pendingStampReward ? 'pending' : 'none',
+          completedCards: session.completedCards || 0,
+          lastVisit: c.lastVisit || '',
+          pendingRedemption: c.pendingRedemption || false,
+          canRedeem: pts >= 100,
+          level: session.level || 'bronze',
+          levelName: session.levelName || 'مشترك جديد',
+          progress: Math.min((pts / 100) * 100, 100),
+          progressText: pts + ' / 100',
+          redeemDiscountPercent: 15,
+          warning80: pts >= 80 && pts < 100,
+          warning80pts: pts,
+          transactions: session.transactions || [],
         });
         renderDashboard();
       }
@@ -473,7 +475,7 @@ async function handleRedeem() {
   btn.innerHTML = 'جاري التقديم... <span class="spinner"></span>';
 
   try {
-    const data = await apiCall('redeem');
+    const data = await apiCall('requestRedemption');
     if (data.success) {
       fireConfetti();
       showToast(`🎉 تم طلب الخصم ${session.redeemDiscountPercent || 15}%! انتظر الموافقة`, 'success');
@@ -496,7 +498,7 @@ async function handleStampRequest() {
   btn.innerHTML = 'جاري الإرسال... <span class="spinner"></span>';
 
   try {
-    const data = await apiCall('stamp');
+    const data = await apiCall('requestStamp');
     if (data.success) {
       showToast('✅ طلب الختم تم إرساله! انتظر الموافقة', 'success');
       refreshData();
@@ -518,7 +520,7 @@ async function handleClaimReward() {
   btn.innerHTML = 'جاري الطلب... <span class="spinner"></span>';
 
   try {
-    const data = await apiCall('claimReward');
+    const data = await apiCall('requestStampReward');
     if (data.success) {
       fireConfetti();
       showToast('🏆 تم طلب المكافأة! أبلّغ الكاشير', 'success');
@@ -573,8 +575,8 @@ async function loadLeaderboard() {
   list.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">جاري التحميل...</p>';
 
   try {
-    const data = await apiCall('leaderboard');
-    const leaders = data.leaders || [];
+    const data = await apiCall('getLeaderboard');
+    const leaders = data.leaderboard || [];
 
     if (leaders.length === 0) {
       list.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">لا يوجد بيانات</p>';
