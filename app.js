@@ -1,687 +1,665 @@
-  // ===== SECURITY MODULE =====
-  (function() {
-    'use strict';
+/**
+ * ═══════════════════════════════════════════
+ * شيخ البلد - نظام نقاط الولاء
+ * Sheikh El Balad - Loyalty Points System
+ * ═══════════════════════════════════════════
+ */
 
-    // 1. Enforce HTTPS (except localhost)
-    if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-      window.location.href = window.location.href.replace(/^http:/, 'https:');
+// ─── Configuration ───────────────────────────────────────
+const SCRIPT_URL = (() => {
+  try {
+    return window.parentScriptUrl || 'https://script.google.com/macros/s/AKfycbxqD CyberT0qM7dR0x0p5bR0C2p3pQ5l8y9/exec';
+  } catch {
+    return 'https://script.google.com/macros/s/AKfycbxqD CyberT0qM7dR0x0p5bR0C2p3pQ5l8y9/exec';
+  }
+})();
+
+const SESSION_KEY = 'skeikh_session';
+const SESSION_TTL = 30 * 60 * 1000; // 30 minutes
+
+// ─── State ───────────────────────────────────────────────
+let session = null;
+let deferredInstallPrompt = null;
+let confettiColors = ['#D4AF37', '#F0C93A', '#8B0000', '#27AE60', '#CD853F', '#FFD700', '#C0C0C0'];
+
+// ─── DOM Cache ───────────────────────────────────────────
+const $ = (id) => document.getElementById(id);
+const $$ = (sel) => document.querySelectorAll(sel);
+
+// ═══════════════════════════════════════════════════════════
+//  INITIALIZATION
+// ═══════════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  initParticles();
+  initSalahPopup();
+  initDarkMode();
+  initDrawer();
+  initInstallBanner();
+
+  // Check for existing session
+  session = loadSession();
+  if (session && session.phone) {
+    showDashboard();
+    refreshData();
+  } else {
+    showLoginCard();
+  }
+});
+
+// ─── Floating Particles ──────────────────────────────────
+function initParticles() {
+  const container = $('particles');
+  if (!container) return;
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (10 + Math.random() * 15) + 's';
+    p.style.animationDelay = Math.random() * 10 + 's';
+    p.style.width = p.style.height = (3 + Math.random() * 5) + 'px';
+    p.style.opacity = 0.15 + Math.random() * 0.3;
+    container.appendChild(p);
+  }
+}
+
+// ─── Salah Popup ─────────────────────────────────────────
+function initSalahPopup() {
+  const overlay = $('salahOverlay');
+  const closeBtn = $('salahCloseBtn');
+  if (!overlay || !closeBtn) return;
+
+  const shouldShow = () => {
+    const lastShown = localStorage.getItem('salahPopupLast');
+    if (!lastShown) return true;
+    return Date.now() - parseInt(lastShown) > 24 * 60 * 60 * 1000;
+  };
+
+  if (shouldShow()) {
+    overlay.style.display = 'flex';
+    localStorage.setItem('salahPopupLast', Date.now().toString());
+  } else {
+    overlay.style.display = 'none';
+  }
+
+  closeBtn.addEventListener('click', () => {
+    overlay.style.display = 'none';
+  });
+}
+
+// ─── Dark Mode ───────────────────────────────────────────
+function initDarkMode() {
+  const btn = $('darkBtn');
+  if (!btn) return;
+
+  const isDark = localStorage.getItem('darkMode') === 'true';
+  if (isDark) document.body.classList.add('dark');
+  updateDarkIcon(isDark);
+
+  btn.addEventListener('click', () => {
+    const nowDark = document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode', nowDark);
+    updateDarkIcon(nowDark);
+  });
+}
+
+function updateDarkIcon(isDark) {
+  const btn = $('darkBtn');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+}
+
+// ─── Drawer / Navigation ─────────────────────────────────
+function initDrawer() {
+  const menuBtn = $('menuBtn');
+  const drawer = $('drawer');
+  const overlay = $('drawerOverlay');
+  if (!menuBtn || !drawer || !overlay) return;
+
+  menuBtn.addEventListener('click', openDrawer);
+  overlay.addEventListener('click', closeDrawer);
+
+  // Nav items
+  $$('.drawer-item[data-tab]').forEach(item => {
+    item.addEventListener('click', () => {
+      const tabId = item.dataset.tab;
+      switchTab(tabId);
+      updateDrawerActive(item);
+      closeDrawer();
+    });
+  });
+
+  // Contact
+  $('nav-contact')?.addEventListener('click', () => {
+    window.open('https://wa.me/201026135795', '_blank', 'noopener,noreferrer');
+    closeDrawer();
+  });
+
+  // Logout
+  $('nav-logout')?.addEventListener('click', () => {
+    doLogout();
+    closeDrawer();
+  });
+
+  function openDrawer() {
+    drawer.classList.add('open');
+    overlay.classList.add('show');
+  }
+  function closeDrawer() {
+    drawer.classList.remove('open');
+    overlay.classList.remove('show');
+  }
+}
+
+function updateDrawerActive(activeItem) {
+  $$('.drawer-item[data-tab]').forEach(item => {
+    item.classList.toggle('active', item === activeItem);
+  });
+}
+
+function switchTab(tabId) {
+  $$('.tab-page').forEach(tab => tab.classList.remove('active'));
+  const target = $(tabId);
+  if (target) target.classList.add('active');
+
+  if (tabId === 'tab-history') loadTransactions();
+  if (tabId === 'tab-leader') loadLeaderboard();
+
+  // Update drawer active state
+  $$('.drawer-item[data-tab]').forEach(item => {
+    item.classList.toggle('active', item.dataset.tab === tabId);
+  });
+}
+
+// ─── Install Banner (PWA) ────────────────────────────────
+function initInstallBanner() {
+  const banner = $('installBanner');
+  const installBtn = $('installBtn');
+  const dismissBtn = $('dismissInstallBtn');
+  if (!banner) return;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (!localStorage.getItem('installDismissed')) {
+      banner.classList.add('show');
+    }
+  });
+
+  installBtn?.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') {
+      showToast('✅ تم التثبيت بنجاح!', 'success');
+    }
+    deferredInstallPrompt = null;
+    banner.classList.remove('show');
+  });
+
+  dismissBtn?.addEventListener('click', () => {
+    banner.classList.remove('show');
+    localStorage.setItem('installDismissed', 'true');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SESSION MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+
+function loadSession() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    // Check TTL
+    if (data.timestamp && Date.now() - data.timestamp > SESSION_TTL) {
+      sessionStorage.removeItem(SESSION_KEY);
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function saveSession(data) {
+  session = { ...data, timestamp: Date.now() };
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+}
+
+function showLoginCard() {
+  $('loginCard')?.classList.remove('hidden');
+  $('dashboard')?.classList.add('hidden');
+  $('menuBtn')?.classList.add('hidden');
+}
+
+function showDashboard() {
+  $('loginCard')?.classList.add('hidden');
+  $('dashboard')?.classList.remove('hidden');
+  $('menuBtn')?.classList.remove('hidden');
+  renderDashboard();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  DASHBOARD RENDERING
+// ═══════════════════════════════════════════════════════════
+
+function renderDashboard() {
+  if (!session) return;
+
+  // Hero
+  $('custName').textContent = session.name || 'عميلنا العزيز';
+  animateNumber('custPoints', session.points || 0);
+  $('lastVisitTxt').textContent = session.lastVisit
+    ? 'آخر زيارة: ' + session.lastVisit
+    : '';
+
+  // Level badge
+  const levelBadge = $('levelBadge');
+  const level = session.level || 'bronze';
+  const levelName = session.levelName || 'مشترك جديد';
+  const levelIcons = { bronze: '🥉', silver: '🥈', gold: '🥇', plat: '💎' };
+  levelBadge.innerHTML = `
+    <div class="level-badge level-${level}">
+      <span>${levelIcons[level] || '⭐'}</span>
+      <span>${levelName}</span>
+    </div>
+  `;
+
+  // Progress bar
+  const progress = session.progress || 0;
+  const progressText = session.progressText || '0 / 100';
+  $('progressText').textContent = progressText;
+  setTimeout(() => {
+    $('progressBar').style.width = progress + '%';
+  }, 300);
+
+  // Quick stats
+  $('statLevel').textContent = levelName;
+  $('statProgress').textContent = progress + '%';
+  $('statStamps').textContent = (session.stamps || 0) + '/10';
+
+  // Reward ready
+  if (session.canRedeem && !session.pendingRedemption) {
+    $('rewardReady')?.classList.remove('hidden');
+    $('discountPercent').textContent = session.redeemDiscountPercent || 15;
+  } else {
+    $('rewardReady')?.classList.add('hidden');
+  }
+
+  // Pending redemption
+  if (session.pendingRedemption) {
+    $('pendingBadge')?.classList.remove('hidden');
+  } else {
+    $('pendingBadge')?.classList.add('hidden');
+  }
+
+  // Warning 80%
+  if (session.warning80) {
+    $('warning80')?.classList.remove('hidden');
+    $('warning80pts').textContent = session.warning80pts || 0;
+  } else {
+    $('warning80')?.classList.add('hidden');
+  }
+
+  // Stamps
+  renderStamps(session.stamps || 0, session.stampStatus || 'none');
+
+  // Completed card tab
+  if (session.completedCards > 0) {
+    $('drawerCompletedBtn')?.classList.remove('hidden');
+    renderCompletedStamps(session.completedCards);
+  } else {
+    $('drawerCompletedBtn')?.classList.add('hidden');
+  }
+
+  // Bind redeem button
+  $('redeemBtn')?.addEventListener('click', handleRedeem);
+  $('stampRequestBtn')?.addEventListener('click', handleStampRequest);
+  $('claimRewardBtn')?.addEventListener('click', handleClaimReward);
+  $('logoutBtn')?.addEventListener('click', doLogout);
+  $('shareBtn')?.addEventListener('click', handleShare);
+}
+
+// ─── Number Animation ────────────────────────────────────
+function animateNumber(elementId, targetValue) {
+  const el = $(elementId);
+  if (!el) return;
+  const duration = 1200;
+  const startTime = performance.now();
+  const startValue = 0;
+
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // Ease out cubic
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(startValue + (targetValue - startValue) * ease);
+    el.textContent = current.toLocaleString('ar-EG');
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ─── Stamps Grid ─────────────────────────────────────────
+function renderStamps(count, status) {
+  const grid = $('stampsGrid');
+  const countEl = $('stampCount');
+  const requestBtn = $('stampRequestBtn');
+  const rewardReady = $('stampRewardReady');
+  const stampPending = $('stampPending');
+  const claimBtn = $('claimRewardBtn');
+  const claimPending = $('rewardClaimPending');
+
+  if (!grid) return;
+
+  countEl.textContent = count;
+  grid.innerHTML = '';
+
+  for (let i = 0; i < 10; i++) {
+    const stamp = document.createElement('div');
+    stamp.className = 'stamp' + (i < count ? ' filled' : '');
+    stamp.textContent = i < count ? '🍽️' : '';
+    grid.appendChild(stamp);
+  }
+
+  // Status management
+  if (status === 'completed') {
+    rewardReady.style.display = 'block';
+    requestBtn.style.display = 'none';
+    stampPending.style.display = 'none';
+    if (session.stampClaimStatus === 'pending') {
+      claimBtn.style.display = 'none';
+      claimPending.style.display = 'block';
+    } else {
+      claimBtn.style.display = 'block';
+      claimPending.style.display = 'none';
+    }
+  } else if (status === 'pending') {
+    rewardReady.style.display = 'none';
+    requestBtn.style.display = 'none';
+    stampPending.style.display = 'block';
+    claimBtn.style.display = 'none';
+    claimPending.style.display = 'none';
+  } else {
+    rewardReady.style.display = 'none';
+    requestBtn.style.display = 'block';
+    stampPending.style.display = 'none';
+    claimBtn.style.display = 'none';
+    claimPending.style.display = 'none';
+    requestBtn.disabled = false;
+    requestBtn.innerHTML = '✨ طلب ختم جديد';
+  }
+}
+
+function renderCompletedStamps(completedCount) {
+  const grid = $('completedStampsGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const totalStamps = completedCount * 10;
+  for (let i = 0; i < Math.min(totalStamps, 10); i++) {
+    const stamp = document.createElement('div');
+    stamp.className = 'stamp filled';
+    stamp.textContent = '🍽️';
+    grid.appendChild(stamp);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  API CALLS
+// ═══════════════════════════════════════════════════════════
+
+async function apiCall(action, data = {}) {
+  if (!session?.phone) throw new Error('No session');
+
+  const params = new URLSearchParams();
+  params.append('phone', session.phone);
+  params.append('action', action);
+  Object.keys(data).forEach(key => params.append(key, data[key]));
+
+  const res = await fetch(SCRIPT_URL + '?' + params.toString(), {
+    method: 'GET',
+    redirect: 'follow'
+  });
+  const text = await res.text();
+
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    const clean = text.replace(/^[^{]*/, '').replace(/[^}]*$/, '');
+    json = JSON.parse(clean);
+  }
+  return json;
+}
+
+function refreshData() {
+  if (!session?.phone) return;
+  apiCall('get')
+    .then(data => {
+      if (data.found) {
+        saveSession({
+          ...session,
+          name: data.name || session.name,
+          points: data.points || 0,
+          stamps: data.stamps || 0,
+          stampStatus: data.stampStatus || 'none',
+          stampClaimStatus: data.stampClaimStatus || 'none',
+          completedCards: data.completedCards || 0,
+          lastVisit: data.lastVisit || '',
+          pendingRedemption: data.pendingRedemption || false,
+          canRedeem: data.canRedeem || false,
+          level: data.level || 'bronze',
+          levelName: data.levelName || 'مشترك جديد',
+          progress: data.progress || 0,
+          progressText: data.progressText || '0 / 100',
+          redeemDiscountPercent: data.redeemDiscountPercent || 15,
+          warning80: data.warning80 || false,
+          warning80pts: data.warning80pts || 0,
+          transactions: data.transactions || session.transactions || [],
+        });
+        renderDashboard();
+      }
+    })
+    .catch(() => {
+      // Silently fail on refresh
+    });
+}
+
+// ─── Redeem ──────────────────────────────────────────────
+async function handleRedeem() {
+  const btn = $('redeemBtn');
+  btn.disabled = true;
+  btn.innerHTML = 'جاري التقديم... <span class="spinner"></span>';
+
+  try {
+    const data = await apiCall('redeem');
+    if (data.success) {
+      fireConfetti();
+      showToast(`🎉 تم طلب الخصم ${session.redeemDiscountPercent || 15}%! انتظر الموافقة`, 'success');
+      refreshData();
+    } else {
+      showToast('❌ ' + (data.message || 'مشكلة في الطلب'), 'error');
+    }
+  } catch {
+    showToast('⚠️ مشكلة في الاتصال', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'استخدم الخصم 🎁';
+  }
+}
+
+// ─── Stamp Request ───────────────────────────────────────
+async function handleStampRequest() {
+  const btn = $('stampRequestBtn');
+  btn.disabled = true;
+  btn.innerHTML = 'جاري الإرسال... <span class="spinner"></span>';
+
+  try {
+    const data = await apiCall('stamp');
+    if (data.success) {
+      showToast('✅ طلب الختم تم إرساله! انتظر الموافقة', 'success');
+      refreshData();
+    } else {
+      showToast('❌ ' + (data.message || 'مشكلة في الطلب'), 'error');
+    }
+  } catch {
+    showToast('⚠️ مشكلة في الاتصال', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✨ طلب ختم جديد';
+  }
+}
+
+// ─── Claim Reward ────────────────────────────────────────
+async function handleClaimReward() {
+  const btn = $('claimRewardBtn');
+  btn.disabled = true;
+  btn.innerHTML = 'جاري الطلب... <span class="spinner"></span>';
+
+  try {
+    const data = await apiCall('claimReward');
+    if (data.success) {
+      fireConfetti();
+      showToast('🏆 تم طلب المكافأة! أبلّغ الكاشير', 'success');
+      refreshData();
+    } else {
+      showToast('❌ ' + (data.message || 'مشكلة في الطلب'), 'error');
+    }
+  } catch {
+    showToast('⚠️ مشكلة في الاتصال', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🏆 المطالبة بالمكافأة';
+  }
+}
+
+// ─── Transactions ────────────────────────────────────────
+function loadTransactions() {
+  const txList = $('txList');
+  if (!txList) return;
+
+  const txs = session?.transactions || [];
+  if (txs.length === 0) {
+    txList.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">لا توجد معاملات حتى الآن</p>';
+    return;
+  }
+
+  txList.innerHTML = '';
+  txs.slice(0, 20).forEach(tx => {
+    const isEarn = tx.points > 0;
+    const item = document.createElement('div');
+    item.className = 'tx-item';
+    item.innerHTML = `
+      <div class="tx-icon">${isEarn ? '🟢' : '🔴'}</div>
+      <div class="tx-info">
+        <div class="tx-type">${tx.type || (isEarn ? 'كسب نقاط' : 'استبدال')}</div>
+        <div class="tx-date">${tx.date || ''}</div>
+      </div>
+      <div class="tx-points ${isEarn ? 'earn' : 'redeem'}">
+        ${isEarn ? '+' : ''}${tx.points}
+      </div>
+    `;
+    txList.appendChild(item);
+  });
+}
+
+// ─── Leaderboard ─────────────────────────────────────────
+async function loadLeaderboard() {
+  const list = $('leaderboardList');
+  const shareCard = $('shareCard');
+  if (!list) return;
+
+  list.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">جاري التحميل...</p>';
+
+  try {
+    const data = await apiCall('leaderboard');
+    const leaders = data.leaders || [];
+
+    if (leaders.length === 0) {
+      list.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">لا يوجد بيانات</p>';
       return;
     }
 
-    // 2. API URL hidden inside closure - not exposed globally
-    const SCRIPT_URL = atob('aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3YkhSdlExVTZNZEZteUQ2MXJLNmhTeW1aQ1lYX09mX3p3bDMtMUxHcHZoVlRCajFPbWcweVRBV3U3Uk9Gdk03NzcvZXhlYw==');
-    // Base64 decoded: https://script.google.com/macros/s/AKfycbxgU4jZaGDdhjMGy6-80GjrzV0mHvIO8kgz_jdjRnaPOGeeAVFcPz37jVQQNMJY9Yfi/exec
+    list.innerHTML = '';
+    leaders.forEach((leader, i) => {
+      const rank = i + 1;
+      const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-other';
+      const rankIcons = { 1: '🥇', 2: '🥈', 3: '🥉' };
+      const isMe = leader.phone === session?.phone;
 
-    // 3. Escape HTML to prevent XSS
-    function escapeHTML(str) {
-      if (typeof str !== 'string') return '';
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    // 4. Sanitize phone number
-    function sanitizePhone(phone) {
-      return String(phone).replace(/\D/g, '').slice(0, 11);
-    }
-
-    // 5. Validate Egyptian phone
-    function isValidEgyptianPhone(phone) {
-      return /^01[0-2,5]{1}[0-9]{8}$/.test(phone);
-    }
-
-    // 6. Rate limiter
-    const rateLimiter = {
-      timestamps: [],
-      maxRequests: 10,
-      windowMs: 60000, // 1 minute
-      canProceed() {
-        const now = Date.now();
-        this.timestamps = this.timestamps.filter(t => now - t < this.windowMs);
-        if (this.timestamps.length >= this.maxRequests) return false;
-        this.timestamps.push(now);
-        return true;
-      }
-    };
-
-    // 7. Brute force protection for login
-    const bruteForce = {
-      attempts: parseInt(sessionStorage.getItem('bf_attempts') || '0', 10),
-      lockoutEnd: parseInt(sessionStorage.getItem('bf_lockout') || '0', 10),
-      maxAttempts: 5,
-      lockoutMinutes: 15,
-      isLocked() {
-        const now = Date.now();
-        if (now < this.lockoutEnd) return true;
-        if (this.lockoutEnd > 0 && now >= this.lockoutEnd) {
-          // Lockout expired, reset
-          this.attempts = 0;
-          this.lockoutEnd = 0;
-          sessionStorage.removeItem('bf_attempts');
-          sessionStorage.removeItem('bf_lockout');
-        }
-        return false;
-      },
-      recordFail() {
-        this.attempts++;
-        sessionStorage.setItem('bf_attempts', String(this.attempts));
-        if (this.attempts >= this.maxAttempts) {
-          this.lockoutEnd = Date.now() + (this.lockoutMinutes * 60000);
-          sessionStorage.setItem('bf_lockout', String(this.lockoutEnd));
-        }
-      },
-      recordSuccess() {
-        this.attempts = 0;
-        this.lockoutEnd = 0;
-        sessionStorage.removeItem('bf_attempts');
-        sessionStorage.removeItem('bf_lockout');
-      },
-      getRemainingMinutes() {
-        return Math.ceil((this.lockoutEnd - Date.now()) / 60000);
-      }
-    };
-
-    // 8. Secure API call wrapper
-    async function api(params) {
-      if (!rateLimiter.canProceed()) {
-        throw new Error('Rate limit exceeded. Please wait a minute.');
-      }
-      try {
-        const url = new URL(SCRIPT_URL);
-        Object.entries(params).forEach(([k, v]) => {
-          if (typeof v === 'string') {
-            url.searchParams.set(k, v);
-          } else {
-            url.searchParams.set(k, String(v));
-          }
-        });
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
-        const res = await fetch(url.toString(), { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return await res.json();
-      } catch (e) {
-        if (e.name === 'AbortError') throw new Error('Request timed out');
-        throw e;
-      }
-    }
-
-    // ===== STATE =====
-    let currentPhone = '';
-    let rewardPollInterval = null;
-    const STAMPS_REQUIRED_CLIENT = 10;
-
-    // ===== DOM REFERENCES =====
-    const els = {
-      phoneInput: document.getElementById('phoneInput'),
-      phoneError: document.getElementById('phoneError'),
-      lookupBtn: document.getElementById('lookupBtn'),
-      loginBtnText: document.getElementById('loginBtnText'),
-      loginCard: document.getElementById('loginCard'),
-      dashboard: document.getElementById('dashboard'),
-      menuBtn: document.getElementById('menuBtn'),
-      custName: document.getElementById('custName'),
-      custPoints: document.getElementById('custPoints'),
-      levelBadge: document.getElementById('levelBadge'),
-      lastVisitTxt: document.getElementById('lastVisitTxt'),
-      progressBar: document.getElementById('progressBar'),
-      progressText: document.getElementById('progressText'),
-      rewardReady: document.getElementById('rewardReady'),
-      redeemBtn: document.getElementById('redeemBtn'),
-      pendingBadge: document.getElementById('pendingBadge'),
-      warning80: document.getElementById('warning80'),
-      warning80pts: document.getElementById('warning80pts'),
-      stampsGrid: document.getElementById('stampsGrid'),
-      stampCount: document.getElementById('stampCount'),
-      stampRequestBtn: document.getElementById('stampRequestBtn'),
-      stampRewardReady: document.getElementById('stampRewardReady'),
-      stampPending: document.getElementById('stampPending'),
-      claimRewardBtn: document.getElementById('claimRewardBtn'),
-      rewardClaimPending: document.getElementById('rewardClaimPending'),
-      drawerCompletedBtn: document.getElementById('drawerCompletedBtn'),
-      txList: document.getElementById('txList'),
-      leaderboardList: document.getElementById('leaderboardList'),
-      shareCard: document.getElementById('shareCard'),
-      completedStampsGrid: document.getElementById('completedStampsGrid'),
-      toast: document.getElementById('toast'),
-      confettiContainer: document.getElementById('confettiContainer'),
-      darkBtn: document.getElementById('darkBtn'),
-      salahOverlay: document.getElementById('salahOverlay'),
-      drawer: document.getElementById('drawer'),
-      drawerOverlay: document.getElementById('drawerOverlay'),
-      installBanner: document.getElementById('installBanner'),
-      lockoutMsg: document.getElementById('lockoutMsg'),
-      lockoutTimer: document.getElementById('lockoutTimer'),
-    };
-
-    // ===== SALAH POPUP =====
-    const salahClosed = localStorage.getItem('salahClosed');
-    if (salahClosed === '1') {
-      els.salahOverlay.style.display = 'none';
-    }
-    document.getElementById('salahCloseBtn').addEventListener('click', function() {
-      localStorage.setItem('salahClosed', '1');
-      els.salahOverlay.style.animation = 'fadeInOv 0.3s ease reverse';
-      setTimeout(function() { els.salahOverlay.remove(); }, 280);
+      const item = document.createElement('div');
+      item.className = 'leader-item';
+      if (isMe) item.style.background = 'rgba(212,175,55,0.08)';
+      item.innerHTML = `
+        <div class="leader-rank ${rankClass}">${rankIcons[rank] || rank}</div>
+        <div class="leader-name">${leader.name || 'عميل'}${isMe ? ' <span style="color:var(--gold);font-size:10px;">(أنت)</span>' : ''}</div>
+        <div class="leader-pts">${(leader.points || 0).toLocaleString('ar-EG')}</div>
+      `;
+      list.appendChild(item);
     });
 
-    // ===== TOAST =====
-    function showToast(msg, type) {
-      els.toast.textContent = msg;
-      els.toast.className = (type || '') + ' show';
-      setTimeout(function() { els.toast.classList.remove('show'); }, 3000);
-    }
+    shareCard.style.display = 'block';
+  } catch {
+    list.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">⚠️ خطأ في التحميل</p>';
+  }
+}
 
-    // ===== LOGIN / LOOKUP =====
-    function setLoading(isLoading) {
-      els.lookupBtn.disabled = isLoading;
-      els.loginBtnText.innerHTML = isLoading ? 'جاري البحث <span class="spinner"></span>' : 'عرض نقاطي';
-    }
+// ─── Share ───────────────────────────────────────────────
+function handleShare() {
+  const text = `🏆 أنا في نظام ولاء شيخ البلد!\n` +
+    `⭐ عندي ${session?.points || 0} نقطة\n` +
+    `🍽️ ${session?.stamps || 0} أختام من 10\n` +
+    `💎 المرحلة: ${session?.levelName || 'مشترك جديد'}\n\n` +
+    `انضم لينا: https://sheikhelbalad.com`;
 
-    async function lookupCustomer() {
-      // Check brute force lockout
-      if (bruteForce.isLocked()) {
-        const mins = bruteForce.getRemainingMinutes();
-        els.lockoutTimer.textContent = mins;
-        els.lockoutMsg.style.display = 'block';
-        showToast('الحساب مقفول مؤقتاً. انتظر ' + mins + ' دقيقة.', 'error');
-        return;
-      }
-      els.lockoutMsg.style.display = 'none';
+  const url = 'https://wa.me/?text=' + encodeURIComponent(text);
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
 
-      const rawPhone = els.phoneInput.value;
-      const phone = sanitizePhone(rawPhone);
-      els.phoneInput.value = phone;
+// ─── Logout ──────────────────────────────────────────────
+function doLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  session = null;
+  showLoginCard();
+  showToast('👋 تم تسجيل الخروج بنجاح');
+}
 
-      if (!isValidEgyptianPhone(phone)) {
-        els.phoneInput.classList.add('error');
-        els.phoneError.style.display = 'block';
-        showToast('ادخل رقم مصري صحيح (11 رقم يبدأ بـ 01)', 'error');
-        bruteForce.recordFail();
-        return;
-      }
-      els.phoneInput.classList.remove('error');
-      els.phoneError.style.display = 'none';
+// ═══════════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════════
 
-      setLoading(true);
-      try {
-        const data = await api({ action:'getCustomer', phone: phone });
-        if (data.success && data.customer) {
-          bruteForce.recordSuccess();
-          currentPhone = phone;
-          renderDashboard(data.customer);
-          loadTransactions(phone);
-        } else {
-          bruteForce.recordFail();
-          showToast('الرقم ده مش مسجل عندنا، تكلم الكاشير', 'error');
-        }
-      } catch (e) {
-        showToast('في مشكلة في الاتصال، حاول تاني', 'error');
-      } finally {
-        setLoading(false);
-      }
-    }
+function showToast(msg, type) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = type || '';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
 
-    els.lookupBtn.addEventListener('click', lookupCustomer);
-    els.phoneInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') lookupCustomer();
-    });
-    els.phoneInput.addEventListener('input', function() {
-      // Auto-sanitize: digits only
-      this.value = this.value.replace(/\D/g, '').slice(0, 11);
-      if (this.classList.contains('error')) {
-        this.classList.remove('error');
-        els.phoneError.style.display = 'none';
-      }
-    });
+// ─── Confetti Effect ─────────────────────────────────────
+function fireConfetti() {
+  const container = $('confettiContainer');
+  if (!container) return;
 
-    // ===== RENDER DASHBOARD (XSS-SAFE) =====
-    function renderDashboard(c) {
-      if (!c || typeof c !== 'object') return;
-      els.loginCard.classList.add('hidden');
-      els.dashboard.classList.remove('hidden');
-      els.menuBtn.classList.remove('hidden');
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+    piece.style.animationDelay = Math.random() * 0.5 + 's';
+    piece.style.width = (6 + Math.random() * 8) + 'px';
+    piece.style.height = (6 + Math.random() * 8) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 4500);
+  }
+}
 
-      // Use textContent for user data - XSS safe
-      els.custName.textContent = 'أهلاً ' + String(c.name || '').trim() + ' \uD83D\uDC4B';
-      els.custPoints.textContent = String(c.points || '0');
-
-      const threshold = c.threshold || 100;
-      const pts = Math.min(parseInt(c.points || 0, 10), 999999);
-      const pct = Math.min((pts / threshold) * 100, 100);
-      els.progressBar.style.width = pct + '%';
-      els.progressText.textContent = pts + ' / ' + threshold;
-
-      const remaining = Math.max(threshold - pts, 0);
-      renderLevel(pts);
-
-      // Last visit
-      const lastVisitKey = 'lastVisit_' + String(c.phone || '').replace(/\D/g, '');
-      const now = new Date();
-      try {
-        const lastVisit = localStorage.getItem(lastVisitKey);
-        if (lastVisit) {
-          const diff = Math.floor((now - new Date(lastVisit)) / (1000*60*60*24));
-          let txt;
-          if (diff === 0) txt = 'آخر زيارة: النهارده';
-          else if (diff === 1) txt = 'آخر زيارة: إمبارح';
-          else txt = 'آخر زيارة: منذ ' + diff + ' يوم';
-          els.lastVisitTxt.textContent = txt;
-        }
-        localStorage.setItem(lastVisitKey, now.toISOString());
-      } catch(e) { /* localStorage blocked */ }
-
-      els.rewardReady.classList.toggle('hidden', pts < threshold || !!c.pendingRedemption);
-      els.pendingBadge.classList.toggle('hidden', !c.pendingRedemption);
-
-      if (pts >= threshold && !c.pendingRedemption) launchConfetti();
-
-      loadLeaderboard();
-      renderStamps(
-        c.stamps || 0,
-        c.pendingStamp || false,
-        c.stampRewardCompleted || false,
-        c.pendingStampReward || false
-      );
-
-      els.shareCard.style.display = 'block';
-      if (pts >= threshold * 0.8 && pts < threshold) {
-        els.warning80.classList.remove('hidden');
-        els.warning80pts.textContent = String(remaining);
-      } else {
-        els.warning80.classList.add('hidden');
-      }
-    }
-
-    function renderLevel(points) {
-      let level, cls;
-      if (points >= 500)      { level = 'بلاتيني \uD83D\uDC8E'; cls = 'level-plat'; }
-      else if (points >= 200) { level = 'ذهبي \uD83E\uDD47'; cls = 'level-gold'; }
-      else if (points >= 100) { level = 'فضي \uD83E\uDD48'; cls = 'level-silver'; }
-      else                    { level = 'برونزي \uD83E\uDD49'; cls = 'level-bronze'; }
-      els.levelBadge.innerHTML = '<span class="level-badge ' + cls + '">' + escapeHTML(level) + '</span>';
-    }
-
-    // ===== STAMPS (XSS-SAFE) =====
-    function renderStamps(stamps, pendingStamp, rewardCompleted, pendingStampReward) {
-      const count = Math.min(Math.max(parseInt(stamps || 0, 10), 0), 999);
-      els.stampCount.textContent = String(count);
-      els.stampsGrid.innerHTML = '';
-
-      const fragment = document.createDocumentFragment();
-      for (let i = 0; i < 10; i++) {
-        const div = document.createElement('div');
-        div.className = 'stamp' + (i < count ? ' filled' : '');
-        div.textContent = i < count ? '\uD83C\uDF7D' : '';
-        fragment.appendChild(div);
-      }
-      els.stampsGrid.appendChild(fragment);
-
-      els.stampRewardReady.style.display = 'none';
-      els.stampPending.style.display = 'none';
-      els.claimRewardBtn.style.display = 'none';
-      els.rewardClaimPending.style.display = 'none';
-      els.stampRequestBtn.style.display = 'none';
-
-      if (rewardCompleted) {
-        els.drawerCompletedBtn.classList.remove('hidden');
-        renderCompletedCard();
-        return;
-      }
-
-      els.drawerCompletedBtn.classList.add('hidden');
-
-      if (count >= 10) {
-        if (pendingStampReward) {
-          els.stampRewardReady.style.display = 'block';
-          els.rewardClaimPending.style.display = 'block';
-          startRewardPolling();
-        } else {
-          els.stampRewardReady.style.display = 'block';
-          els.claimRewardBtn.style.display = 'block';
-          els.claimRewardBtn.disabled = false;
-          els.claimRewardBtn.textContent = '\uD83C\uDFC6 المطالبة بالمكافأة';
-          stopRewardPolling();
-        }
-      } else if (pendingStamp) {
-        els.stampPending.style.display = 'block';
-        els.stampRequestBtn.disabled = true;
-        els.stampRequestBtn.textContent = '\u23F3 في انتظار الموافقة';
-        els.stampRequestBtn.style.display = 'block';
-        stopRewardPolling();
-      } else {
-        els.stampRequestBtn.style.display = 'block';
-        els.stampRequestBtn.disabled = false;
-        els.stampRequestBtn.textContent = '\u1FA84 طلب ختم جديد';
-        stopRewardPolling();
-      }
-    }
-
-    function renderCompletedCard() {
-      els.completedStampsGrid.innerHTML = '';
-      const fragment = document.createDocumentFragment();
-      for (let i = 0; i < 10; i++) {
-        const div = document.createElement('div');
-        div.className = 'stamp filled';
-        div.textContent = '\uD83C\uDF7D';
-        fragment.appendChild(div);
-      }
-      els.completedStampsGrid.appendChild(fragment);
-    }
-
-    // ===== STAMP ACTIONS =====
-    async function requestStamp() {
-      const btn = els.stampRequestBtn;
-      btn.disabled = true;
-      btn.textContent = 'جاري الإرسال...';
-      try {
-        const data = await api({ action:'requestStamp', phone: currentPhone });
-        if (data.success) {
-          showToast('تم إرسال طلب الختم للأدمن \u2705', 'success');
-          els.stampPending.style.display = 'block';
-          btn.textContent = '\u23F3 في انتظار الموافقة';
-        } else {
-          showToast(data.message || 'مشكلة في الإرسال', 'error');
-          btn.disabled = false;
-          btn.textContent = '\u1FA84 طلب ختم جديد';
-        }
-      } catch (e) {
-        showToast('مشكلة في الاتصال', 'error');
-        btn.disabled = false;
-        btn.textContent = '\u1FA84 طلب ختم جديد';
-      }
-    }
-    els.stampRequestBtn.addEventListener('click', requestStamp);
-
-    async function requestStampReward() {
-      const btn = els.claimRewardBtn;
-      btn.disabled = true;
-      btn.textContent = 'جاري الإرسال...';
-      try {
-        const data = await api({ action:'requestStampReward', phone: currentPhone });
-        if (data.success) {
-          showToast('تم إرسال طلب المكافأة للأدمن \u2705', 'success');
-          els.rewardClaimPending.style.display = 'block';
-          btn.style.display = 'none';
-        } else {
-          showToast(data.message || 'مشكلة في الإرسال', 'error');
-          btn.disabled = false;
-          btn.textContent = '\uD83C\uDFC6 المطالبة بالمكافأة';
-        }
-      } catch (e) {
-        showToast('مشكلة في الاتصال', 'error');
-        btn.disabled = false;
-        btn.textContent = '\uD83C\uDFC6 المطالبة بالمكافأة';
-      }
-    }
-    els.claimRewardBtn.addEventListener('click', requestStampReward);
-
-    // ===== AUTO-REFRESH POLLING =====
-    function startRewardPolling() {
-      if (rewardPollInterval) return;
-      rewardPollInterval = setInterval(async function() {
-        if (!currentPhone) { stopRewardPolling(); return; }
-        try {
-          const data = await api({ action:'getCustomer', phone: currentPhone });
-          if (data.success && data.customer) {
-            const c = data.customer;
-            if (!c.pendingStampReward && (c.stamps || 0) < STAMPS_REQUIRED_CLIENT) {
-              stopRewardPolling();
-              renderStamps(c.stamps || 0, c.pendingStamp || false, c.stampRewardCompleted || false, c.pendingStampReward || false);
-              showToast('\uD83C\uDF89 تمت الموافقة على المكافأة! البطاقة بدأت من جديد', 'success');
-              launchConfetti();
-            }
-          }
-        } catch (e) {}
-      }, 5000);
-    }
-    function stopRewardPolling() {
-      if (rewardPollInterval) { clearInterval(rewardPollInterval); rewardPollInterval = null; }
-    }
-
-    // ===== REDEMPTION =====
-    async function requestRedemption() {
-      const btn = els.redeemBtn;
-      btn.disabled = true;
-      btn.textContent = 'جاري الإرسال...';
-      try {
-        const data = await api({ action:'requestRedemption', phone: currentPhone });
-        if (data.success) {
-          showToast('تم إرسال طلبك للكاشير! \u2705', 'success');
-          els.rewardReady.classList.add('hidden');
-          els.pendingBadge.classList.remove('hidden');
-        } else {
-          showToast(data.message || 'مشكلة في الإرسال', 'error');
-        }
-      } catch (e) {
-        showToast('مشكلة في الاتصال', 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'استخدم الخصم \u1F381';
-      }
-    }
-    els.redeemBtn.addEventListener('click', requestRedemption);
-
-    // ===== TRANSACTIONS (XSS-SAFE DOM RENDERING) =====
-    async function loadTransactions(phone) {
-      try {
-        const data = await api({ action:'getTransactions', phone: phone });
-        const list = els.txList;
-        if (!data.success || !data.transactions || data.transactions.length === 0) {
-          list.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">مفيش معاملات لحد دلوقتي</p>';
-          return;
-        }
-        const fragment = document.createDocumentFragment();
-        data.transactions.slice(0, 8).forEach(function(tx) {
-          const item = document.createElement('div');
-          item.className = 'tx-item';
-
-          const icon = document.createElement('span');
-          icon.className = 'tx-icon';
-          icon.textContent = tx.type === 'earn' ? '\u2B50' : '\u1F381';
-
-          const info = document.createElement('div');
-          info.className = 'tx-info';
-
-          const typeEl = document.createElement('div');
-          typeEl.className = 'tx-type';
-          typeEl.textContent = tx.type === 'earn' ? ('شراء بـ ' + String(tx.amount || 0) + ' جنيه') : 'استرداد خصم';
-
-          const dateEl = document.createElement('div');
-          dateEl.className = 'tx-date';
-          dateEl.textContent = String(tx.date || '');
-
-          info.appendChild(typeEl);
-          info.appendChild(dateEl);
-
-          const ptsEl = document.createElement('div');
-          ptsEl.className = 'tx-points ' + (tx.type === 'earn' ? 'earn' : 'redeem');
-          ptsEl.textContent = (tx.type === 'earn' ? '+' : '') + String(tx.points || 0);
-
-          item.appendChild(icon);
-          item.appendChild(info);
-          item.appendChild(ptsEl);
-          fragment.appendChild(item);
-        });
-        list.innerHTML = '';
-        list.appendChild(fragment);
-      } catch(e) {
-        els.txList.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">مشكلة في تحميل المعاملات</p>';
-      }
-    }
-
-    // ===== LEADERBOARD (XSS-SAFE DOM RENDERING) =====
-    async function loadLeaderboard() {
-      try {
-        const data = await api({ action:'getLeaderboard' });
-        const list = els.leaderboardList;
-        if (!data.success || !data.leaderboard || data.leaderboard.length === 0) {
-          list.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">مفيش بيانات لحد دلوقتي</p>';
-          return;
-        }
-        const fragment = document.createDocumentFragment();
-        data.leaderboard.forEach(function(c, i) {
-          const item = document.createElement('div');
-          item.className = 'leader-item';
-
-          const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
-          const medal = i === 0 ? '\uD83E\uDD47' : i === 1 ? '\uD83E\uDD48' : i === 2 ? '\uD83E\uDD49' : ('#' + (i + 1));
-
-          const rank = document.createElement('div');
-          rank.className = 'leader-rank ' + rankClass;
-          rank.textContent = medal;
-
-          const name = document.createElement('div');
-          name.className = 'leader-name';
-          const firstName = String(c.name || '').split(' ')[0];
-          name.textContent = firstName;
-
-          const pts = document.createElement('div');
-          pts.className = 'leader-pts';
-          pts.textContent = String(c.points || '0') + ' نقطة';
-
-          item.appendChild(rank);
-          item.appendChild(name);
-          item.appendChild(pts);
-          fragment.appendChild(item);
-        });
-        list.innerHTML = '';
-        list.appendChild(fragment);
-      } catch(e) {
-        els.leaderboardList.innerHTML = '<p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">مشكلة في تحميل البيانات</p>';
-      }
-    }
-
-    // ===== CONFETTI =====
-    function launchConfetti() {
-      const colors = ['#D4AF37', '#8B0000', '#F0C93A', '#fff', '#27AE60'];
-      els.confettiContainer.innerHTML = '';
-      for (let i = 0; i < 60; i++) {
-        const piece = document.createElement('div');
-        piece.className = 'confetti-piece';
-        const size = 6 + Math.random() * 8;
-        piece.style.cssText = 'left:' + (Math.random() * 100) + 'vw;background:' + colors[Math.floor(Math.random() * colors.length)] + ';animation-duration:' + (1.5 + Math.random() * 2) + 's;animation-delay:' + (Math.random() * 0.5) + 's;transform:rotate(' + (Math.random() * 360) + 'deg);width:' + size + 'px;height:' + size + 'px;';
-        els.confettiContainer.appendChild(piece);
-      }
-      setTimeout(function() { els.confettiContainer.innerHTML = ''; }, 4000);
-    }
-
-    // ===== NAVIGATION =====
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-page').forEach(function(el) { el.classList.remove('active'); });
-      const target = document.getElementById(tabId);
-      if (target) target.classList.add('active');
-      document.querySelectorAll('.drawer-item[data-tab]').forEach(function(btn) {
-        btn.classList.toggle('active', btn.dataset.tab === tabId);
-      });
-      closeDrawer();
-      window.scrollTo(0, 0);
-    }
-
-    // Drawer nav
-    document.getElementById('nav-home').addEventListener('click', function() { switchTab('tab-home'); });
-    document.getElementById('nav-history').addEventListener('click', function() { switchTab('tab-history'); });
-    document.getElementById('nav-leader').addEventListener('click', function() { switchTab('tab-leader'); });
-    document.getElementById('drawerCompletedBtn').addEventListener('click', function() { switchTab('tab-completed'); });
-    document.getElementById('nav-contact').addEventListener('click', function() {
-      var msg = 'مرحباً، أنا مهتم بتطوير تطبيق ولاء مشابه لشيخ البلد \u1F37D';
-      window.open('https://wa.me/201022390517?text=' + encodeURIComponent(msg), '_blank');
-      closeDrawer();
-    });
-    document.getElementById('nav-logout').addEventListener('click', logout);
-
-    function openDrawer() {
-      els.drawer.classList.add('open');
-      els.drawerOverlay.classList.add('show');
-    }
-    function closeDrawer() {
-      els.drawer.classList.remove('open');
-      els.drawerOverlay.classList.remove('show');
-    }
-    els.menuBtn.addEventListener('click', openDrawer);
-    els.drawerOverlay.addEventListener('click', closeDrawer);
-
-    // ===== LOGOUT =====
-    function logout() {
-      stopRewardPolling();
-      currentPhone = '';
-      els.dashboard.classList.add('hidden');
-      els.menuBtn.classList.add('hidden');
-      closeDrawer();
-      els.loginCard.classList.remove('hidden');
-      els.phoneInput.value = '';
-      els.phoneInput.classList.remove('error');
-      els.phoneError.style.display = 'none';
-      switchTab('tab-home');
-      // Clear session-sensitive data
-      try {
-        Object.keys(localStorage).forEach(function(k) {
-          if (k.startsWith('lastVisit_')) localStorage.removeItem(k);
-        });
-      } catch(e) {}
-    }
-
-    // ===== DARK MODE =====
-    function toggleDark() {
-      document.body.classList.toggle('dark');
-      var isDark = document.body.classList.contains('dark');
-      els.darkBtn.textContent = isDark ? '\u2600' : '\u1F319';
-      try { localStorage.setItem('darkMode', isDark); } catch(e) {}
-    }
-    els.darkBtn.addEventListener('click', toggleDark);
-    try {
-      if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark');
-        els.darkBtn.textContent = '\u2600';
-      }
-    } catch(e) {}
-
-    // ===== HOW IT WORKS =====
-    var howItWorksItems = [
-      '\u1F6D2 كل 10 جنيه = نقطة واحدة',
-      '\u1F4F8 ارفع الفاتورة وانتظر الموافقة',
-      '\u1F381 لما توصل 100 نقطة تاخد خصم 15%',
-      '\u1F37D اجمع 10 أختام تاخد صينية هدية',
-      '\u267E\uFE0F النقاط مش بتنتهي أبداً'
-    ];
-    var howContainer = document.getElementById('howItWorks');
-    if (howContainer) {
-      howContainer.innerHTML = howItWorksItems.join('<br>');
-    }
-
-    // ===== SHARE =====
-    function shareOnWhatsapp() {
-      var pts = els.custPoints.textContent;
-      var nameRaw = els.custName.textContent || '';
-      var name = nameRaw.replace('أهلاً ', '').replace(' \uD83D\uDC4B', '');
-      var msg = 'مرحباً! أنا ' + name + ' عندي ' + pts + ' نقطة ولاء في شيخ البلد \u1F37D\nسجّل معانا: https://figo231.github.io/Sheikh-Elbalad/index.html';
-      window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(msg), '_blank');
-    }
-    document.getElementById('shareBtn').addEventListener('click', shareOnWhatsapp);
-
-    // ===== PWA INSTALL =====
-    var deferredPrompt;
-    window.addEventListener('beforeinstallprompt', function(e) {
-      e.preventDefault();
-      deferredPrompt = e;
-      els.installBanner.classList.add('show');
-    });
-    document.getElementById('installBtn').addEventListener('click', function() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(function() {
-          deferredPrompt = null;
-          els.installBanner.classList.remove('show');
-        });
-      }
-    });
-    document.getElementById('dismissInstallBtn').addEventListener('click', function() {
-      els.installBanner.classList.remove('show');
-    });
-
-    // ===== SECURITY: Clear console hints =====
-    console.log('%c\u26A0 Attention', 'color:#c0392b;font-size:20px;font-weight:bold;');
-    console.log('%cThis is a browser feature intended for developers. Do not paste any code here.', 'color:#666;font-size:12px;');
-
-  })();
+// ─── Periodic Session Refresh ────────────────────────────
+setInterval(() => {
+  if (session && session.phone) {
+    refreshData();
+  }
+}, 60 * 1000); // Every minute

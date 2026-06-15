@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شيخ البلد - تسجيل الدخول</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="icon" href="icon-192x192.png" type="image/png">
+  <style>
+    :root {
+      --red: #8B0000;
+      --red2: #A50000;
+      --gold: #D4AF37;
+      --gold2: #F0C93A;
+      --cream: #F8F4ED;
+      --dark: #1a0000;
+      --green: #27AE60;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== Animated Background ===== */
+    .bg-animation {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-animation::before {
+      content: '';
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      top: -50%;
+      left: -50%;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(139,0,0,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(212,175,55,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(139,0,0,0.03) 0%, transparent 60%);
+      animation: bgShift 20s ease-in-out infinite;
+    }
+    @keyframes bgShift {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(-2%, 2%) rotate(1deg); }
+      66% { transform: translate(2%, -1%) rotate(-1deg); }
+    }
+
+    /* Floating Particles */
+    .particles {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: rgba(212,175,55,0.25);
+      border-radius: 50%;
+      animation: float linear infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ===== Main Layout ===== */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      background: linear-gradient(160deg, #6B0000 0%, #8B0000 50%, #A50000 100%);
+      padding: 40px 20px 70px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 3px solid var(--gold);
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.18) 0%, transparent 70%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background: var(--cream);
+      clip-path: ellipse(60% 100% at 50% 100%);
+    }
+
+    .logo-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+    .logo-ring {
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid rgba(212,175,55,0.4);
+      animation: ringPulse 2s ease-in-out infinite;
+    }
+    @keyframes ringPulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+    .header-logo {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 3px solid var(--gold);
+      object-fit: cover;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.4);
+      position: relative;
+    }
+
+    .header h1 {
+      color: var(--gold2);
+      font-size: 28px;
+      font-weight: 900;
+      position: relative;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      letter-spacing: 1px;
+    }
+    .header p {
+      color: rgba(255,255,255,0.75);
+      font-size: 14px;
+      margin-top: 5px;
+      position: relative;
+      font-weight: 500;
+    }
+
+    /* ===== Login Card ===== */
+    .main-content {
+      max-width: 420px;
+      margin: -30px auto 0;
+      padding: 0 16px 40px;
+      position: relative;
+      z-index: 2;
+      flex: 1;
+    }
+
+    .login-card {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05);
+      padding: 32px 24px;
+      border: 1px solid rgba(212,175,55,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      border-radius: 0 0 4px 4px;
+    }
+
+    .login-title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
+    .login-sub {
+      text-align: center;
+      color: #aaa;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+
+    /* Phone Input */
+    .input-group {
+      position: relative;
+      margin-bottom: 8px;
+    }
+    .input-icon {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      color: #ccc;
+      transition: color 0.2s;
+      pointer-events: none;
+    }
+    input[type="text"] {
+      width: 100%;
+      border: 2px solid #eee;
+      border-radius: 16px;
+      padding: 16px 48px 16px 16px;
+      font-size: 16px;
+      font-family: 'Cairo', sans-serif;
+      text-align: right;
+      transition: all 0.25s ease;
+      outline: none;
+      color: var(--dark);
+      background: #fafafa;
+    }
+    input[type="text"]:focus {
+      border-color: var(--gold);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(212,175,55,0.12);
+    }
+    input[type="text"]:focus + .input-icon,
+    .input-group:focus-within .input-icon {
+      color: var(--gold);
+    }
+    input.error {
+      border-color: #e74c3c;
+      background: #fdf2f2;
+    }
+    .field-error {
+      color: #e74c3c;
+      font-size: 12px;
+      margin-top: 6px;
+      text-align: center;
+      display: none;
+      font-weight: 600;
+    }
+
+    /* Primary Button */
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--red), var(--red2));
+      color: var(--gold2);
+      border: 2px solid var(--gold);
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 24px rgba(139,0,0,0.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: left 0.5s ease;
+    }
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(139,0,0,0.45);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Lockout */
+    .lockout-msg {
+      background: #fde8e8;
+      color: #c0392b;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+      font-weight: 600;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 24px 0;
+      color: #bbb;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #ddd, transparent);
+    }
+
+    /* Social Buttons */
+    .social-title {
+      text-align: center;
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+    .social-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Cairo', sans-serif;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      border: none;
+      cursor: pointer;
+    }
+    .social-btn:hover {
+      transform: translateY(-2px);
+    }
+    .social-btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-facebook {
+      background: linear-gradient(135deg, #1877F2, #166fe5);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(24,119,242,0.35);
+    }
+    .btn-facebook:hover {
+      box-shadow: 0 6px 24px rgba(24,119,242,0.5);
+    }
+
+    .btn-tiktok {
+      background: linear-gradient(135deg, #010101, #1a1a1a);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .btn-tiktok:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 11px;
+      color: #bbb;
+      position: relative;
+      z-index: 1;
+    }
+    .footer a {
+      color: var(--red);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--dark);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform 0.3s ease;
+      z-index: 999;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.success { background: var(--green); }
+    #toast.error { background: #c0392b; }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Entrance Animations */
+    .fade-in-up {
+      animation: fadeInUp 0.6s ease forwards;
+      opacity: 0;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .header { padding: 32px 16px 60px; }
+      .header h1 { font-size: 24px; }
+      .main-content { padding: 0 12px 30px; }
+      .login-card { padding: 24px 18px; border-radius: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-animation"></div>
+<div class="particles" id="particles"></div>
+
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-container fade-in-up">
+      <div class="logo-ring"></div>
+      <img src="icon-192x192.png" class="header-logo" alt="شيخ البلد" onerror="this.style.display='none'">
+    </div>
+    <h1 class="fade-in-up delay-1">شيخ البلد</h1>
+    <p class="fade-in-up delay-2">نظام نقاط الولاء</p>
+  </div>
+
+  <!-- Login Card -->
+  <div class="main-content">
+    <div class="login-card fade-in-up delay-2">
+      <div class="login-title">أهلاً بك في عائلتنا! 👋</div>
+      <div class="login-sub">ادخل رقم تليفونك عشان تشوف نقاطك ومكافآتك</div>
+
+      <div class="input-group">
+        <input type="text" id="phoneInput" placeholder="01XXXXXXXXX" maxlength="11" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <span class="input-icon">📱</span>
+      </div>
+      <div class="field-error" id="phoneError">ادخل رقم مصري صحيح (11 رقم يبدأ بـ 01)</div>
+
+      <button class="btn-primary" id="lookupBtn">
+        <span id="loginBtnText">عرض نقاطي</span>
+      </button>
+
+      <div class="lockout-msg" id="lockoutMsg">
+        تم تأمين الحساب مؤقتاً بسبب محاولات كثيرة. انتظر <span id="lockoutTimer">15</span> دقيقة.
+      </div>
+
+      <div class="divider">أو تابعنا على</div>
+
+      <div class="social-title">كن جزء من مجتمعنا</div>
+      <div class="social-grid">
+        <a href="https://www.facebook.com/share/1DhbKDUUra/" target="_blank" rel="noopener noreferrer" class="social-btn btn-facebook">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          فيسبوك
+        </a>
+        <a href="https://www.tiktok.com/@skeikh.el.balad" target="_blank" rel="noopener noreferrer" class="social-btn btn-tiktok">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.02-.07z"/></svg>
+          تيك توك
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer fade-in-up delay-4">
+      🔒 بياناتك آمنة ومشفرة | شيخ البلد © 2025
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ===== Floating Particles ===== */
+(function initParticles() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 15; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = Math.random() * 10 + 's';
+    p.style.width = p.style.height = (4 + Math.random() * 6) + 'px';
+    p.style.opacity = 0.2 + Math.random() * 0.4;
+    container.appendChild(p);
+  }
+})();
+
+/* ===== Security ===== */
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqD CyberT0qM7dR0x0p5bR0C2p3pQ5l8y9/exec';
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_DURATION = 15 * 60 * 1000;
+
+function getAttempts() {
+  try {
+    const data = JSON.parse(localStorage.getItem('loginAttempts') || '{}');
+    if (data.lockedUntil && Date.now() > data.lockedUntil) {
+      localStorage.removeItem('loginAttempts');
+      return { count: 0, lockedUntil: null };
+    }
+    return data;
+  } catch { return { count: 0, lockedUntil: null }; }
+}
+function recordAttempt() {
+  const data = getAttempts();
+  data.count = (data.count || 0) + 1;
+  if (data.count >= MAX_ATTEMPTS) {
+    data.lockedUntil = Date.now() + LOCKOUT_DURATION;
+  }
+  localStorage.setItem('loginAttempts', JSON.stringify(data));
+  return data;
+}
+function clearAttempts() {
+  localStorage.removeItem('loginAttempts');
+}
+function isLockedOut() {
+  const data = getAttempts();
+  return !!(data.lockedUntil && Date.now() < data.lockedUntil);
+}
+function getRemainingLockout() {
+  const data = getAttempts();
+  if (!data.lockedUntil) return 0;
+  return Math.max(0, Math.ceil((data.lockedUntil - Date.now()) / 60000));
+}
+
+function checkLockout() {
+  const lockoutMsg = document.getElementById('lockoutMsg');
+  const btn = document.getElementById('lookupBtn');
+  if (isLockedOut()) {
+    lockoutMsg.style.display = 'block';
+    btn.disabled = true;
+    const timer = setInterval(() => {
+      const remaining = getRemainingLockout();
+      document.getElementById('lockoutTimer').textContent = remaining;
+      if (remaining <= 0) {
+        clearInterval(timer);
+        lockoutMsg.style.display = 'none';
+        btn.disabled = false;
+        clearAttempts();
+      }
+    }, 1000);
+    return true;
+  }
+  return false;
+}
+
+/* ===== Toast ===== */
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type ? type : '';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ===== Validation ===== */
+function validateEgyptPhone(p) {
+  return /^01[0125]\d{8}$/.test(p);
+}
+
+/* ===== Login ===== */
+const phoneInput = document.getElementById('phoneInput');
+const lookupBtn = document.getElementById('lookupBtn');
+const phoneError = document.getElementById('phoneError');
+
+phoneInput.addEventListener('input', (e) => {
+  e.target.value = e.target.value.replace(/[^0-9]/g, '');
+  e.target.classList.remove('error');
+  phoneError.style.display = 'none';
+});
+
+phoneInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') lookupBtn.click();
+});
+
+checkLockout();
+
+lookupBtn.addEventListener('click', async () => {
+  if (isLockedOut()) return;
+
+  const phone = phoneInput.value.trim();
+  if (!validateEgyptPhone(phone)) {
+    phoneInput.classList.add('error');
+    phoneError.style.display = 'block';
+    return;
+  }
+
+  const btnText = document.getElementById('loginBtnText');
+  btnText.innerHTML = 'جاري التحقق... <span class="spinner"></span>';
+  lookupBtn.disabled = true;
+
+  try {
+    const res = await fetch(SCRIPT_URL + '?phone=' + encodeURIComponent(phone), {
+      method: 'GET',
+      redirect: 'follow'
+    });
+    const text = await res.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      const clean = text.replace(/^[^{]*/, '').replace(/[^}]*$/, '');
+      json = JSON.parse(clean);
+    }
+
+    if (json.found) {
+      clearAttempts();
+      const session = {
+        phone: phone,
+        name: json.name || 'عميلنا العزيز',
+        points: json.points || 0,
+        stamps: json.stamps || 0,
+        stampStatus: json.stampStatus || 'none',
+        completedCards: json.completedCards || 0,
+        lastVisit: json.lastVisit || '',
+        pendingRedemption: json.pendingRedemption || false,
+        redeemedToday: json.redeemedToday || false,
+        canRedeem: json.canRedeem || false,
+        transactions: json.transactions || [],
+        level: json.level || 'bronze',
+        levelName: json.levelName || 'مشترك جديد',
+        progress: json.progress || 0,
+        progressText: json.progressText || '0 / 100',
+        nextRewardAt: json.nextRewardAt || 100,
+        redeemDiscountPercent: json.redeemDiscountPercent || 15,
+        warning80: json.warning80 || false,
+        warning80pts: json.warning80pts || 0,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem('skeikh_session', JSON.stringify(session));
+      window.location.href = 'index.html';
+    } else {
+      recordAttempt();
+      showToast('❌ الرقم مش مسجل عندنا. تواصل مع الكاشير', 'error');
+    }
+  } catch (err) {
+    showToast('⚠️ حصل مشكلة في الاتصال. جرب تاني', 'error');
+  } finally {
+    btnText.textContent = 'عرض نقاطي';
+    lookupBtn.disabled = false;
+    checkLockout();
+  }
+});
+</script>
+
+</body>
+</html>
