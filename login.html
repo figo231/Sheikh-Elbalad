@@ -635,7 +635,7 @@ lookupBtn.addEventListener('click', async () => {
   lookupBtn.disabled = true;
 
   try {
-    const res = await fetch(SCRIPT_URL + '?phone=' + encodeURIComponent(phone), {
+    const res = await fetch(SCRIPT_URL + '?action=getCustomer&phone=' + encodeURIComponent(phone), {
       method: 'GET',
       redirect: 'follow'
     });
@@ -648,28 +648,30 @@ lookupBtn.addEventListener('click', async () => {
       json = JSON.parse(clean);
     }
 
-    if (json.found) {
+    const c = json.customer;
+    if (json.success && c) {
       clearAttempts();
+      const pts = c.points || 0;
       const session = {
         phone: phone,
-        name: json.name || 'عميلنا العزيز',
-        points: json.points || 0,
-        stamps: json.stamps || 0,
-        stampStatus: json.stampStatus || 'none',
-        completedCards: json.completedCards || 0,
-        lastVisit: json.lastVisit || '',
-        pendingRedemption: json.pendingRedemption || false,
-        redeemedToday: json.redeemedToday || false,
-        canRedeem: json.canRedeem || false,
-        transactions: json.transactions || [],
-        level: json.level || 'bronze',
-        levelName: json.levelName || 'مشترك جديد',
-        progress: json.progress || 0,
-        progressText: json.progressText || '0 / 100',
-        nextRewardAt: json.nextRewardAt || 100,
-        redeemDiscountPercent: json.redeemDiscountPercent || 15,
-        warning80: json.warning80 || false,
-        warning80pts: json.warning80pts || 0,
+        name: c.name || 'عميلنا العزيز',
+        points: pts,
+        stamps: c.stamps || 0,
+        stampStatus: c.pendingStamp ? 'pending' : 'none',
+        completedCards: 0,
+        lastVisit: c.lastVisit || '',
+        pendingRedemption: c.pendingRedemption || false,
+        redeemedToday: false,
+        canRedeem: pts >= 100,
+        transactions: [],
+        level: 'bronze',
+        levelName: 'مشترك جديد',
+        progress: Math.min((pts / 100) * 100, 100),
+        progressText: pts + ' / 100',
+        nextRewardAt: 100,
+        redeemDiscountPercent: 15,
+        warning80: pts >= 80 && pts < 100,
+        warning80pts: pts,
         timestamp: Date.now()
       };
       sessionStorage.setItem('skeikh_session', JSON.stringify(session));
