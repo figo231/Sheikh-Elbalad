@@ -491,6 +491,7 @@
     <div class="tab" data-tab="activity" id="tab-activity-btn">&#x1F4CB; السجل</div>
     <div class="tab" data-tab="users" id="tab-users-btn">&#x1F454; المستخدمين</div>
     <div class="tab" data-tab="export" id="tab-export-btn">&#x1F4E4; تصدير</div>
+    <div class="tab" data-tab="settings" id="tab-settings-btn">&#x2699;&#xFE0F; الإعدادات</div>
   </div>
 
   <!-- HOME -->
@@ -684,6 +685,37 @@
     </div>
   </div>
 
+  <div id="tab-settings" class="tab-content">
+    <div class="card">
+      <div class="card-title">&#x2699;&#xFE0F; إعدادات النظام</div>
+      <p style="font-size:13px;color:#888;margin-bottom:20px;">يمكنك من هنا التحكم في إعدادات برنامج الولاء</p>
+
+      <div style="background:#fff8f0;border:2px solid var(--gold);border-radius:16px;padding:20px;margin-bottom:16px;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px;color:var(--dark);">💰 نسبة الخصم عند استبدال النقاط</div>
+        <p style="font-size:12px;color:#888;margin-bottom:14px;">النسبة الحالية اللي بتتحسب للعميل لما يطلب خصم</p>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <input type="number" id="discountInput" min="1" max="100" placeholder="15"
+            style="width:100px;padding:10px 14px;border:2px solid var(--gold);border-radius:10px;font-family:Cairo,sans-serif;font-size:18px;font-weight:700;text-align:center;outline:none;color:var(--dark);">
+          <span style="font-size:20px;font-weight:900;color:var(--red);">%</span>
+          <button class="btn btn-green" id="saveDiscountBtn" style="flex:1;">💾 حفظ النسبة</button>
+        </div>
+        <div id="discountStatus" style="margin-top:10px;font-size:13px;color:#888;"></div>
+      </div>
+
+      <div style="background:#f0f8ff;border:2px solid #3498DB;border-radius:16px;padding:20px;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:6px;color:var(--dark);">🎯 عدد النقاط المطلوبة للخصم</div>
+        <p style="font-size:12px;color:#888;margin-bottom:14px;">الحد الأدنى من النقاط عشان العميل يقدر يطلب خصم</p>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <input type="number" id="thresholdInput" min="1" placeholder="100"
+            style="width:100px;padding:10px 14px;border:2px solid #3498DB;border-radius:10px;font-family:Cairo,sans-serif;font-size:18px;font-weight:700;text-align:center;outline:none;color:var(--dark);">
+          <span style="font-size:16px;font-weight:700;color:#3498DB;">نقطة</span>
+          <button class="btn btn-blue" id="saveThresholdBtn" style="flex:1;">💾 حفظ</button>
+        </div>
+        <div id="thresholdStatus" style="margin-top:10px;font-size:13px;color:#888;"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div class="drawer-overlay" id="drawerOverlay"></div>
@@ -721,6 +753,9 @@
   </button>
   <button class="drawer-item" data-tab="export" id="drawer-export">
     <span class="d-icon">&#x1F4E4;</span><span>تصدير</span>
+  </button>
+  <button class="drawer-item" data-tab="settings" id="drawer-settings">
+    <span class="d-icon">&#x2699;&#xFE0F;</span><span>الإعدادات</span>
   </button>
   <button class="drawer-item drawer-dev" id="drawer-contact">
     <span class="d-icon">&#x1F4AC;</span><span>اتصل بالمطور</span>

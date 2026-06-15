@@ -1084,6 +1084,13 @@
     showToast('تم تصدير التقرير \u2705', 'success');
   }
   document.getElementById('exportCSVBtn').addEventListener('click', exportCSV);
+  
+  // Settings buttons
+  const saveDiscountBtn = document.getElementById('saveDiscountBtn');
+  if (saveDiscountBtn) saveDiscountBtn.addEventListener('click', saveDiscount);
+  const saveThresholdBtn = document.getElementById('saveThresholdBtn');
+  if (saveThresholdBtn) saveThresholdBtn.addEventListener('click', saveThreshold);
+
   document.getElementById('exportReportBtn').addEventListener('click', exportReport);
 
   function loadAbsentCustomers() {
@@ -1324,3 +1331,64 @@
   console.log('%cThis is a browser feature intended for developers. Do not paste any code here.', 'color:#666;font-size:12px;');
 
 })();
+
+
+// ============================================================
+// SETTINGS TAB
+// ============================================================
+
+async function loadSettings() {
+  try {
+    const data = await apiCall('getSettings');
+    if (data.success) {
+      document.getElementById('discountInput').value   = data.discount  || 15;
+      document.getElementById('thresholdInput').value  = data.threshold || 100;
+      document.getElementById('discountStatus').textContent  = 'النسبة الحالية: ' + (data.discount || 15) + '%';
+      document.getElementById('thresholdStatus').textContent = 'الحد الحالي: ' + (data.threshold || 100) + ' نقطة';
+    }
+  } catch(e) {
+    console.error('loadSettings error', e);
+  }
+}
+
+async function saveDiscount() {
+  const val = document.getElementById('discountInput').value;
+  if (!val || isNaN(val) || val < 1 || val > 100) {
+    showToast('❌ ادخل نسبة صحيحة بين 1 و 100', 'error'); return;
+  }
+  const btn = document.getElementById('saveDiscountBtn');
+  btn.disabled = true; btn.textContent = 'جاري الحفظ...';
+  try {
+    const data = await apiCall('saveSettings', { discount: val });
+    if (data.success) {
+      showToast('✅ تم حفظ نسبة الخصم: ' + val + '%', 'success');
+      document.getElementById('discountStatus').textContent = 'النسبة الحالية: ' + val + '%';
+    } else {
+      showToast('❌ ' + (data.message || 'حصل خطأ'), 'error');
+    }
+  } catch(e) {
+    showToast('❌ مشكلة في الاتصال', 'error');
+  }
+  btn.disabled = false; btn.textContent = '💾 حفظ النسبة';
+}
+
+async function saveThreshold() {
+  const val = document.getElementById('thresholdInput').value;
+  if (!val || isNaN(val) || val < 1) {
+    showToast('❌ ادخل عدد صحيح أكبر من 0', 'error'); return;
+  }
+  const btn = document.getElementById('saveThresholdBtn');
+  btn.disabled = true; btn.textContent = 'جاري الحفظ...';
+  try {
+    const data = await apiCall('saveSettings', { threshold: val });
+    if (data.success) {
+      showToast('✅ تم حفظ الحد: ' + val + ' نقطة', 'success');
+      document.getElementById('thresholdStatus').textContent = 'الحد الحالي: ' + val + ' نقطة';
+    } else {
+      showToast('❌ ' + (data.message || 'حصل خطأ'), 'error');
+    }
+  } catch(e) {
+    showToast('❌ مشكلة في الاتصال', 'error');
+  }
+  btn.disabled = false; btn.textContent = '💾 حفظ';
+}
