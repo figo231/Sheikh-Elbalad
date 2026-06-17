@@ -26,6 +26,47 @@ let confettiColors = ['#D4AF37', '#F0C93A', '#8B0000', '#27AE60', '#CD853F', '#F
 const $ = (id) => document.getElementById(id);
 const $$ = (sel) => document.querySelectorAll(sel);
 
+// ─── Validation ──────────────────────────────────────────
+function validateEgyptPhone(p) {
+  return /^01[0125]\d{8}$/.test(p);
+}
+
+// ─── Login Brute Force Protection ────────────────────────
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+
+function getLoginAttempts() {
+  try {
+    const data = JSON.parse(localStorage.getItem('loginAttempts') || '{}');
+    if (data.lockedUntil && Date.now() > data.lockedUntil) {
+      localStorage.removeItem('loginAttempts');
+      return { count: 0, lockedUntil: null };
+    }
+    return data;
+  } catch { return { count: 0, lockedUntil: null }; }
+}
+function recordLoginAttempt() {
+  const data = getLoginAttempts();
+  data.count = (data.count || 0) + 1;
+  if (data.count >= MAX_ATTEMPTS) {
+    data.lockedUntil = Date.now() + LOCKOUT_DURATION;
+  }
+  localStorage.setItem('loginAttempts', JSON.stringify(data));
+  return data;
+}
+function clearLoginAttempts() {
+  localStorage.removeItem('loginAttempts');
+}
+function isLoginLockedOut() {
+  const data = getLoginAttempts();
+  return !!(data.lockedUntil && Date.now() < data.lockedUntil);
+}
+function getRemainingLockoutMinutes() {
+  const data = getLoginAttempts();
+  if (!data.lockedUntil) return 0;
+  return Math.max(0, Math.ceil((data.lockedUntil - Date.now()) / 60000));
+}
+
 // ═══════════════════════════════════════════════════════════
 //  INITIALIZATION
 // ═══════════════════════════════════════════════════════════
@@ -36,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDarkMode();
   initDrawer();
   initInstallBanner();
+  initLoginForm();
 
   // Check for existing session
   session = loadSession();
@@ -240,66 +282,229 @@ function showDashboard() {
   renderDashboard();
 }
 
+// ─── Embedded Login Form ─────────────────────────────────
+function initLoginForm() {
+  const phoneInput = $('phoneInput');
+  const lookupBtn = $('lookupBtn');
+  const phoneError = $('phoneError');
+  const lockoutMsg = $('lockoutMsg');
+  const lockoutTimer = $('lockoutTimer');
+  if (!phoneInput || !lookupBtn) return;
+
+  // Input sanitization
+  phoneInput.addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    e.target.classList.remove('error');
+    if (phoneError) phoneError.style.display = 'none';
+  });
+
+  phoneInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') lookupBtn.click();
+  });
+
+  // Check lockout
+  updateLoginLockoutUI();
+
+  lookupBtn.addEventListener('click', async () => {
+    if (isLoginLockedOut()) return;
+
+    const phone = phoneInput.value.trim();
+    if (!validateEgyptPhone(phone)) {
+      phoneInput.classList.add('error');
+      if (phoneError) phoneError.style.display = 'block';
+      return;
+    }
+
+    const btnText = $('loginBtnText');
+    const originalText = btnText ? btnText.textContent : 'عرض نقاطي';
+    if (btnText) btnText.innerHTML = 'جاري التحقق... <span class="spinner"></span>';
+    lookupBtn.disabled = true;
+
+    try {
+      const res = await fetch(SCRIPT_URL + '?action=getCustomer&phone=' + encodeURIComponent(phone), {
+        method: 'GET',
+        redirect: 'follow'
+      });
+      const text = await res.text();
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        const clean = text.replace(/^[^{]*/, '').replace(/[^}]*$/, '');
+        json = JSON.parse(clean);
+      }
+
+      const c = json.customer;
+      if (json.success && c) {
+        clearLoginAttempts();
+        const pts = c.points || 0;
+
+        // Calculate level dynamically
+        let level = 'bronze';
+        let levelName = 'مشترك جديد';
+        if (pts >= 500) { level = 'plat'; levelName = 'بلاتيني 💎'; }
+        else if (pts >= 200) { level = 'gold'; levelName = 'ذهبي 🥇'; }
+        else if (pts >= 100) { level = 'silver'; levelName = 'فضي 🥈'; }
+
+        const threshold = c.settings?.threshold || 100;
+        const discount = c.settings?.discount || 15;
+
+        const newSession = {
+          phone: phone,
+          name: c.name || 'عميلنا العزيز',
+          points: pts,
+          stamps: c.stamps || 0,
+          stampStatus: c.pendingStamp ? 'pending' : 'none',
+          completedCards: 0,
+          lastVisit: c.lastVisit || '',
+          pendingRedemption: c.pendingRedemption || false,
+          redeemedToday: false,
+          canRedeem: pts >= threshold,
+          level: level,
+          levelName: levelName,
+          progress: Math.min((pts / threshold) * 100, 100),
+          progressText: pts + ' / ' + threshold,
+          nextRewardAt: threshold,
+          redeemDiscountPercent: discount,
+          warning80: pts >= (threshold * 0.8) && pts < threshold,
+          warning80pts: pts,
+          transactions: c.transactions || [],
+          timestamp: Date.now()
+        };
+        saveSession(newSession);
+        showDashboard();
+      } else {
+        recordLoginAttempt();
+        showToast('❌ الرقم مش مسجل عندنا. تواصل مع الكاشير', 'error');
+      }
+    } catch (err) {
+      showToast('⚠️ حصل مشكلة في الاتصال. جرب تاني', 'error');
+    } finally {
+      if (btnText) btnText.textContent = originalText;
+      lookupBtn.disabled = false;
+      updateLoginLockoutUI();
+    }
+  });
+}
+
+function updateLoginLockoutUI() {
+  const lockoutMsg = $('lockoutMsg');
+  const lookupBtn = $('lookupBtn');
+  const lockoutTimer = $('lockoutTimer');
+  if (!lockoutMsg || !lookupBtn) return;
+
+  if (isLoginLockedOut()) {
+    lockoutMsg.style.display = 'block';
+    lookupBtn.disabled = true;
+    if (lockoutTimer) lockoutTimer.textContent = getRemainingLockoutMinutes();
+    // Update timer every 30 seconds
+    const timer = setInterval(() => {
+      const remaining = getRemainingLockoutMinutes();
+      if (lockoutTimer) lockoutTimer.textContent = remaining;
+      if (remaining <= 0) {
+        clearInterval(timer);
+        lockoutMsg.style.display = 'none';
+        lookupBtn.disabled = false;
+        clearLoginAttempts();
+      }
+    }, 30000);
+  } else {
+    lockoutMsg.style.display = 'none';
+    lookupBtn.disabled = false;
+  }
+}
+
 // ═══════════════════════════════════════════════════════════
 //  DASHBOARD RENDERING
 // ═══════════════════════════════════════════════════════════
 
+// ─── Safe Event Binding ──────────────────────────────────
+const _boundEvents = new Set();
+function bindOnce(id, handler) {
+  const el = $(id);
+  if (!el || _boundEvents.has(id)) return;
+  _boundEvents.add(id);
+  el.addEventListener('click', handler);
+}
+
 function renderDashboard() {
   if (!session) return;
 
+  // Recalculate level dynamically based on current points
+  const pts = session.points || 0;
+  const threshold = session.nextRewardAt || 100;
+  let level = 'bronze';
+  let levelName = 'مشترك جديد';
+  if (pts >= 500) { level = 'plat'; levelName = 'بلاتيني 💎'; }
+  else if (pts >= 200) { level = 'gold'; levelName = 'ذهبي 🥇'; }
+  else if (pts >= 100) { level = 'silver'; levelName = 'فضي 🥈'; }
+
   // Hero
-  $('custName').textContent = session.name || 'عميلنا العزيز';
-  animateNumber('custPoints', session.points || 0);
-  $('lastVisitTxt').textContent = session.lastVisit
-    ? 'آخر زيارة: ' + session.lastVisit
-    : '';
+  const custName = $('custName');
+  if (custName) custName.textContent = session.name || 'عميلنا العزيز';
+  animateNumber('custPoints', pts);
+  const lastVisitTxt = $('lastVisitTxt');
+  if (lastVisitTxt) lastVisitTxt.textContent = session.lastVisit ? 'آخر زيارة: ' + session.lastVisit : '';
 
   // Level badge
   const levelBadge = $('levelBadge');
-  const level = session.level || 'bronze';
-  const levelName = session.levelName || 'مشترك جديد';
-  const levelIcons = { bronze: '🥉', silver: '🥈', gold: '🥇', plat: '💎' };
-  levelBadge.innerHTML = `
-    <div class="level-badge level-${level}">
-      <span>${levelIcons[level] || '⭐'}</span>
-      <span>${levelName}</span>
-    </div>
-  `;
+  if (levelBadge) {
+    const levelIcons = { bronze: '🥉', silver: '🥈', gold: '🥇', plat: '💎' };
+    levelBadge.innerHTML = `<div class="level-badge level-${level}"><span>${levelIcons[level] || '⭐'}</span><span>${levelName}</span></div>`;
+  }
 
   // Progress bar
-  const progress = session.progress || 0;
-  const progressText = session.progressText || '0 / 100';
-  $('progressText').textContent = progressText;
+  const progress = Math.min((pts / threshold) * 100, 100);
+  const progressText = pts + ' / ' + threshold;
+  const progressTextEl = $('progressText');
+  if (progressTextEl) progressTextEl.textContent = progressText;
   setTimeout(() => {
-    $('progressBar').style.width = progress + '%';
+    const progressBar = $('progressBar');
+    if (progressBar) progressBar.style.width = progress + '%';
   }, 300);
 
   // Quick stats
-  $('statLevel').textContent = levelName;
-  $('statProgress').textContent = progress + '%';
-  $('statStamps').textContent = (session.stamps || 0) + '/10';
+  const statLevel = $('statLevel');
+  if (statLevel) statLevel.textContent = levelName;
+  const statProgress = $('statProgress');
+  if (statProgress) statProgress.textContent = Math.round(progress) + '%';
+  const statStamps = $('statStamps');
+  if (statStamps) statStamps.textContent = (session.stamps || 0) + '/10';
+
+  // Update howItWorks values
+  const howItWorksThreshold = $('howItWorksThreshold');
+  if (howItWorksThreshold) howItWorksThreshold.textContent = threshold;
+  const howItWorksDiscount = $('howItWorksDiscount');
+  if (howItWorksDiscount) howItWorksDiscount.textContent = session.redeemDiscountPercent || 15;
 
   // Reward ready
-  if (session.canRedeem && !session.pendingRedemption) {
-    $('rewardReady')?.classList.remove('hidden');
-    $('discountPercent').textContent = session.redeemDiscountPercent || 15;
+  const canRedeem = pts >= threshold;
+  const rewardReady = $('rewardReady');
+  if (canRedeem && !session.pendingRedemption) {
+    rewardReady?.classList.remove('hidden');
+    const discountPercent = $('discountPercent');
+    if (discountPercent) discountPercent.textContent = session.redeemDiscountPercent || 15;
   } else {
-    $('rewardReady')?.classList.add('hidden');
+    rewardReady?.classList.add('hidden');
   }
 
   // Pending redemption
+  const pendingBadge = $('pendingBadge');
   if (session.pendingRedemption) {
-    $('pendingBadge')?.classList.remove('hidden');
+    pendingBadge?.classList.remove('hidden');
   } else {
-    $('pendingBadge')?.classList.add('hidden');
+    pendingBadge?.classList.add('hidden');
   }
 
   // Warning 80%
-  if (session.warning80) {
-    $('warning80')?.classList.remove('hidden');
-    $('warning80pts').textContent = session.warning80pts || 0;
+  const warning80 = $('warning80');
+  const isNearThreshold = pts >= (threshold * 0.8) && pts < threshold;
+  if (isNearThreshold) {
+    warning80?.classList.remove('hidden');
+    const warning80pts = $('warning80pts');
+    if (warning80pts) warning80pts.textContent = threshold - pts;
   } else {
-    $('warning80')?.classList.add('hidden');
+    warning80?.classList.add('hidden');
   }
 
   // Stamps
@@ -313,12 +518,12 @@ function renderDashboard() {
     $('drawerCompletedBtn')?.classList.add('hidden');
   }
 
-  // Bind redeem button
-  $('redeemBtn')?.addEventListener('click', handleRedeem);
-  $('stampRequestBtn')?.addEventListener('click', handleStampRequest);
-  $('claimRewardBtn')?.addEventListener('click', handleClaimReward);
-  $('logoutBtn')?.addEventListener('click', doLogout);
-  $('shareBtn')?.addEventListener('click', handleShare);
+  // Bind buttons (use once to avoid duplicate listeners)
+  bindOnce('redeemBtn', handleRedeem);
+  bindOnce('stampRequestBtn', handleStampRequest);
+  bindOnce('claimRewardBtn', handleClaimReward);
+  bindOnce('logoutBtn', doLogout);
+  bindOnce('shareBtn', handleShare);
 }
 
 // ─── Number Animation ────────────────────────────────────
