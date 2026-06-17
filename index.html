@@ -473,6 +473,15 @@
       <span id="loginBtnText">عرض نقاطي</span>
     </button>
     <div class="lockout-msg" id="lockoutMsg">تم تأمين الحساب مؤقتاً بسبب محاولات كثيرة. انتظر <span id="lockoutTimer">15</span> دقيقة.</div>
+
+    <div class="hidden" id="registerPrompt" style="margin-top:16px;padding-top:16px;border-top:1px dashed #eee;">
+      <div class="login-sub" style="margin-bottom:10px;">الرقم ده مش مسجل عندنا، اكتب اسمك وسجل دلوقتي 👇</div>
+      <input type="text" id="registerNameInput" placeholder="اسمك بالكامل" maxlength="50" autocomplete="off" autocorrect="off" spellcheck="false">
+      <div class="field-error" id="registerNameError">اكتب اسم صحيح (حرفين على الأقل)</div>
+      <button class="btn-primary" id="registerBtn">
+        <span id="registerBtnText">سجلني دلوقتي 🎉</span>
+      </button>
+    </div>
   </div>
 
   <div style="display:flex;gap:10px;margin-top:4px;margin-bottom:10px;">

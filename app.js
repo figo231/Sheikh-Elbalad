@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDrawer();
   initInstallBanner();
   initLoginForm();
+  initRegisterForm();
 
   // Check for existing session
   session = loadSession();
@@ -296,6 +297,7 @@ function initLoginForm() {
     e.target.value = e.target.value.replace(/[^0-9]/g, '');
     e.target.classList.remove('error');
     if (phoneError) phoneError.style.display = 'none';
+    hideRegisterPrompt();
   });
 
   phoneInput.addEventListener('keydown', (e) => {
@@ -315,13 +317,147 @@ function initLoginForm() {
       return;
     }
 
+    hideRegisterPrompt();
+
     const btnText = $('loginBtnText');
     const originalText = btnText ? btnText.textContent : 'عرض نقاطي';
     if (btnText) btnText.innerHTML = 'جاري التحقق... <span class="spinner"></span>';
     lookupBtn.disabled = true;
 
+    const status = await loginWithPhone(phone);
+    if (status === 'not_found') {
+      recordLoginAttempt();
+      showRegisterPrompt(phone);
+    } else if (status === 'error') {
+      showToast('⚠️ حصل مشكلة في الاتصال. جرب تاني', 'error');
+    }
+
+    if (btnText) btnText.textContent = originalText;
+    lookupBtn.disabled = false;
+    updateLoginLockoutUI();
+  });
+}
+
+// ─── Shared login/session logic (used by login + after self-registration) ──
+async function loginWithPhone(phone) {
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=getCustomer&phone=' + encodeURIComponent(phone), {
+      method: 'GET',
+      redirect: 'follow'
+    });
+    const text = await res.text();
+    let json;
     try {
-      const res = await fetch(SCRIPT_URL + '?action=getCustomer&phone=' + encodeURIComponent(phone), {
+      json = JSON.parse(text);
+    } catch {
+      const clean = text.replace(/^[^{]*/, '').replace(/[^}]*$/, '');
+      json = JSON.parse(clean);
+    }
+
+    const c = json.customer;
+    if (json.success && c) {
+      clearLoginAttempts();
+      const pts = c.points || 0;
+
+      // Calculate level dynamically
+      let level = 'bronze';
+      let levelName = 'مشترك جديد';
+      if (pts >= 500) { level = 'plat'; levelName = 'بلاتيني 💎'; }
+      else if (pts >= 200) { level = 'gold'; levelName = 'ذهبي 🥇'; }
+      else if (pts >= 100) { level = 'silver'; levelName = 'فضي 🥈'; }
+
+      const threshold = c.threshold || 100;
+      const discount = c.discount || 15;
+
+      const newSession = {
+        phone: phone,
+        name: c.name || 'عميلنا العزيز',
+        points: pts,
+        stamps: c.stamps || 0,
+        stampStatus: c.pendingStamp ? 'pending' : 'none',
+        completedCards: 0,
+        lastVisit: c.lastVisit || '',
+        pendingRedemption: c.pendingRedemption || false,
+        redeemedToday: false,
+        canRedeem: pts >= threshold,
+        level: level,
+        levelName: levelName,
+        progress: Math.min((pts / threshold) * 100, 100),
+        progressText: pts + ' / ' + threshold,
+        nextRewardAt: threshold,
+        redeemDiscountPercent: discount,
+        warning80: pts >= (threshold * 0.8) && pts < threshold,
+        warning80pts: pts,
+        transactions: c.transactions || [],
+        timestamp: Date.now()
+      };
+      saveSession(newSession);
+      showDashboard();
+      return 'success';
+    }
+    return 'not_found';
+  } catch (err) {
+    return 'error';
+  }
+}
+
+// ─── Self-registration ───────────────────────────────────
+function showRegisterPrompt(phone) {
+  const box = $('registerPrompt');
+  if (!box) return;
+  box.dataset.phone = phone;
+  box.classList.remove('hidden');
+  const nameInput = $('registerNameInput');
+  if (nameInput) nameInput.focus();
+}
+
+function hideRegisterPrompt() {
+  const box = $('registerPrompt');
+  if (!box) return;
+  box.classList.add('hidden');
+  const nameError = $('registerNameError');
+  if (nameError) nameError.style.display = 'none';
+  const nameInput = $('registerNameInput');
+  if (nameInput) { nameInput.value = ''; nameInput.classList.remove('error'); }
+}
+
+function initRegisterForm() {
+  const registerBtn = $('registerBtn');
+  const nameInput = $('registerNameInput');
+  const nameError = $('registerNameError');
+  if (!registerBtn || !nameInput) return;
+
+  nameInput.addEventListener('input', () => {
+    nameInput.classList.remove('error');
+    if (nameError) nameError.style.display = 'none';
+  });
+
+  nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') registerBtn.click();
+  });
+
+  registerBtn.addEventListener('click', async () => {
+    const box = $('registerPrompt');
+    const phone = box ? box.dataset.phone : '';
+    const name = nameInput.value.trim();
+
+    if (name.length < 2) {
+      nameInput.classList.add('error');
+      if (nameError) nameError.style.display = 'block';
+      return;
+    }
+    if (!phone || !validateEgyptPhone(phone)) {
+      showToast('⚠️ رقم التليفون غير صحيح، جرب تدخله تاني', 'error');
+      return;
+    }
+
+    const btnText = $('registerBtnText');
+    const originalText = btnText ? btnText.textContent : 'سجلني دلوقتي 🎉';
+    if (btnText) btnText.innerHTML = 'جاري التسجيل... <span class="spinner"></span>';
+    registerBtn.disabled = true;
+
+    try {
+      const res = await fetch(SCRIPT_URL + '?action=registerCustomer&phone=' + encodeURIComponent(phone) + '&name=' + encodeURIComponent(name), {
         method: 'GET',
         redirect: 'follow'
       });
@@ -334,55 +470,19 @@ function initLoginForm() {
         json = JSON.parse(clean);
       }
 
-      const c = json.customer;
-      if (json.success && c) {
+      if (json.success) {
         clearLoginAttempts();
-        const pts = c.points || 0;
-
-        // Calculate level dynamically
-        let level = 'bronze';
-        let levelName = 'مشترك جديد';
-        if (pts >= 500) { level = 'plat'; levelName = 'بلاتيني 💎'; }
-        else if (pts >= 200) { level = 'gold'; levelName = 'ذهبي 🥇'; }
-        else if (pts >= 100) { level = 'silver'; levelName = 'فضي 🥈'; }
-
-        const threshold = c.settings?.threshold || 100;
-        const discount = c.settings?.discount || 15;
-
-        const newSession = {
-          phone: phone,
-          name: c.name || 'عميلنا العزيز',
-          points: pts,
-          stamps: c.stamps || 0,
-          stampStatus: c.pendingStamp ? 'pending' : 'none',
-          completedCards: 0,
-          lastVisit: c.lastVisit || '',
-          pendingRedemption: c.pendingRedemption || false,
-          redeemedToday: false,
-          canRedeem: pts >= threshold,
-          level: level,
-          levelName: levelName,
-          progress: Math.min((pts / threshold) * 100, 100),
-          progressText: pts + ' / ' + threshold,
-          nextRewardAt: threshold,
-          redeemDiscountPercent: discount,
-          warning80: pts >= (threshold * 0.8) && pts < threshold,
-          warning80pts: pts,
-          transactions: c.transactions || [],
-          timestamp: Date.now()
-        };
-        saveSession(newSession);
-        showDashboard();
+        showToast('🎉 تم تسجيلك بنجاح، أهلاً بيك!', 'success');
+        hideRegisterPrompt();
+        await loginWithPhone(phone);
       } else {
-        recordLoginAttempt();
-        showToast('❌ الرقم مش مسجل عندنا. تواصل مع الكاشير', 'error');
+        showToast('❌ ' + (json.message || 'حصل خطأ، جرب تاني'), 'error');
       }
     } catch (err) {
       showToast('⚠️ حصل مشكلة في الاتصال. جرب تاني', 'error');
     } finally {
       if (btnText) btnText.textContent = originalText;
-      lookupBtn.disabled = false;
-      updateLoginLockoutUI();
+      registerBtn.disabled = false;
     }
   });
 }
@@ -645,6 +745,8 @@ function refreshData() {
       const c = data.customer;
       if (data.success && c) {
         const pts = c.points || 0;
+        const threshold = c.threshold || 100;
+        const discount = c.discount || 15;
         saveSession({
           ...session,
           name: c.name || session.name,
@@ -655,13 +757,14 @@ function refreshData() {
           completedCards: session.completedCards || 0,
           lastVisit: c.lastVisit || '',
           pendingRedemption: c.pendingRedemption || false,
-          canRedeem: pts >= 100,
+          canRedeem: pts >= threshold,
           level: session.level || 'bronze',
           levelName: session.levelName || 'مشترك جديد',
-          progress: Math.min((pts / 100) * 100, 100),
-          progressText: pts + ' / 100',
-          redeemDiscountPercent: 15,
-          warning80: pts >= 80 && pts < 100,
+          progress: Math.min((pts / threshold) * 100, 100),
+          progressText: pts + ' / ' + threshold,
+          nextRewardAt: threshold,
+          redeemDiscountPercent: discount,
+          warning80: pts >= (threshold * 0.8) && pts < threshold,
           warning80pts: pts,
           transactions: session.transactions || [],
         });
