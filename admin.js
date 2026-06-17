@@ -305,24 +305,49 @@
     var isMainAdmin = currentUser === 'الأدمن الرئيسي';
     var rawPerms = (currentUserObj && currentUserObj.perms) ? currentUserObj.perms : [];
     var perms = Array.isArray(rawPerms) ? rawPerms : String(rawPerms).split(',').map(function(s){ return s.trim(); });
-    var hasUsers = isMainAdmin || perms.indexOf('إدارة المستخدمين') !== -1;
-    var hasBranches = isMainAdmin || perms.indexOf('إحصائيات الفروع') !== -1;
+
+    function hasPerm(permName) {
+      return isMainAdmin || perms.indexOf(permName) !== -1;
+    }
+
+    // كل تبويب وإذن الدخول المطلوب ليه. تبويبات زي الرئيسية/المتصدرين/السجل مش موجودة هنا فهتظهر دايماً لكل المستخدمين.
+    // 'settings' متاح للأدمن الرئيسي بس لأنه مفيش خانة صلاحية خاصة بيه.
+    var tabPerms = {
+      addPoints:   'إضافة نقاط',
+      pending:     'موافقة خصومات',
+      stamps:      'موافقة خصومات',
+      customers:   'حذف',
+      addCustomer: 'تسجيل عملاء',
+      branches:    'إحصائيات الفروع',
+      users:       'إدارة المستخدمين',
+      export:      'تصدير',
+      settings:    '__mainAdminOnly__'
+    };
+
+    function isTabVisible(perm) {
+      if (perm === '__mainAdminOnly__') return isMainAdmin;
+      return hasPerm(perm);
+    }
 
     document.querySelectorAll('.tab').forEach(function(tab) {
-      var onclick = tab.getAttribute('onclick') || '';
       var dt = tab.dataset.tab;
-      if (dt === 'users' && !hasUsers) tab.style.display = 'none';
-      else if (dt === 'branches' && !hasBranches) tab.style.display = 'none';
-      else if (dt === 'users' && hasUsers) tab.style.display = '';
-      else if (dt === 'branches' && hasBranches) tab.style.display = '';
+      if (!(dt in tabPerms)) return;
+      tab.style.display = isTabVisible(tabPerms[dt]) ? '' : 'none';
     });
 
     document.querySelectorAll('.drawer-item[data-tab]').forEach(function(btn) {
-      if (btn.dataset.tab === 'users' && !hasUsers) btn.style.display = 'none';
-      if (btn.dataset.tab === 'branches' && !hasBranches) btn.style.display = 'none';
+      var dt = btn.dataset.tab;
+      if (!(dt in tabPerms)) return;
+      btn.style.display = isTabVisible(tabPerms[dt]) ? '' : 'none';
     });
 
-    if (els.addUserCard) els.addUserCard.style.display = hasUsers ? '' : 'none';
+    if (els.addUserCard) els.addUserCard.style.display = hasPerm('إدارة المستخدمين') ? '' : 'none';
+
+    // لو المستخدم كان واقف على تبويب اتقفل عليه دلوقتي، رجّعه للرئيسية
+    var activeTab = document.querySelector('.tab.active');
+    if (activeTab && activeTab.style.display === 'none') {
+      switchTab('home');
+    }
   }
 
   // ===== LOGOUT =====
