@@ -456,10 +456,11 @@
     if (name === 'activity') loadActivityLog();
     if (name === 'users') loadUsers();
     if (name === 'export') loadAbsentCustomers();
+    if (name === 'settings') loadSettings();
   }
 
   // Tab click handlers
-  ['home','addPoints','pending','stamps','customers','addCustomer','leaderboard','branches','activity','users','export'].forEach(function(tabName) {
+  ['home','addPoints','pending','stamps','customers','addCustomer','leaderboard','branches','activity','users','export','settings'].forEach(function(tabName) {
     var btn = document.getElementById('tab-' + tabName + '-btn');
     var drawerBtn = document.getElementById('drawer-' + tabName);
     if (btn) btn.addEventListener('click', function() { switchTab(tabName); });
