@@ -10,7 +10,7 @@
   }
 
   // 2. API URL hidden inside closure via base64
-  const SCRIPT_URL = atob('aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3YkhSdlExVTZNZEZteUQ2MXJLNmhTeW1aQ1lYX09mX3p3bDMtMUxHcHZoVlRCajFPbWcweVRBV3U3Uk9Gdk03NzcvZXhlYw==');
+  const SCRIPT_URL = atob('aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4Z1U0alphR0RkaGpNR3k2LTgwR2pyelYwbUh2SU84a2d6X2pkalJuYVBPR2VlQVZGY1B6MzdqVlFRTk1KWTlZZmkvZXhlYw==');
 
   // 3. NO HARDCODED PASSWORD - stored in closure only after login
   // The admin password is entered by user and kept in memory only

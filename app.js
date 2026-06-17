@@ -8,9 +8,9 @@
 // ─── Configuration ───────────────────────────────────────
 const SCRIPT_URL = (() => {
   try {
-    return window.parentScriptUrl || 'https://script.google.com/macros/s/AKfycbwbHRvQ1U6MdFmyD61rK6hSymZCYX_Of_zwl3-1LGpvhVTBj1Omg0yTAWu7ROFvM777/exec';
+    return window.parentScriptUrl || 'https://script.google.com/macros/s/AKfycbxgU4jZaGDdhjMGy6-80GjrzV0mHvIO8kgz_jdjRnaPOGeeAVFcPz37jVQQNMJY9Yfi/exec';
   } catch {
-    return 'https://script.google.com/macros/s/AKfycbwbHRvQ1U6MdFmyD61rK6hSymZCYX_Of_zwl3-1LGpvhVTBj1Omg0yTAWu7ROFvM777/exec';
+    return 'https://script.google.com/macros/s/AKfycbxgU4jZaGDdhjMGy6-80GjrzV0mHvIO8kgz_jdjRnaPOGeeAVFcPz37jVQQNMJY9Yfi/exec';
   }
 })();
 
