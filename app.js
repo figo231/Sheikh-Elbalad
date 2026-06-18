@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initInstallBanner();
   initLoginForm();
   initRegisterForm();
+  initSplash();
 
   // Check for existing session
   session = loadSession();
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showDashboard();
     refreshData();
   } else {
-    showLoginCard();
+    showSplash();
   }
 });
 
@@ -270,13 +271,27 @@ function saveSession(data) {
   sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
 }
 
+function initSplash() {
+  const btn = $('splashStartBtn');
+  if (btn) btn.addEventListener('click', showLoginCard);
+}
+
+function showSplash() {
+  $('splashScreen')?.classList.remove('hidden');
+  $('loginCard')?.classList.add('hidden');
+  $('dashboard')?.classList.add('hidden');
+  $('menuBtn')?.classList.add('hidden');
+}
+
 function showLoginCard() {
+  $('splashScreen')?.classList.add('hidden');
   $('loginCard')?.classList.remove('hidden');
   $('dashboard')?.classList.add('hidden');
   $('menuBtn')?.classList.add('hidden');
 }
 
 function showDashboard() {
+  $('splashScreen')?.classList.add('hidden');
   $('loginCard')?.classList.add('hidden');
   $('dashboard')?.classList.remove('hidden');
   $('menuBtn')?.classList.remove('hidden');

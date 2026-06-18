@@ -20,6 +20,16 @@
   let currentUserObj = null;
   let cachedUsers = [];
   let mainAdminPassword = '';  // فصل باسورد الأدمن الرئيسي عن باسورد المستخدم الحالي
+  let currentUserPass = '';    // باسورد المستخدم الفرعي الشخصي (بيتبعت للسيرفر مع كل طلب عشان يتحقق من صلاحياته)
+
+  // يبني بارامترات التحقق المطلوب إضافتها لكل طلب API:
+  // الأدمن الرئيسي بيبعت الباسورد الأساسي، والمستخدم الفرعي بيبعت اسمه وباسوروده الشخصي بس
+  // (السيرفر هو اللي بيتحقق من صلاحياته بنفسه على كل طلب — مفيش باسورد رئيسي بيتسرب للمستخدمين الفرعيين)
+  function authParams() {
+    return mainAdminPassword
+      ? { password: mainAdminPassword }
+      : { actorName: currentUser, actorPass: currentUserPass };
+  }
 
   // 4. Escape HTML to prevent XSS
   function escapeHTML(str) {
@@ -275,7 +285,7 @@
           return;
         }
         bruteForce.recordSuccess();
-        adminPassword = verifyData.adminToken;
+        currentUserPass = pass;
         currentUser = u.name;
         currentUserObj = verifyData.user || u;
       } catch(e) {
@@ -356,6 +366,7 @@
     // Clear sensitive data from memory
     adminPassword = '';
     mainAdminPassword = '';  // مسح باسورد الأدمن الرئيسي
+    currentUserPass = '';    // مسح باسورد المستخدم الفرعي
     currentUser = '';
     currentUserObj = null;
     allCustomers = [];
@@ -424,7 +435,7 @@
     }
 
     try {
-      var data = await api({ action: 'updateUserPass', password: mainAdminPassword || adminPassword, index: idx, newPass: newPass });
+      var data = await api(Object.assign({ action: 'updateUserPass', index: idx, newPass: newPass }, authParams()));
       if (!data || !data.success) {
         els.changePassError.textContent = (data && data.message) || 'فيه مشكلة';
         els.changePassError.style.display = 'block';
@@ -674,7 +685,7 @@
     btn.innerHTML = '<span class="spinner"></span>';
 
     try {
-      var data = await api({ action: 'addPoints', phone: phone, amount: amount, password: adminPassword });
+      var data = await api(Object.assign({ action: 'addPoints', phone: phone, amount: amount}, authParams()));
       if (data && data.success) {
         showToast('\u2705 ' + (data.message || 'تم') + ' \u2014 الإجمالي: ' + (data.newTotal || ''), 'success');
         logActivity('إضافة نقاط للعميل: ' + phone + ' \u2014 مبلغ: ' + amount + ' ج');
@@ -698,7 +709,7 @@
   async function approveRedemption(phone, name) {
     if (!confirm('تأكيد الموافقة على خصم 15% لـ ' + (name || '') + '؟')) return;
     try {
-      var data = await api({ action: 'approveRedemption', phone: sanitizePhone(phone), password: adminPassword });
+      var data = await api(Object.assign({ action: 'approveRedemption', phone: sanitizePhone(phone)}, authParams()));
       if (data && data.success) {
         showToast('\u2705 تمت الموافقة لـ ' + (name || ''), 'success');
         logActivity('موافقة خصم لـ: ' + (name || '') + ' \u2014 ' + phone);
@@ -714,7 +725,7 @@
   async function rejectRedemption(phone, name) {
     if (!confirm('تأكيد رفض طلب ' + (name || '') + '؟')) return;
     try {
-      var data = await api({ action: 'rejectRedemption', phone: sanitizePhone(phone), password: adminPassword });
+      var data = await api(Object.assign({ action: 'rejectRedemption', phone: sanitizePhone(phone)}, authParams()));
       if (data && data.success) {
         showToast('تم الرفض', 'error');
         logActivity('رفض طلب خصم لـ: ' + (name || '') + ' \u2014 ' + phone);
@@ -747,7 +758,7 @@
     var btn = document.querySelector('#tab-addCustomer .btn');
     btn.disabled = true;
     try {
-      var data = await api({ action: 'addCustomer', phone: phone, name: name, password: adminPassword });
+      var data = await api(Object.assign({ action: 'addCustomer', phone: phone, name: name}, authParams()));
       if (data && data.success) {
         showToast('\u1F389 ' + (data.message || 'تم'), 'success');
         logActivity('تسجيل عميل جديد: ' + name + ' \u2014 ' + phone);
@@ -771,7 +782,7 @@
   async function deleteCustomer(phone, name) {
     if (!confirm('هتحذف ' + (name || '') + ' نهائياً؟')) return;
     try {
-      var data = await api({ action: 'deleteCustomer', phone: sanitizePhone(phone), password: adminPassword });
+      var data = await api(Object.assign({ action: 'deleteCustomer', phone: sanitizePhone(phone)}, authParams()));
       if (data && data.success) {
         showToast('تم حذف ' + (name || '') + ' \u2705', 'success');
         logActivity('حذف عميل: ' + (name || '') + ' \u2014 ' + phone);
@@ -817,7 +828,7 @@
   // ===== ADMIN LEADERBOARD (XSS-SAFE DOM RENDERING) =====
   async function renderAdminLeaderboard() {
     try {
-      var data = await api({ action: 'getAllCustomers', password: adminPassword });
+      var data = await api(Object.assign({ action: 'getAllCustomers'}, authParams()));
       var div = els.adminLeaderboard;
       if (!data || !data.success || !data.customers || !data.customers.length) {
         div.innerHTML = '<div class="empty-state"><div class="icon">\u1F3C5</div>مفيش عملاء لحد دلوقتي</div>';
@@ -878,7 +889,7 @@
   // ===== PENDING =====
   async function loadPending() {
     try {
-      var pd = await api({ action: 'getPendingRedemptions', password: adminPassword });
+      var pd = await api(Object.assign({ action: 'getPendingRedemptions'}, authParams()));
       if (pd && pd.success) renderPending(pd.pending);
     } catch(e) {}
   }
@@ -962,7 +973,7 @@
     if (document.getElementById('perm_branches').checked)    perms.push('إحصائيات الفروع');
 
     try {
-      var data = await api({ action: 'addUser', password: mainAdminPassword || adminPassword, name: name, pass: pass, role: role, perms: perms.join(',') });
+      var data = await api(Object.assign({ action: 'addUser', name: name, pass: pass, role: role, perms: perms.join(',') }, authParams()));
       if (data && data.success) {
         els.newUserName.value = '';
         els.newUserPass.value = '';
@@ -979,7 +990,7 @@
   async function deleteUser(i, name) {
     if (!confirm('هتحذف ' + (name || '') + '؟')) return;
     try {
-      var data = await api({ action: 'deleteUser', password: mainAdminPassword || adminPassword, index: i });
+      var data = await api(Object.assign({ action: 'deleteUser', index: i }, authParams()));
       if (data && data.success) {
         showToast('تم الحذف', 'error');
         logActivity('حذف مستخدم: ' + (name || ''));
@@ -1150,14 +1161,14 @@
   // ===== LOAD ALL =====
   async function loadAll() {
     try {
-      var data = await api({ action: 'getAllCustomers', password: adminPassword });
+      var data = await api(Object.assign({ action: 'getAllCustomers'}, authParams()));
       if (data && data.success) {
         allCustomers = data.customers || [];
         renderStats();
         renderCustomers();
         loadBranchStats();
       }
-      var pd = await api({ action: 'getPendingRedemptions', password: adminPassword });
+      var pd = await api(Object.assign({ action: 'getPendingRedemptions'}, authParams()));
       if (pd && pd.success) renderPending(pd.pending);
     } catch(e) {
       showToast('خطأ في تحميل البيانات', 'error');
@@ -1167,7 +1178,7 @@
   // ===== STAMPS (XSS-SAFE) =====
   async function loadStampRequests() {
     try {
-      var data = await api({ action: 'getPendingStamps', password: adminPassword });
+      var data = await api(Object.assign({ action: 'getPendingStamps'}, authParams()));
       var div = els.stampPendingList;
       if (!data || !data.success || !data.stamps || !data.stamps.length) {
         div.innerHTML = '<div class="empty-state"><div class="icon">\u2705</div>مفيش طلبات أختام دلوقتي</div>';
@@ -1226,7 +1237,7 @@
 
   async function approveStamp(phone, name) {
     try {
-      var data = await api({ action: 'approveStamp', phone: sanitizePhone(phone), password: adminPassword });
+      var data = await api(Object.assign({ action: 'approveStamp', phone: sanitizePhone(phone)}, authParams()));
       if (data && data.success) {
         showToast('تم إضافة ختم لـ ' + (name || '') + ' \u2705', 'success');
         if (data.completed) showToast('\u1F389 ' + (name || '') + ' أكمل 10 أختام! صينية هدية', 'success');
@@ -1239,7 +1250,7 @@
 
   async function rejectStamp(phone) {
     try {
-      var data = await api({ action: 'rejectStamp', phone: sanitizePhone(phone), password: adminPassword });
+      var data = await api(Object.assign({ action: 'rejectStamp', phone: sanitizePhone(phone)}, authParams()));
       if (data && data.success) {
         showToast('تم رفض طلب الختم', 'error');
         loadStampRequests();
@@ -1249,7 +1260,7 @@
 
   async function loadStampRewardRequests() {
     try {
-      var data = await api({ action:'getPendingStampRewards', password: adminPassword });
+      var data = await api(Object.assign({ action:'getPendingStampRewards'}, authParams()));
       var div = els.stampRewardPendingList;
       if (!data || !data.success || !data.rewards || !data.rewards.length) {
         div.innerHTML = '<div class="empty-state"><div class="icon">\u2705</div>مفيش طلبات مكافآت دلوقتي</div>';
@@ -1309,7 +1320,7 @@
   async function approveStampReward(phone, name) {
     if (!confirm('تأكيد الموافقة على مكافأة ' + (name || '') + ' (صينية هدية)؟')) return;
     try {
-      var data = await api({ action: 'approveStampReward', phone: sanitizePhone(phone), password: adminPassword });
+      var data = await api(Object.assign({ action: 'approveStampReward', phone: sanitizePhone(phone)}, authParams()));
       if (data && data.success) {
         showToast('\u1F389 تمت الموافقة على مكافأة ' + (name || ''), 'success');
         logActivity('موافقة مكافأة أختام لـ: ' + (name || '') + ' \u2014 ' + phone);
@@ -1322,7 +1333,7 @@
 
   async function rejectStampReward(phone) {
     try {
-      var data = await api({ action: 'rejectStampReward', phone: sanitizePhone(phone), password: adminPassword });
+      var data = await api(Object.assign({ action: 'rejectStampReward', phone: sanitizePhone(phone)}, authParams()));
       if (data && data.success) {
         showToast('تم رفض طلب المكافأة', 'error');
         loadStampRewardRequests();
@@ -1334,7 +1345,7 @@
     var phone = sanitizePhone(els.stampPhone.value);
     if (!isValidEgyptianPhone(phone)) { showToast('ادخل رقم تليفون مصري صحيح', 'error'); return; }
     try {
-      var data = await api({ action: 'addStamp', phone: phone, password: adminPassword });
+      var data = await api(Object.assign({ action: 'addStamp', phone: phone}, authParams()));
       if (data && data.success) {
         showToast('\u2705 تم إضافة ختم \u2014 عنده دلوقتي ' + String(data.stamps || 0) + ' أختام', 'success');
         if (data.completed) showToast('\u1F389 اكتملت البطاقة! صينية هدية', 'success');
@@ -1359,7 +1370,7 @@
   // ===== SETTINGS TAB (INSIDE IIFE) =====
   async function loadSettings() {
     try {
-      var data = await api({ action: 'getSettings', password: adminPassword });
+      var data = await api(Object.assign({ action: 'getSettings'}, authParams()));
       if (data && data.success) {
         var discountInp = document.getElementById('discountInput');
         var thresholdInp = document.getElementById('thresholdInput');
@@ -1383,7 +1394,7 @@
     var btn = document.getElementById('saveDiscountBtn');
     if (btn) { btn.disabled = true; btn.textContent = 'جاري الحفظ...'; }
     try {
-      var data = await api({ action: 'saveSettings', password: adminPassword, discount: val });
+      var data = await api(Object.assign({ action: 'saveSettings', discount: val }, authParams()));
       if (data && data.success) {
         showToast('✅ تم حفظ نسبة الخصم: ' + val + '%', 'success');
         var discountStatus = document.getElementById('discountStatus');
@@ -1405,7 +1416,7 @@
     var btn = document.getElementById('saveThresholdBtn');
     if (btn) { btn.disabled = true; btn.textContent = 'جاري الحفظ...'; }
     try {
-      var data = await api({ action: 'saveSettings', password: adminPassword, threshold: val });
+      var data = await api(Object.assign({ action: 'saveSettings', threshold: val }, authParams()));
       if (data && data.success) {
         showToast('✅ تم حفظ الحد: ' + val + ' نقطة', 'success');
         var thresholdStatus = document.getElementById('thresholdStatus');

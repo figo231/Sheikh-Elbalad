@@ -462,8 +462,38 @@
 
 <main>
 
+  <!-- SPLASH / INTRO SCREEN -->
+  <div id="splashScreen" class="card">
+    <img src="icon-192x192.png" class="logo-img" alt="شيخ البلد" onerror="this.style.display='none'">
+    <div class="login-title">أهلاً بيك في شيخ البلد 🎉</div>
+    <div class="login-sub" style="margin-bottom:18px;">نظام نقاط الولاء بتاعنا — اعرف هتستفاد إزاي:</div>
+
+    <div style="text-align:right;display:flex;flex-direction:column;gap:12px;margin-bottom:22px;">
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:20px;">💰</span>
+        <span style="font-size:14px;color:#555;">بكل طلب تعمله، تكسب نقط ولاء تلقائي</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:20px;">🎟️</span>
+        <span style="font-size:14px;color:#555;">اجمع نقطك واستبدلها بخصومات حصرية على فاتورتك</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:20px;">🟢</span>
+        <span style="font-size:14px;color:#555;">كل زيارة = ختم جديد في بطاقتك، وبعد ما تكمل البطاقة تاخد صينية هدية 🎁</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:20px;">📱</span>
+        <span style="font-size:14px;color:#555;">تابع نقاطك وأختامك وطلباتك من موبايلك في أي وقت</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="splashStartBtn">
+      <span>يلا بينا 🚀</span>
+    </button>
+  </div>
+
   <!-- LOGIN CARD -->
-  <div id="loginCard" class="card">
+  <div id="loginCard" class="card hidden">
     <img src="icon-192x192.png" class="logo-img" alt="شيخ البلد" onerror="this.style.display='none'">
     <div class="login-title">أهلاً بك!</div>
     <div class="login-sub">ادخل رقم تليفونك عشان تشوف نقاطك</div>
