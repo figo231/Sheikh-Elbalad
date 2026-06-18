@@ -21,6 +21,7 @@
   let cachedUsers = [];
   let mainAdminPassword = '';  // فصل باسورد الأدمن الرئيسي عن باسورد المستخدم الحالي
   let currentUserPass = '';    // باسورد المستخدم الفرعي الشخصي (بيتبعت للسيرفر مع كل طلب عشان يتحقق من صلاحياته)
+  let customerSearchTerm = '';
 
   // يبني بارامترات التحقق المطلوب إضافتها لكل طلب API:
   // الأدمن الرئيسي بيبعت الباسورد الأساسي، والمستخدم الفرعي بيبعت اسمه وباسوروده الشخصي بس
@@ -168,6 +169,7 @@
     stampPhone: document.getElementById('stampPhone'),
     stampCustomerInfo: document.getElementById('stampCustomerInfo'),
     customersBody: document.getElementById('customersBody'),
+    customerSearchInput: document.getElementById('customerSearchInput'),
     newName: document.getElementById('newName'),
     newPhone: document.getElementById('newPhone'),
     addCustomerError: document.getElementById('addCustomerError'),
@@ -303,6 +305,12 @@
   }
 
   els.adminLoginBtn.addEventListener('click', adminLogin);
+  if (els.customerSearchInput) {
+    els.customerSearchInput.addEventListener('input', function(e) {
+      customerSearchTerm = e.target.value;
+      renderCustomers();
+    });
+  }
   els.passInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') adminLogin();
   });
@@ -536,10 +544,26 @@
   function renderCustomers() {
     var tbody = els.customersBody;
     if (!allCustomers.length) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">مفيش عملاء لحد دلوقتي</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">مفيش عملاء لحد دلوقتي</td></tr>';
       return;
     }
-    var sorted = allCustomers.slice().sort(function(a, b) { return (b.points || 0) - (a.points || 0); });
+
+    var term = (customerSearchTerm || '').trim().toLowerCase();
+    var filtered = allCustomers;
+    if (term) {
+      filtered = allCustomers.filter(function(c) {
+        var name = String(c.name || '').toLowerCase();
+        var phone = String(c.phone || '');
+        return name.indexOf(term) !== -1 || phone.indexOf(term) !== -1;
+      });
+    }
+
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">مفيش نتائج للبحث ده</td></tr>';
+      return;
+    }
+
+    var sorted = filtered.slice().sort(function(a, b) { return (b.points || 0) - (a.points || 0); });
 
     var fragment = document.createDocumentFragment();
     sorted.forEach(function(c) {
@@ -554,11 +578,8 @@
       tdPhone.style.direction = 'ltr';
       tdPhone.textContent = c.phone || '';
 
-      var tdPts = document.createElement('td');
-      var ptsStrong = document.createElement('strong');
-      ptsStrong.style.color = 'var(--red)';
-      ptsStrong.textContent = String(c.points || 0);
-      tdPts.appendChild(ptsStrong);
+      var tdPts = buildAdjustCell(c.points || 0, function() { adjustCustomer(c.phone, 'points', +1); }, function() { adjustCustomer(c.phone, 'points', -1); });
+      var tdStamps = buildAdjustCell(c.stamps || 0, function() { adjustCustomer(c.phone, 'stamp', +1); }, function() { adjustCustomer(c.phone, 'stamp', -1); });
 
       var tdStatus = document.createElement('td');
       var badge = document.createElement('span');
@@ -584,12 +605,75 @@
       tr.appendChild(tdName);
       tr.appendChild(tdPhone);
       tr.appendChild(tdPts);
+      tr.appendChild(tdStamps);
       tr.appendChild(tdStatus);
       tr.appendChild(tdDelete);
       fragment.appendChild(tr);
     });
     tbody.innerHTML = '';
     tbody.appendChild(fragment);
+  }
+
+  // بناء خلية فيها رقم + زرار زيادة وزرار خصم (مستخدمة للنقط والأختام)
+  function buildAdjustCell(value, onPlus, onMinus) {
+    var td = document.createElement('td');
+    var wrap = document.createElement('div');
+    wrap.className = 'adj-cell';
+
+    var minusBtn = document.createElement('button');
+    minusBtn.className = 'adj-btn minus';
+    minusBtn.textContent = '\u2212';
+    minusBtn.type = 'button';
+    minusBtn.addEventListener('click', onMinus);
+
+    var val = document.createElement('span');
+    val.className = 'adj-val';
+    val.textContent = String(value);
+
+    var plusBtn = document.createElement('button');
+    plusBtn.className = 'adj-btn plus';
+    plusBtn.textContent = '+';
+    plusBtn.type = 'button';
+    plusBtn.addEventListener('click', onPlus);
+
+    wrap.appendChild(minusBtn);
+    wrap.appendChild(val);
+    wrap.appendChild(plusBtn);
+    td.appendChild(wrap);
+    return td;
+  }
+
+  // تعديل سريع لنقط/أختام عميل من جدول العملاء
+  async function adjustCustomer(phone, kind, sign) {
+    var label = kind === 'points' ? 'النقط' : 'الختم';
+    var delta = sign;
+
+    if (kind === 'points') {
+      var input = window.prompt((sign > 0 ? 'هتضيف كام نقطة؟' : 'هتشيل كام نقطة؟'), '10');
+      if (input === null) return;
+      var n = parseInt(input, 10);
+      if (isNaN(n) || n <= 0) { showToast('قيمة غلط \u274C', 'error'); return; }
+      delta = sign * n;
+    }
+
+    try {
+      var action = kind === 'points' ? 'adjustPoints' : 'adjustStamp';
+      var data = await api(Object.assign({ action: action, phone: sanitizePhone(phone), delta: delta }, authParams()));
+      if (data && data.success) {
+        var c = allCustomers.find(function(x) { return sanitizePhone(x.phone) === sanitizePhone(phone); });
+        if (c) {
+          if (kind === 'points') c.points = data.newTotal;
+          else c.stamps = data.newTotal;
+        }
+        renderCustomers();
+        logActivity((sign > 0 ? 'إضافة ' : 'خصم ') + label + ' — ' + phone);
+        showToast('\u2705 تم التعديل', 'success');
+      } else {
+        showToast('\u274C ' + (data && data.message ? data.message : 'فشل التعديل'), 'error');
+      }
+    } catch (e) {
+      showToast('\u26A0\uFE0F خطأ في الاتصال', 'error');
+    }
   }
 
   // ===== PENDING LIST (XSS-SAFE DOM RENDERING) =====
