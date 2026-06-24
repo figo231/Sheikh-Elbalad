@@ -1752,3 +1752,20 @@ async function addCardStampHandler() {
   if (cancelBtn) cancelBtn.addEventListener('click', resetCardForm);
   if (addStamp)  addStamp.addEventListener('click', addCardStampHandler);
 })();
+
+// ── Dropdown الفروع (من config) ──
+function buildBranchDropdown() {
+  var sel = document.getElementById('newUserRole');
+  if (!sel || typeof APP_CONFIG === 'undefined' || !APP_CONFIG.branches) return;
+  while (sel.options.length > 1) sel.remove(0);
+  APP_CONFIG.branches.forEach(function(b) {
+    var opt = document.createElement('option');
+    var k = b.isCallCenter ? 'callcenter' : 'cashier_' + b.key;
+    var label = b.isCallCenter ? '📞 ' + b.name : 'كاشير - ' + b.name;
+    opt.value = k;
+    opt.textContent = label;
+    sel.insertBefore(opt, sel.options[0]);
+  });
+}
+// تشغيل بعد تحميل الصفحة
+document.addEventListener('DOMContentLoaded', buildBranchDropdown);

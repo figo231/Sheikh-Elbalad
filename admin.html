@@ -846,23 +846,6 @@
 <script src="config.js"></script>
 <script src="admin.js"></script>
 
-<script>
-(function buildBranchDropdown() {
-  var sel = document.getElementById('newUserRole');
-  if (!sel || typeof APP_CONFIG === 'undefined' || !APP_CONFIG.branches) return;
-  // مسح الـ options القديمة ما عدا super
-  while (sel.options.length > 1) sel.remove(0);
-  // إضافة الفروع من config
-  APP_CONFIG.branches.forEach(function(b) {
-    var opt = document.createElement('option');
-    var k = b.isCallCenter ? 'callcenter' : 'cashier_' + b.key;
-    var label = b.isCallCenter ? '📞 ' + b.name : 'كاشير - ' + b.name;
-    opt.value = k;
-    opt.textContent = label;
-    sel.insertBefore(opt, sel.options[0]);
-  });
-})();
-</script>
 
 </body>
 </html>
