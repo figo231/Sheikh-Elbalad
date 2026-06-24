@@ -358,7 +358,8 @@
       background:none; border:none; font-family:'Cairo',sans-serif;
       padding:6px 2px; cursor:pointer; color:#aaa;
     }
-    .bn-item .bn-icon { font-size:20px; line-height:1; }
+    .bn-item .bn-icon { display:flex; align-items:center; justify-content:center; width:22px; height:22px; }
+    .bn-item .bn-icon svg { width:22px; height:22px; display:block; }
     .bn-item .bn-label { font-size:10px; font-weight:600; }
     .bn-item.active { color:var(--red); }
     body.dark .bn-item.active { color:var(--gold2); }
@@ -828,19 +829,19 @@
 <!-- BOTTOM TAB BAR -->
 <nav class="bottom-nav hidden" id="bottomNav">
   <button class="bn-item active" data-tab="tab-home" id="bn-home">
-    <span class="bn-icon">&#x1F3E0;</span><span class="bn-label">الرئيسية</span>
+    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5"/><path d="M9.5 21v-6h5v6"/></svg></span><span class="bn-label">الرئيسية</span>
   </button>
   <button class="bn-item" data-tab="tab-history" id="bn-history">
-    <span class="bn-icon">&#x1F4CB;</span><span class="bn-label">السجل</span>
+    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9z"/><path d="M8.5 11h7M8.5 15h7M8.5 19h4"/></svg></span><span class="bn-label">السجل</span>
   </button>
   <button class="bn-item" data-tab="tab-leader" id="bn-leader">
-    <span class="bn-icon">&#x1F3C5;</span><span class="bn-label">الترتيب</span>
+    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="6"/><path d="M9 9.5 7 3M15 9.5l2-6.5"/><path d="M12 12v6M9.5 15h5"/></svg></span><span class="bn-label">الترتيب</span>
   </button>
   <button class="bn-item" data-tab="tab-cards" id="bn-cards">
-    <span class="bn-icon">&#x1F0CF;</span><span class="bn-label">البطاقات</span>
+    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="14" height="10" rx="2"/><path d="M7 4.5h11a2 2 0 0 1 2 2V14"/></svg></span><span class="bn-label">البطاقات</span>
   </button>
   <button class="bn-item" id="bn-more">
-    <span class="bn-icon">&#x2630;</span><span class="bn-label">المزيد</span>
+    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></span><span class="bn-label">المزيد</span>
     <span class="bn-dot" id="bnMoreDot"></span>
   </button>
 </nav>
