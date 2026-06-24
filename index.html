@@ -6,12 +6,12 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://script.google.com https://script.googleusercontent.com; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; form-action 'none'">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>شيخ البلد - نقاط الولاء</title>
+  <title id="pageTitle">شيخ البلد - نقاط الولاء</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#8B0000">
+  <meta name="theme-color" id="themeColorMeta" content="#8B0000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="شيخ البلد">
+  <meta name="apple-mobile-web-app-title" id="appleTitleMeta" content="شيخ البلد">
   <link rel="apple-touch-icon" href="icon-192x192.png">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
@@ -434,6 +434,69 @@
       border-radius:99px; backdrop-filter:blur(4px);
     }
     body.dark .security-badge { background:rgba(0,0,0,0.5); color:#888; }
+
+    /* ── Multi Cards Tab ── */
+    .cards-list { display:flex; flex-direction:column; gap:14px; }
+    .multi-card {
+      background:#fff;
+      border:1.5px solid rgba(139,0,0,0.15);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 2px 10px rgba(139,0,0,0.07);
+    }
+    .multi-card-header {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:10px;
+    }
+    .multi-card-name { font-size:15px; font-weight:900; color:var(--dark); }
+    .multi-card-reward {
+      font-size:11px; color:#fff;
+      background:var(--red); border-radius:20px;
+      padding:3px 10px; font-weight:700;
+    }
+    .multi-stamps-grid {
+      display:flex; flex-wrap:wrap; gap:6px;
+      justify-content:center; margin:10px 0;
+    }
+    .multi-stamp {
+      width:32px; height:32px; border-radius:50%;
+      border:2px solid #ddd;
+      background:#f5f5f5;
+      display:flex; align-items:center; justify-content:center;
+      font-size:14px; transition:all 0.3s;
+    }
+    .multi-stamp.filled {
+      background:linear-gradient(135deg,#8B0000,#D4AF37);
+      border-color:var(--gold);
+      animation:stampPop 0.4s ease;
+    }
+    .multi-card-count { text-align:center; font-size:12px; color:#999; margin-bottom:8px; }
+    .multi-card-count strong { color:var(--red); }
+    .btn-card-reward {
+      width:100%; padding:10px; border:none; border-radius:12px;
+      background:linear-gradient(135deg,var(--red),var(--gold));
+      color:#fff; font-weight:800; font-size:13px;
+      cursor:pointer; margin-top:4px;
+    }
+    .btn-card-reward:disabled { opacity:0.5; cursor:not-allowed; }
+    .card-pending-msg {
+      text-align:center; font-size:12px; color:#F59E0B;
+      background:#FFFBEB; border-radius:8px; padding:8px; margin-top:6px;
+    }
+    .cards-mini-summary {
+      display:flex; gap:8px; margin-bottom:16px; overflow-x:auto;
+      padding-bottom:4px;
+    }
+    .card-mini {
+      flex-shrink:0; background:#fff; border:1.5px solid rgba(139,0,0,0.15);
+      border-radius:14px; padding:10px 14px; text-align:center;
+      min-width:90px; cursor:pointer;
+    }
+    .card-mini-name { font-size:11px; font-weight:700; color:var(--dark); }
+    .card-mini-progress { font-size:13px; font-weight:900; color:var(--red); margin-top:2px; }
+    body.dark .multi-card { background:#1e1208; border-color:rgba(212,175,55,0.2); }
+    body.dark .multi-stamp { background:#2a2a2a; border-color:#444; }
+    body.dark .card-mini { background:#1e1208; border-color:rgba(212,175,55,0.2); }
   </style>
 </head>
 <body>
@@ -582,6 +645,9 @@
         &#x26A0; اقتربت! بعدك بس <strong id="warning80pts"></strong> نقطة للمكافأة
       </div>
 
+      <!-- CARDS MINI (اختصار) -->
+      <div id="homeMiniCards" style="margin-bottom:8px;"></div>
+
       <!-- STAMP CARD -->
       <div class="stamp-card">
         <div class="stamp-card-title">&#x1F37D; بطاقة الصواني</div>
@@ -662,6 +728,20 @@
     </div>
     <!-- END tab-leader -->
 
+
+    <div id="tab-cards" class="tab-page">
+      <!-- ملخص سريع -->
+      <div class="cards-mini-summary" id="cardsMiniSummary"></div>
+
+      <!-- البطاقات -->
+      <div class="cards-list" id="cardsList">
+        <div style="text-align:center;padding:30px;color:#ccc;font-size:13px;">
+          جاري تحميل البطاقات...
+        </div>
+      </div>
+    </div>
+    <!-- END tab-cards -->
+
     <div id="tab-completed" class="tab-page">
       <div class="completed-card">
         <div class="completed-seal">مكتمل &#x2705;</div>
@@ -694,6 +774,9 @@
   <button class="drawer-item hidden" id="drawerCompletedBtn" data-tab="tab-completed">
     <span class="d-icon">&#x1F3C6;</span><span>بطاقة مكتملة</span>
   </button>
+  <button class="drawer-item" data-tab="tab-cards" id="nav-cards">
+    <span class="d-icon">🃏</span><span>البطاقات</span>
+  </button>
   <button class="drawer-item drawer-dev" id="nav-contact">
     <span class="d-icon">&#x1F4AC;</span><span>اتصل بالمطور</span>
   </button>
@@ -707,6 +790,7 @@
 <div id="confettiContainer"></div>
 <div class="security-badge">&#x1F512; TLS Secured</div>
 
+<script src="config.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

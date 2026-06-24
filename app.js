@@ -8,7 +8,7 @@
 // ─── Configuration ───────────────────────────────────────
 const SCRIPT_URL = (() => {
   try {
-    return window.parentScriptUrl || 'https://script.google.com/macros/s/AKfycbxgU4jZaGDdhjMGy6-80GjrzV0mHvIO8kgz_jdjRnaPOGeeAVFcPz37jVQQNMJY9Yfi/exec';
+    return (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.scriptUrl : null) || window.parentScriptUrl || 'https://script.google.com/macros/s/AKfycbxgU4jZaGDdhjMGy6-80GjrzV0mHvIO8kgz_jdjRnaPOGeeAVFcPz37jVQQNMJY9Yfi/exec';
   } catch {
     return 'https://script.google.com/macros/s/AKfycbxgU4jZaGDdhjMGy6-80GjrzV0mHvIO8kgz_jdjRnaPOGeeAVFcPz37jVQQNMJY9Yfi/exec';
   }
@@ -624,6 +624,8 @@ function renderDashboard() {
 
   // Stamps
   renderStamps(session.stamps || 0, session.stampStatus || 'none');
+  // تحميل البطاقات المتعددة
+  loadCustomerCards();
 
   // Completed card tab
   if (session.completedCards > 0) {
@@ -932,7 +934,7 @@ async function loadLeaderboard() {
 
 // ─── Share ───────────────────────────────────────────────
 function handleShare() {
-  const text = `🏆 أنا في نظام ولاء شيخ البلد!\n` +
+  const text = `🏆 أنا في نظام ولاء ' + (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.appName : 'شيخ البلد') + '!\n` +
     `⭐ عندي ${session?.points || 0} نقطة\n` +
     `🍽️ ${session?.stamps || 0} أختام من 10\n` +
     `💎 المرحلة: ${session?.levelName || 'مشترك جديد'}\n\n` +
@@ -988,3 +990,134 @@ setInterval(() => {
     refreshData();
   }
 }, 60 * 1000); // Every minute
+
+
+// ═══════════════════════════════════════════════
+//  MULTI CARDS
+// ═══════════════════════════════════════════════
+
+// بيجيب البطاقات من السيرفر ويحفظها في session
+async function loadCustomerCards() {
+  if (!session || !session.phone) return;
+  try {
+    const res = await api({ action: 'getCustomerCards', phone: session.phone });
+    if (res.success) {
+      session.multiCards = res.cards || [];
+      renderCardsTab();
+      renderHomeMiniCards();
+    }
+  } catch(e) { console.warn('loadCustomerCards error', e); }
+}
+
+// رندر تاب البطاقات الكامل
+function renderCardsTab() {
+  const cards = session.multiCards || [];
+  const list  = $('cardsList');
+  const mini  = $('cardsMiniSummary');
+  if (!list) return;
+
+  if (!cards.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#ccc;font-size:13px;">مفيش بطاقات متاحة دلوقتي</div>';
+    if (mini) mini.innerHTML = '';
+    return;
+  }
+
+  // ملخص سريع في الأعلى
+  if (mini) {
+    mini.innerHTML = cards.map(c => `
+      <div class="card-mini">
+        <div class="card-mini-name">${c.name}</div>
+        <div class="card-mini-progress">${c.stampCount}/${c.stampsRequired}</div>
+      </div>
+    `).join('');
+  }
+
+  // البطاقات الكاملة
+  list.innerHTML = cards.map(c => buildCardHTML(c)).join('');
+
+  // ربط أزرار طلب المكافأة
+  cards.forEach(c => {
+    const btn = document.getElementById('cardRewardBtn_' + c.cardId);
+    if (btn) {
+      btn.addEventListener('click', () => handleCardRewardRequest(c.cardId, c.name));
+    }
+  });
+}
+
+// بناء HTML بطاقة واحدة
+function buildCardHTML(c) {
+  const filled    = c.stampCount || 0;
+  const total     = c.stampsRequired || 10;
+  const completed = filled >= total;
+  const pending   = c.pendingReward;
+
+  let stampsHTML = '';
+  for (let i = 0; i < total; i++) {
+    stampsHTML += `<div class="multi-stamp ${i < filled ? 'filled' : ''}">${i < filled ? '🍽️' : ''}</div>`;
+  }
+
+  let actionHTML = '';
+  if (completed && pending) {
+    actionHTML = `<div class="card-pending-msg">⏳ طلب المكافأة بيتراجع من الأدمن...</div>`;
+  } else if (completed) {
+    actionHTML = `<button class="btn-card-reward" id="cardRewardBtn_${c.cardId}">🏆 المطالبة بالمكافأة</button>`;
+  } else {
+    actionHTML = `<button class="btn-card-reward" disabled>اجمع ${total - filled} ختم كمان 🎯</button>`;
+  }
+
+  return `
+    <div class="multi-card">
+      <div class="multi-card-header">
+        <div class="multi-card-name">🃏 ${c.name}</div>
+        <div class="multi-card-reward">🎁 ${c.reward}</div>
+      </div>
+      <div class="multi-stamps-grid">${stampsHTML}</div>
+      <div class="multi-card-count">عندك <strong>${filled}</strong> من ${total} ختم</div>
+      ${actionHTML}
+    </div>
+  `;
+}
+
+// اختصار في الـ home
+function renderHomeMiniCards() {
+  const cards = session.multiCards || [];
+  const el    = $('homeMiniCards');
+  if (!el || !cards.length) return;
+
+  // أقرب بطاقة للاكتمال
+  const active = cards.filter(c => c.stampCount < c.stampsRequired);
+  if (!active.length) { el.innerHTML = ''; return; }
+
+  const nearest = active.sort((a, b) =>
+    (b.stampCount / b.stampsRequired) - (a.stampCount / a.stampsRequired)
+  )[0];
+
+  const pct = Math.round((nearest.stampCount / nearest.stampsRequired) * 100);
+  el.innerHTML = `
+    <div style="background:rgba(255,255,255,0.1);border-radius:14px;padding:10px 14px;margin-bottom:4px;cursor:pointer;"
+         onclick="switchTab('tab-cards')">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:12px;font-weight:700;color:#fff;">🃏 ${nearest.name}</span>
+        <span style="font-size:11px;color:rgba(255,255,255,0.7);">${nearest.stampCount}/${nearest.stampsRequired} ختم</span>
+      </div>
+      <div style="background:rgba(255,255,255,0.2);border-radius:6px;height:5px;">
+        <div style="background:var(--gold);height:5px;border-radius:6px;width:${pct}%;transition:width 0.5s;"></div>
+      </div>
+    </div>
+  `;
+}
+
+// طلب مكافأة بطاقة
+async function handleCardRewardRequest(cardId, cardName) {
+  const btn = document.getElementById('cardRewardBtn_' + cardId);
+  if (btn) btn.disabled = true;
+  try {
+    const res = await api({ action: 'requestCardReward', phone: session.phone, cardId });
+    showToast(res.message || (res.success ? 'تم الإرسال ✅' : 'حصل خطأ'));
+    if (res.success) await loadCustomerCards();
+  } catch(e) {
+    showToast('حصل خطأ، حاول تاني');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}

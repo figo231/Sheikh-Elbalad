@@ -10,7 +10,7 @@
   }
 
   // 2. API URL hidden inside closure via base64
-  const SCRIPT_URL = atob('aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4Z1U0alphR0RkaGpNR3k2LTgwR2pyelYwbUh2SU84a2d6X2pkalJuYVBPR2VlQVZGY1B6MzdqVlFRTk1KWTlZZmkvZXhlYw==');
+  const SCRIPT_URL = (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.scriptUrl : null) || atob('aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4Z1U0alphR0RkaGpNR3k2LTgwR2pyelYwbUh2SU84a2d6X2pkalJuYVBPR2VlQVZGY1B6MzdqVlFRTk1KWTlZZmkvZXhlYw==');
 
   // 3. NO HARDCODED PASSWORD - stored in closure only after login
   // The admin password is entered by user and kept in memory only
@@ -220,11 +220,18 @@
     opt.textContent = '\uD83D\uDC51 الأدمن الرئيسي';
     select.appendChild(opt);
 
-    var branchLabel = {
-      cashier_alfmosken: 'الف مسكن',
-      cashier_matriya: 'المطرية',
-      cashier_shorouk: 'الشروق',
-      callcenter: 'كول سنتر',
+    var branchLabel = (function() {
+      var lbl = {};
+      if (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.branches) {
+        APP_CONFIG.branches.forEach(function(b) {
+          lbl[b.isCallCenter ? 'callcenter' : 'cashier_' + b.key] = b.name;
+        });
+      } else {
+        lbl = { cashier_alfmosken: 'الف مسكن', cashier_matriya: 'المطرية', cashier_shorouk: 'الشروق', callcenter: 'كول سنتر' };
+      }
+      return lbl;
+    })();
+    var _branchLabelDummy = {
       super: 'سوبر أدمن'
     };
     cachedUsers.forEach(function(u, i) {
@@ -476,12 +483,16 @@
   els.drawerOverlay.addEventListener('click', closeDrawer);
   document.getElementById('drawer-contact').addEventListener('click', function() {
     var msg = 'مرحباً، أنا مهتم بتطوير تطبيق ولاء مشابه لشيخ البلد \u1F37D';
-    window.open('https://wa.me/201022390517?text=' + encodeURIComponent(msg), '_blank');
+    window.open('https://wa.me/' + (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.whatsappAdmin : '201022390517') + '?text=' + encodeURIComponent(msg), '_blank');
     closeDrawer();
   });
 
   // ===== TAB SWITCHING =====
-  function switchTab(name) {
+  function _loadTabData(tabId) {
+  if (tabId === 'cards') loadCardsTab();
+}
+
+function switchTab(name) {
     document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
     var target = document.getElementById('tab-' + name);
     if (target) target.classList.add('active');
@@ -493,6 +504,7 @@
     });
     closeDrawer();
     window.scrollTo(0, 0);
+    if (name === 'cards') loadCardsTab();
     if (name === 'pending') loadPending();
     if (name === 'stamps') { loadStampRequests(); loadStampRewardRequests(); }
     if (name === 'leaderboard') renderAdminLeaderboard();
@@ -504,7 +516,7 @@
   }
 
   // Tab click handlers
-  ['home','addPoints','pending','stamps','customers','addCustomer','leaderboard','branches','activity','users','export','settings'].forEach(function(tabName) {
+  ['home','addPoints','pending','stamps','cards','customers','addCustomer','leaderboard','branches','activity','users','export','settings'].forEach(function(tabName) {
     var btn = document.getElementById('tab-' + tabName + '-btn');
     var drawerBtn = document.getElementById('drawer-' + tabName);
     if (btn) btn.addEventListener('click', function() { switchTab(tabName); });
@@ -989,7 +1001,22 @@
         populateUserSelect([]);
         return;
       }
-      var roleLabel = { cashier_alfmosken:'كاشير - الف مسكن', cashier_matriya:'كاشير - المطرية', cashier_shorouk:'كاشير - الشروق', callcenter:'\uD83D\uDCDE كول سنتر', super:'\uD83D\uDC51 سوبر أدمن' };
+      var roleLabel = (function() {
+        var lbl = { super: '\uD83D\uDC51 سوبر أدمن' };
+        if (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.branches) {
+          APP_CONFIG.branches.forEach(function(b) {
+            var k = b.isCallCenter ? 'callcenter' : 'cashier_' + b.key;
+            var icon = b.isCallCenter ? '\uD83D\uDCDE ' : 'كاشير - ';
+            lbl[k] = icon + b.name;
+          });
+        } else {
+          lbl.cashier_alfmosken = 'كاشير - الف مسكن';
+          lbl.cashier_matriya   = 'كاشير - المطرية';
+          lbl.cashier_shorouk   = 'كاشير - الشروق';
+          lbl.callcenter        = '\uD83D\uDCDE كول سنتر';
+        }
+        return lbl;
+      })();
 
       var fragment = document.createDocumentFragment();
       data.users.forEach(function(u, i) {
@@ -1139,10 +1166,17 @@
   function loadBranchStats() {
     if (!allCustomers.length) return;
     var branches = {
-      alfmosken:  { name: 'الف مسكن',  customers: 0, sales: 0, pts: 0 },
-      matriya:    { name: 'المطرية',   customers: 0, sales: 0, pts: 0 },
-      shorouk:    { name: 'الشروق',    customers: 0, sales: 0, pts: 0 },
-      callcenter: { name: 'كول سنتر', customers: 0, sales: 0, pts: 0 }
+...(function() {
+        var b = {};
+        var list = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.branches)
+          ? APP_CONFIG.branches
+          : [{key:'alfmosken',name:'الف مسكن'},{key:'matriya',name:'المطرية'},{key:'shorouk',name:'الشروق'},{key:'callcenter',name:'كول سنتر',isCallCenter:true}];
+        list.forEach(function(br) {
+          var k = br.isCallCenter ? 'callcenter' : br.key;
+          b[k] = { name: br.name, customers: 0, sales: 0, pts: 0 };
+        });
+        return b;
+      })()
     };
 
     allCustomers.forEach(function(c) {
@@ -1196,7 +1230,7 @@
     var totalPts = allCustomers.reduce(function(s, c) { return s + (c.points || 0); }, 0);
     var totalSales = allCustomers.reduce(function(s, c) { return s + (c.totalSpent || 0); }, 0);
     var ready = allCustomers.filter(function(c) { return c.points >= 100; }).length;
-    var report = 'تقرير شيخ البلد\n' + new Date().toLocaleDateString('ar-EG') + '\n\nإجمالي العملاء: ' + total + '\nإجمالي النقاط: ' + totalPts + '\nإجمالي المبيعات: ' + totalSales + ' جنيه\nجاهزين للخصم: ' + ready;
+    var report = 'تقرير ' + (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.appName : 'شيخ البلد') + '\n' + new Date().toLocaleDateString('ar-EG') + '\n\nإجمالي العملاء: ' + total + '\nإجمالي النقاط: ' + totalPts + '\nإجمالي المبيعات: ' + totalSales + ' جنيه\nجاهزين للخصم: ' + ready;
     var blob = new Blob([report], { type: 'text/plain;charset=utf-8;' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -1514,4 +1548,207 @@
     if (btn) { btn.disabled = false; btn.textContent = '💾 حفظ'; }
   }
 
+})();
+
+
+// ═══════════════════════════════════════════════
+//  ADMIN — CARDS MANAGEMENT
+// ═══════════════════════════════════════════════
+
+let allCards = [];
+
+async function loadCardsTab() {
+  await Promise.all([loadCardsList(), loadCardRewardsPending()]);
+  populateCardStampSelect();
+}
+
+// جلب وعرض البطاقات
+async function loadCardsList() {
+  const el = $('cardsAdminList');
+  if (!el) return;
+  try {
+    const res = await api({ action: 'getCards' });
+    if (!res.success) { el.innerHTML = '<div class="empty-state">فشل التحميل</div>'; return; }
+    allCards = res.cards || [];
+    if (!allCards.length) {
+      el.innerHTML = '<div class="empty-state"><div class="icon">🃏</div>مفيش بطاقات لسه — ضيف أول بطاقة من الأعلى</div>';
+      return;
+    }
+    el.innerHTML = allCards.map(c => `
+      <div class="card-item">
+        <div class="card-item-header">
+          <div class="card-item-name">🃏 ${c.name}</div>
+          <span class="card-item-badge ${c.active ? 'badge-active' : 'badge-inactive'}">${c.active ? 'نشطة ✅' : 'متوقفة ⛔'}</span>
+        </div>
+        <div class="card-item-info">
+          🔢 ${c.stampsRequired} ختم &nbsp;|&nbsp; 🎁 ${c.reward}
+        </div>
+        <div class="card-item-actions">
+          <button class="btn-toggle-card ${c.active ? 'btn-del-card' : 'btn-edit-card'}"
+            onclick="toggleCardHandler('${c.cardId}','${c.name}')">
+            ${c.active ? '⛔ تعطيل' : '✅ تفعيل'}
+          </button>
+          <button class="btn-edit-card" onclick="editCardHandler('${c.cardId}','${c.name}',${c.stampsRequired},'${c.reward.replace(/'/g,"\'")}')">✏️ تعديل</button>
+          <button class="btn-del-card" onclick="deleteCardHandler('${c.cardId}','${c.name}')">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state">حصل خطأ</div>';
+  }
+}
+
+// جلب طلبات مكافآت البطاقات
+async function loadCardRewardsPending() {
+  const el = $('cardRewardsPendingList');
+  if (!el) return;
+  try {
+    const res = await api({ action: 'getPendingCardRewards', ...adminAuth() });
+    if (!res.success) { el.innerHTML = '<div class="empty-state">فشل التحميل</div>'; return; }
+    const list = res.rewards || [];
+    if (!list.length) {
+      el.innerHTML = '<div class="empty-state"><div class="icon">🏆</div>مفيش طلبات دلوقتي</div>';
+      return;
+    }
+    el.innerHTML = list.map(r => `
+      <div style="border:1px solid #eee;border-radius:12px;padding:12px;margin-bottom:10px;">
+        <div style="font-weight:700;margin-bottom:4px;">${r.name} — ${r.phone}</div>
+        <div style="font-size:12px;color:#666;margin-bottom:8px;">🃏 ${r.cardName} | ${r.stamps} ختم</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-green" style="flex:1;padding:8px;"
+            onclick="approveCardRewardHandler('${r.phone}','${r.cardId}','${r.name}','${r.cardName}')">موافقة ✅</button>
+          <button class="btn btn-red" style="flex:1;padding:8px;"
+            onclick="rejectCardRewardHandler('${r.phone}','${r.cardId}')">رفض ❌</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state">حصل خطأ</div>';
+  }
+}
+
+// تعبئة الـ select بالبطاقات
+function populateCardStampSelect() {
+  const sel = $('cardStampCardSelect');
+  if (!sel) return;
+  const active = allCards.filter(c => c.active);
+  sel.innerHTML = '<option value="">اختار البطاقة</option>' +
+    active.map(c => `<option value="${c.cardId}">${c.name} (${c.stampsRequired} ختم)</option>`).join('');
+}
+
+// حفظ بطاقة (جديدة أو تعديل)
+async function saveCardHandler() {
+  const name    = ($('cardName').value || '').trim();
+  const stamps  = parseInt($('cardStamps').value, 10);
+  const reward  = ($('cardReward').value || '').trim();
+  const cardId  = ($('editCardId').value || '').trim();
+  const errEl   = $('cardFormError');
+
+  if (!name || isNaN(stamps) || stamps < 1 || !reward) {
+    if (errEl) errEl.textContent = 'ادخل كل البيانات بشكل صحيح';
+    return;
+  }
+  if (errEl) errEl.textContent = '';
+
+  const btn = $('saveCardBtn');
+  btn.disabled = true;
+  try {
+    const payload = { action: 'saveCard', name, stampsRequired: stamps, reward, ...adminAuth() };
+    if (cardId) payload.cardId = cardId;
+    const res = await api(payload);
+    showToast(res.message || (res.success ? 'تم ✅' : 'حصل خطأ'));
+    if (res.success) {
+      resetCardForm();
+      await loadCardsList();
+      populateCardStampSelect();
+    }
+  } catch(e) { showToast('حصل خطأ'); }
+  finally { btn.disabled = false; }
+}
+
+function resetCardForm() {
+  $('editCardId').value = '';
+  $('cardName').value = '';
+  $('cardStamps').value = '';
+  $('cardReward').value = '';
+  const cancelBtn = $('cancelEditCardBtn');
+  if (cancelBtn) cancelBtn.style.display = 'none';
+}
+
+function editCardHandler(cardId, name, stamps, reward) {
+  $('editCardId').value  = cardId;
+  $('cardName').value    = name;
+  $('cardStamps').value  = stamps;
+  $('cardReward').value  = reward;
+  const cancelBtn = $('cancelEditCardBtn');
+  if (cancelBtn) cancelBtn.style.display = '';
+  // scroll للفورم
+  const formCard = $('saveCardBtn');
+  if (formCard) formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function toggleCardHandler(cardId, name) {
+  if (!confirm(`تغيير حالة بطاقة "${name}"؟`)) return;
+  try {
+    const res = await api({ action: 'toggleCard', cardId, ...adminAuth() });
+    showToast(res.message || (res.success ? 'تم ✅' : 'حصل خطأ'));
+    if (res.success) { await loadCardsList(); populateCardStampSelect(); }
+  } catch(e) { showToast('حصل خطأ'); }
+}
+
+async function deleteCardHandler(cardId, name) {
+  if (!confirm(`هتحذف بطاقة "${name}" نهائياً؟`)) return;
+  try {
+    const res = await api({ action: 'deleteCard', cardId, ...adminAuth() });
+    showToast(res.message || (res.success ? 'تم الحذف' : 'حصل خطأ'));
+    if (res.success) { await loadCardsList(); populateCardStampSelect(); }
+  } catch(e) { showToast('حصل خطأ'); }
+}
+
+async function approveCardRewardHandler(phone, cardId, name, cardName) {
+  if (!confirm(`موافقة على مكافأة "${cardName}" للعميل ${name}؟`)) return;
+  try {
+    const res = await api({ action: 'approveCardReward', phone, cardId, ...adminAuth() });
+    showToast(res.message || (res.success ? 'تمت الموافقة ✅' : 'حصل خطأ'));
+    if (res.success) await loadCardRewardsPending();
+  } catch(e) { showToast('حصل خطأ'); }
+}
+
+async function rejectCardRewardHandler(phone, cardId) {
+  try {
+    const res = await api({ action: 'rejectCardReward', phone, cardId, ...adminAuth() });
+    showToast(res.message || (res.success ? 'تم الرفض' : 'حصل خطأ'));
+    if (res.success) await loadCardRewardsPending();
+  } catch(e) { showToast('حصل خطأ'); }
+}
+
+// إضافة ختم يدوي لبطاقة معينة
+async function addCardStampHandler() {
+  const phone  = ($('cardStampPhone').value || '').trim();
+  const cardId = $('cardStampCardSelect').value;
+  const infoEl = $('cardStampCustomerInfo');
+  if (!phone || phone.length < 10) { showToast('ادخل رقم تليفون صحيح'); return; }
+  if (!cardId) { showToast('اختار البطاقة'); return; }
+  const btn = $('addCardStampBtn');
+  btn.disabled = true;
+  try {
+    const res = await api({ action: 'addStampToCard', phone, cardId, ...adminAuth() });
+    showToast(res.message || (res.success ? 'تمت الإضافة ✅' : 'حصل خطأ'));
+    if (res.success && infoEl) {
+      infoEl.style.display = 'block';
+      infoEl.textContent = `✅ ${res.message} — الأختام: ${res.stamps}`;
+    }
+  } catch(e) { showToast('حصل خطأ'); }
+  finally { btn.disabled = false; }
+}
+
+
+// ربط أحداث البطاقات
+(function bindCardsEvents() {
+  const saveBtn   = document.getElementById('saveCardBtn');
+  const cancelBtn = document.getElementById('cancelEditCardBtn');
+  const addStamp  = document.getElementById('addCardStampBtn');
+  if (saveBtn)   saveBtn.addEventListener('click', saveCardHandler);
+  if (cancelBtn) cancelBtn.addEventListener('click', resetCardForm);
+  if (addStamp)  addStamp.addEventListener('click', addCardStampHandler);
 })();

@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://script.google.com https://script.googleusercontent.com; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self';">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>شيخ البلد - لوحة الإدارة</title>
+  <title id="adminPageTitle">شيخ البلد - لوحة الإدارة</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -421,6 +421,27 @@
       border-radius: 99px; backdrop-filter: blur(4px);
     }
     body.dark .security-badge { background: rgba(0,0,0,0.5); color: #888; }
+
+    /* ── Admin Cards ── */
+    .card-item {
+      border:1.5px solid rgba(139,0,0,0.15);
+      border-radius:14px; padding:14px;
+      margin-bottom:12px; background:#fff;
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .card-item-header { display:flex; justify-content:space-between; align-items:center; }
+    .card-item-name { font-weight:800; font-size:14px; color:var(--dark); }
+    .card-item-badge {
+      font-size:11px; padding:3px 10px; border-radius:20px; font-weight:700;
+    }
+    .badge-active { background:#D1FAE5; color:#065F46; }
+    .badge-inactive { background:#FEE2E2; color:#991B1B; }
+    .card-item-info { font-size:12px; color:#666; }
+    .card-item-actions { display:flex; gap:8px; }
+    .btn-toggle-card { flex:1; padding:8px; border:none; border-radius:10px; font-weight:700; font-size:12px; cursor:pointer; }
+    .btn-edit-card { flex:1; padding:8px; border:none; border-radius:10px; font-weight:700; font-size:12px; cursor:pointer; background:#EFF6FF; color:#1D4ED8; }
+    .btn-del-card { padding:8px 14px; border:none; border-radius:10px; font-weight:700; font-size:12px; cursor:pointer; background:#FEE2E2; color:#991B1B; }
+    body.dark .card-item { background:#2a1010; }
   </style>
 </head>
 <body>
@@ -490,6 +511,7 @@
     <div class="tab" data-tab="addPoints" id="tab-addPoints-btn">&#x2795; إضافة نقط</div>
     <div class="tab" data-tab="pending" id="tab-pending-btn">&#x23F3; طلبات</div>
     <div class="tab" data-tab="stamps" id="tab-stamps-btn">&#x1F37D; الأختام</div>
+    <div class="tab" data-tab="cards" id="tab-cards-btn">🃏 البطاقات</div>
     <div class="tab" data-tab="customers" id="tab-customers-btn">&#x1F465; العملاء</div>
     <div class="tab" data-tab="addCustomer" id="tab-addCustomer-btn">&#x1F464; عميل جديد</div>
     <div class="tab" data-tab="leaderboard" id="tab-leaderboard-btn">&#x1F3C5; المتصدرين</div>
@@ -575,6 +597,51 @@
       <input type="text" inputmode="numeric" id="stampPhone" placeholder="رقم التليفون" maxlength="11">
       <div id="stampCustomerInfo" style="background:#f9f9f9;border-radius:12px;padding:12px;text-align:center;margin-bottom:12px;font-size:14px;color:#666;display:none;"></div>
       <button class="btn btn-green" id="addStampManualBtn">إضافة ختم &#x2705;</button>
+    </div>
+  </div>
+
+
+  <!-- CARDS MANAGEMENT -->
+  <div id="tab-cards" class="tab-content">
+    <!-- إضافة / تعديل بطاقة -->
+    <div class="card">
+      <div class="card-title">➕ إضافة بطاقة جديدة</div>
+      <input type="hidden" id="editCardId">
+      <input type="text" id="cardName" placeholder="اسم البطاقة (مثال: بطاقة الصواني)" maxlength="50">
+      <input type="number" id="cardStamps" placeholder="عدد الأختام المطلوبة" min="1" max="50">
+      <input type="text" id="cardReward" placeholder="المكافأة (مثال: صينية هدية مجاناً)" maxlength="100">
+      <div class="field-error" id="cardFormError"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-red" id="saveCardBtn" style="flex:1;">حفظ البطاقة ✅</button>
+        <button class="btn" id="cancelEditCardBtn" style="display:none;flex:1;background:#eee;color:#333;">إلغاء</button>
+      </div>
+    </div>
+
+    <!-- قائمة البطاقات -->
+    <div class="card">
+      <div class="card-title">🃏 البطاقات الحالية</div>
+      <div id="cardsAdminList">
+        <div class="empty-state"><div class="icon">🃏</div>جاري التحميل...</div>
+      </div>
+    </div>
+
+    <!-- طلبات مكافآت البطاقات -->
+    <div class="card">
+      <div class="card-title">🏆 طلبات مكافآت البطاقات</div>
+      <div id="cardRewardsPendingList">
+        <div class="empty-state"><div class="icon">🏆</div>جاري التحميل...</div>
+      </div>
+    </div>
+
+    <!-- إضافة ختم يدوي لبطاقة -->
+    <div class="card">
+      <div class="card-title">🪄 إضافة ختم يدوي لبطاقة</div>
+      <input type="text" inputmode="numeric" id="cardStampPhone" placeholder="رقم التليفون" maxlength="11">
+      <select id="cardStampCardSelect" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid #ddd;font-size:14px;margin-bottom:10px;">
+        <option value="">اختار البطاقة</option>
+      </select>
+      <div id="cardStampCustomerInfo" style="background:#f9f9f9;border-radius:12px;padding:12px;text-align:center;margin-bottom:12px;font-size:14px;color:#666;display:none;"></div>
+      <button class="btn btn-green" id="addCardStampBtn">إضافة ختم ✅</button>
     </div>
   </div>
 
@@ -776,6 +843,26 @@
 <div id="toast"></div>
 <div class="security-badge">&#x1F512; TLS Secured</div>
 
+<script src="config.js"></script>
 <script src="admin.js"></script>
+
+<script>
+(function buildBranchDropdown() {
+  var sel = document.getElementById('newUserRole');
+  if (!sel || typeof APP_CONFIG === 'undefined' || !APP_CONFIG.branches) return;
+  // مسح الـ options القديمة ما عدا super
+  while (sel.options.length > 1) sel.remove(0);
+  // إضافة الفروع من config
+  APP_CONFIG.branches.forEach(function(b) {
+    var opt = document.createElement('option');
+    var k = b.isCallCenter ? 'callcenter' : 'cashier_' + b.key;
+    var label = b.isCallCenter ? '📞 ' + b.name : 'كاشير - ' + b.name;
+    opt.value = k;
+    opt.textContent = label;
+    sel.insertBefore(opt, sel.options[0]);
+  });
+})();
+</script>
+
 </body>
 </html>
