@@ -346,7 +346,8 @@
       branches:    'إحصائيات الفروع',
       users:       'إدارة المستخدمين',
       export:      'تصدير',
-      settings:    '__mainAdminOnly__'
+      settings:    '__mainAdminOnly__',
+      cards:       '__mainAdminOnly__'
     };
 
     function isTabVisible(perm) {
