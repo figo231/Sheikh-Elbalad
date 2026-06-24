@@ -49,7 +49,7 @@ const APP_CONFIG = {
   },
 
   // ── الـ Backend ──────────────────────────────
-  scriptUrl: "YOUR_APPS_SCRIPT_URL_HERE",
+  scriptUrl: "https://script.google.com/macros/s/AKfycbxgU4jZaGDdhjMGy6-80GjrzV0mHvIO8kgz_jdjRnaPOGeeAVFcPz37jVQQNMJY9Yfi/exec",
 
   // ── إعدادات النظام ───────────────────────────
   currency:       "جنيه",
