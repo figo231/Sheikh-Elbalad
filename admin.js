@@ -199,16 +199,17 @@
     setTimeout(function() { els.toast.classList.remove('show'); }, 3500);
   }
 
-  // ===== SALAH POPUP =====
+  // ===== SALAH POPUP (floating bubble) =====
   var salahClosed = localStorage.getItem('adminSalahClosed');
-  if (salahClosed === '1') {
-    els.salahOverlay2.style.display = 'none';
+  if (salahClosed !== '1') {
+    setTimeout(function() { els.salahOverlay2.classList.add('show'); }, 600);
   }
-  document.getElementById('salahCloseBtn2').addEventListener('click', function() {
+  function closeSalahBubble() {
     localStorage.setItem('adminSalahClosed', '1');
-    els.salahOverlay2.style.animation = 'fadeInOverlay 0.3s ease reverse';
-    setTimeout(function() { els.salahOverlay2.remove(); }, 280);
-  });
+    els.salahOverlay2.classList.remove('show');
+  }
+  document.getElementById('salahCloseBtn2').addEventListener('click', closeSalahBubble);
+  document.getElementById('salahCloseX2')?.addEventListener('click', closeSalahBubble);
 
   // ===== LOGIN =====
   function populateUserSelect(users) {

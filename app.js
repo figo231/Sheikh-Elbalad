@@ -107,10 +107,11 @@ function initParticles() {
   }
 }
 
-// ─── Salah Popup ─────────────────────────────────────────
+// ─── Salah Popup (floating bubble) ───────────────────────
 function initSalahPopup() {
   const overlay = $('salahOverlay');
   const closeBtn = $('salahCloseBtn');
+  const closeX = $('salahCloseX');
   if (!overlay || !closeBtn) return;
 
   const shouldShow = () => {
@@ -120,20 +121,20 @@ function initSalahPopup() {
   };
 
   if (shouldShow()) {
-    overlay.style.display = 'flex';
+    setTimeout(() => overlay.classList.add('show'), 600);
     localStorage.setItem('salahPopupLast', Date.now().toString());
   } else {
-    overlay.style.display = 'none';
+    overlay.classList.remove('show');
   }
 
-  closeBtn.addEventListener('click', () => {
-    overlay.style.display = 'none';
-  });
+  const close = () => overlay.classList.remove('show');
+  closeBtn.addEventListener('click', close);
+  closeX?.addEventListener('click', close);
 }
 
 // ─── Dark Mode ───────────────────────────────────────────
 function initDarkMode() {
-  const btn = $('darkBtn');
+  const btn = $('nav-darkmode');
   if (!btn) return;
 
   const isDark = localStorage.getItem('darkMode') === 'true';
@@ -148,26 +149,33 @@ function initDarkMode() {
 }
 
 function updateDarkIcon(isDark) {
-  const btn = $('darkBtn');
-  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+  const icon = $('darkIconSpan');
+  const label = $('darkLabelSpan');
+  if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+  if (label) label.textContent = isDark ? 'المظهر النهاري' : 'المظهر الليلي';
 }
 
 // ─── Drawer / Navigation ─────────────────────────────────
 function initDrawer() {
-  const menuBtn = $('menuBtn');
   const drawer = $('drawer');
   const overlay = $('drawerOverlay');
-  if (!menuBtn || !drawer || !overlay) return;
+  const moreBtn = $('bn-more');
+  if (!drawer || !overlay) return;
 
-  menuBtn.addEventListener('click', openDrawer);
+  moreBtn?.addEventListener('click', openDrawer);
   overlay.addEventListener('click', closeDrawer);
 
-  // Nav items
+  // Bottom nav tabs
+  $$('.bn-item[data-tab]').forEach(item => {
+    item.addEventListener('click', () => {
+      switchTab(item.dataset.tab);
+    });
+  });
+
+  // Drawer items that switch tabs (e.g. completed card)
   $$('.drawer-item[data-tab]').forEach(item => {
     item.addEventListener('click', () => {
-      const tabId = item.dataset.tab;
-      switchTab(tabId);
-      updateDrawerActive(item);
+      switchTab(item.dataset.tab);
       closeDrawer();
     });
   });
@@ -194,12 +202,6 @@ function initDrawer() {
   }
 }
 
-function updateDrawerActive(activeItem) {
-  $$('.drawer-item[data-tab]').forEach(item => {
-    item.classList.toggle('active', item === activeItem);
-  });
-}
-
 function switchTab(tabId) {
   $$('.tab-page').forEach(tab => tab.classList.remove('active'));
   const target = $(tabId);
@@ -208,6 +210,10 @@ function switchTab(tabId) {
   if (tabId === 'tab-history') loadTransactions();
   if (tabId === 'tab-leader') loadLeaderboard();
 
+  // Update bottom-nav active state (tab-completed has no bn-item, so all clear)
+  $$('.bn-item[data-tab]').forEach(item => {
+    item.classList.toggle('active', item.dataset.tab === tabId);
+  });
   // Update drawer active state
   $$('.drawer-item[data-tab]').forEach(item => {
     item.classList.toggle('active', item.dataset.tab === tabId);
@@ -280,21 +286,21 @@ function showSplash() {
   $('splashScreen')?.classList.remove('hidden');
   $('loginCard')?.classList.add('hidden');
   $('dashboard')?.classList.add('hidden');
-  $('menuBtn')?.classList.add('hidden');
+  $('bottomNav')?.classList.add('hidden');
 }
 
 function showLoginCard() {
   $('splashScreen')?.classList.add('hidden');
   $('loginCard')?.classList.remove('hidden');
   $('dashboard')?.classList.add('hidden');
-  $('menuBtn')?.classList.add('hidden');
+  $('bottomNav')?.classList.add('hidden');
 }
 
 function showDashboard() {
   $('splashScreen')?.classList.add('hidden');
   $('loginCard')?.classList.add('hidden');
   $('dashboard')?.classList.remove('hidden');
-  $('menuBtn')?.classList.remove('hidden');
+  $('bottomNav')?.classList.remove('hidden');
   renderDashboard();
 }
 
@@ -630,9 +636,11 @@ function renderDashboard() {
   // Completed card tab
   if (session.completedCards > 0) {
     $('drawerCompletedBtn')?.classList.remove('hidden');
+    $('bn-more')?.classList.add('has-badge');
     renderCompletedStamps(session.completedCards);
   } else {
     $('drawerCompletedBtn')?.classList.add('hidden');
+    $('bn-more')?.classList.remove('has-badge');
   }
 
   // Bind buttons (use once to avoid duplicate listeners)

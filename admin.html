@@ -375,44 +375,53 @@
     .modal-title { font-size: 22px; font-weight: 900; text-align: center; margin-bottom: 6px; color: var(--dark); }
     .modal-sub { text-align: center; color: #888; font-size: 13px; margin-bottom: 20px; }
 
-    /* ===== SALAH POPUP ===== */
+    /* ===== SALAH — floating bubble, non-blocking ===== */
     #salahOverlay2 {
-      position: fixed; inset: 0; z-index: 99999;
-      background: rgba(0,0,0,0.7);
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
-      animation: fadeInOverlay 0.4s ease;
+      position: fixed; bottom: 18px; right: 14px; z-index: 500;
+      max-width: 215px; display: none; pointer-events: none;
     }
-    @keyframes fadeInOverlay { from { opacity:0 } to { opacity:1 } }
+    #salahOverlay2.show { display: block; }
     #salahBox2 {
+      position: relative; pointer-events: auto;
       background: linear-gradient(160deg, #fff9ee 0%, #fff3cd 100%);
-      border: 3px solid var(--gold);
-      border-radius: 24px;
-      padding: 32px 24px;
+      border: 2px solid var(--gold);
+      border-radius: 18px;
+      padding: 14px 14px 12px;
       text-align: center;
-      max-width: 320px;
-      width: 100%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.22);
+      animation: bubbleIn2 0.45s cubic-bezier(0.34,1.56,0.64,1);
     }
-    @keyframes popIn { from { transform: scale(0.7); opacity:0 } to { transform: scale(1); opacity:1 } }
-    #salahBox2 .salah-icon { font-size: 52px; margin-bottom: 12px; display: block; }
+    #salahBox2::after {
+      content:''; position:absolute; bottom:-9px; right:22px;
+      width:16px; height:16px;
+      background:#fff3cd; border-left:2px solid var(--gold); border-bottom:2px solid var(--gold);
+      transform:rotate(-45deg); border-radius:0 0 3px 0;
+    }
+    @keyframes bubbleIn2 { from { transform:translateY(16px) scale(0.85); opacity:0 } to { transform:translateY(0) scale(1); opacity:1 } }
+    #salahBox2 .salah-close {
+      position:absolute; top:6px; left:6px;
+      width:20px; height:20px; border-radius:50%; border:none;
+      background:rgba(139,0,0,0.08); color:#a3833a; font-size:11px;
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+    }
+    #salahBox2 .salah-icon { font-size: 26px; margin-bottom: 4px; display: block; }
     #salahBox2 .salah-main {
-      font-size: 22px; font-weight: 900; color: var(--red);
-      line-height: 1.6; margin-bottom: 8px;
+      font-size: 13px; font-weight: 800; color: var(--red);
+      line-height: 1.5; margin-bottom: 3px;
     }
     #salahBox2 .salah-sub {
-      font-size: 14px; color: #7a6000; margin-bottom: 24px; line-height: 1.8;
+      font-size: 10.5px; color: #9a7a30; margin-bottom: 9px; line-height: 1.5;
     }
     #salahBox2 .salah-btn {
       background: linear-gradient(135deg, var(--red), var(--red2));
-      color: var(--gold2); border: 2px solid var(--gold);
-      border-radius: 12px; padding: 12px 32px;
-      font-size: 15px; font-weight: 700; font-family: 'Cairo', sans-serif;
-      cursor: pointer; box-shadow: 0 4px 16px rgba(139,0,0,0.3);
-      transition: transform 0.15s;
+      color: var(--gold2); border: 1.5px solid var(--gold);
+      border-radius: 99px; padding: 6px 18px;
+      font-size: 11px; font-weight: 700; font-family: 'Cairo', sans-serif;
+      cursor: pointer; transition: transform 0.15s;
     }
-    #salahBox2 .salah-btn:hover { transform: translateY(-2px); }
+    #salahBox2 .salah-btn:hover { transform: translateY(-1px); }
+    body.dark #salahBox2 { background:linear-gradient(160deg,#241808,#1e1208); }
+    body.dark #salahBox2::after { background:#1e1208; }
 
     .security-badge {
       position: fixed; bottom: 20px; left: 70px;
@@ -446,12 +455,13 @@
 </head>
 <body>
 
-<!-- SALAH POPUP -->
+<!-- SALAH FLOATING BUBBLE -->
 <div id="salahOverlay2">
   <div id="salahBox2">
+    <button class="salah-close" id="salahCloseX2" aria-label="إغلاق">&#x2715;</button>
     <span class="salah-icon">&#x262A;</span>
     <div class="salah-main">اللهم صلِّ وسلم<br>على سيدنا محمد &#xFDFA;</div>
-    <div class="salah-sub">صلى الله عليه وسلم<br>&laquo; من صلى عليّ صلاةً صلى الله عليه بها عشراً &raquo;</div>
+    <div class="salah-sub">&laquo; من صلى عليّ صلاةً صلى الله عليه بها عشراً &raquo;</div>
     <button class="salah-btn" id="salahCloseBtn2">آمين &#x1F932;</button>
   </div>
 </div>

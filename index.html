@@ -41,7 +41,7 @@
     header h1 { color:var(--gold2); font-size:24px; font-weight:900; position:relative; text-shadow:0 2px 8px rgba(0,0,0,0.4); }
     header p { color:rgba(255,255,255,0.75); font-size:12px; margin-top:3px; position:relative; }
 
-    main { max-width:430px; margin:-22px auto 0; padding:0 14px 60px; }
+    main { max-width:430px; margin:-22px auto 0; padding:0 14px 96px; }
 
     .card {
       background:#fff; border-radius:20px; box-shadow:var(--shadow);
@@ -278,7 +278,7 @@
     }
 
     #toast {
-      position:fixed; bottom:24px; left:50%;
+      position:fixed; bottom:84px; left:50%;
       transform:translateX(-50%) translateY(80px);
       background:var(--dark); color:#fff;
       padding:11px 22px; border-radius:99px; font-size:13px; font-weight:600;
@@ -324,10 +324,10 @@
     }
 
     .dark-toggle {
-      position:fixed; bottom:24px; left:16px;
-      width:42px; height:42px; border-radius:50%;
+      position:fixed; bottom:84px; left:16px;
+      width:38px; height:38px; border-radius:50%;
       background:var(--red); border:2px solid var(--gold);
-      color:#fff; font-size:18px; cursor:pointer;
+      color:#fff; font-size:16px; cursor:pointer;
       display:flex; align-items:center; justify-content:center;
       box-shadow:0 4px 16px rgba(0,0,0,0.3); z-index:100;
     }
@@ -344,6 +344,31 @@
       box-shadow:0 4px 14px rgba(0,0,0,0.25);
     }
     body.dark .menu-btn { background:rgba(0,0,0,0.4); }
+
+    /* BOTTOM TAB BAR */
+    .bottom-nav {
+      position:fixed; bottom:0; left:0; right:0; z-index:300;
+      background:#fff; border-top:1px solid #eee;
+      display:flex; padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+      box-shadow:0 -4px 16px rgba(0,0,0,0.06);
+    }
+    body.dark .bottom-nav { background:#1e1208; border-color:#2a2a2a; }
+    .bn-item {
+      flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+      background:none; border:none; font-family:'Cairo',sans-serif;
+      padding:6px 2px; cursor:pointer; color:#aaa;
+    }
+    .bn-item .bn-icon { font-size:20px; line-height:1; }
+    .bn-item .bn-label { font-size:10px; font-weight:600; }
+    .bn-item.active { color:var(--red); }
+    body.dark .bn-item.active { color:var(--gold2); }
+    .bn-item .bn-dot {
+      position:absolute; top:2px; inset-inline-end:22%;
+      width:8px; height:8px; border-radius:50%; background:#e74c3c;
+      border:1.5px solid #fff; display:none;
+    }
+    .bn-item { position:relative; }
+    .bn-item.has-badge .bn-dot { display:block; }
 
     .drawer-overlay {
       position:fixed; inset:0; background:rgba(0,0,0,0.5);
@@ -362,28 +387,33 @@
     body.dark .drawer { background:#1e1208; }
     .drawer-header {
       font-size:17px; font-weight:900; color:var(--red);
-      margin-bottom:10px; padding-bottom:10px;
-      border-bottom:2px solid var(--gold);
+      margin-bottom:6px; padding-bottom:14px;
+      border-bottom:1px solid #eee;
     }
-    body.dark .drawer-header { color:var(--gold2); }
+    body.dark .drawer-header { color:var(--gold2); border-color:#333; }
     .drawer-item {
-      display:flex; align-items:center; gap:12px;
-      background:none; border:none; cursor:pointer;
-      font-family:'Cairo',sans-serif; font-size:15px; font-weight:700;
-      color:var(--dark); padding:13px 10px; border-radius:12px;
-      text-align:right; transition:background 0.15s;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      background:none; border:none; border-bottom:1px solid #f2f2f2; cursor:pointer;
+      font-family:'Cairo',sans-serif; font-size:14px; font-weight:600;
+      color:var(--dark); padding:15px 2px; border-radius:0;
+      text-align:right; transition:opacity 0.15s;
     }
-    body.dark .drawer-item { color:#f0e6d3; }
-    .drawer-item .d-icon { font-size:20px; }
-    .drawer-item:hover, .drawer-item.active {
-      background:rgba(212,175,55,0.15);
+    .drawer-item .d-left { display:flex; align-items:center; gap:12px; }
+    .drawer-item .d-chevron { color:#ccc; font-size:13px; }
+    body.dark .drawer-item { color:#f0e6d3; border-color:#2a2a2a; }
+    .drawer-item .d-icon {
+      font-size:16px; width:34px; height:34px; border-radius:50%;
+      background:rgba(212,175,55,0.12); display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
     }
+    .drawer-item:active { opacity:0.6; }
+    .drawer-item.active .d-icon { background:var(--red); }
     .drawer-item.active { color:var(--red); }
     body.dark .drawer-item.active { color:var(--gold2); }
     .drawer-logout {
-      margin-top:auto; color:#c0392b !important;
+      margin-top:10px; color:#c0392b !important; border-bottom:none;
     }
-    .drawer-dev { color:#25D366 !important; }
+    .drawer-dev { color:#1aa64c !important; }
 
     .spinner {
       display:inline-block; width:18px; height:18px;
@@ -395,32 +425,46 @@
     @keyframes spin { to { transform:rotate(360deg); } }
     .hidden { display:none !important; }
 
+    /* SALAH — floating bubble, non-blocking */
     #salahOverlay {
-      position:fixed; inset:0; z-index:99999;
-      background:rgba(0,0,0,0.75);
-      display:flex; align-items:center; justify-content:center; padding:20px;
-      animation:fadeInOv 0.4s ease;
+      position:fixed; bottom:84px; right:14px; z-index:500;
+      max-width:215px; display:none; pointer-events:none;
     }
-    @keyframes fadeInOv { from { opacity:0 } to { opacity:1 } }
+    #salahOverlay.show { display:block; }
     #salahBox {
+      position:relative; pointer-events:auto;
       background:linear-gradient(160deg,#fff9ee 0%,#fff3cd 100%);
-      border:3px solid var(--gold); border-radius:24px;
-      padding:30px 22px; text-align:center; max-width:310px; width:100%;
-      box-shadow:0 20px 60px rgba(0,0,0,0.4);
-      animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      border:2px solid var(--gold); border-radius:18px;
+      padding:14px 14px 12px; text-align:center;
+      box-shadow:0 10px 28px rgba(0,0,0,0.22);
+      animation:bubbleIn 0.45s cubic-bezier(0.34,1.56,0.64,1);
     }
-    @keyframes popIn { from { transform:scale(0.7); opacity:0 } to { transform:scale(1); opacity:1 } }
-    #salahBox .s-icon { font-size:48px; margin-bottom:10px; display:block; }
-    #salahBox .s-main { font-size:20px; font-weight:900; color:var(--red); line-height:1.6; margin-bottom:6px; }
-    #salahBox .s-sub  { font-size:13px; color:#7a6000; margin-bottom:22px; line-height:1.8; }
+    #salahBox::after {
+      content:''; position:absolute; bottom:-9px; right:22px;
+      width:16px; height:16px;
+      background:#fff3cd; border-left:2px solid var(--gold); border-bottom:2px solid var(--gold);
+      transform:rotate(-45deg); border-radius:0 0 3px 0;
+    }
+    @keyframes bubbleIn { from { transform:translateY(16px) scale(0.85); opacity:0 } to { transform:translateY(0) scale(1); opacity:1 } }
+    #salahBox .s-close {
+      position:absolute; top:6px; right:6px;
+      width:20px; height:20px; border-radius:50%; border:none;
+      background:rgba(139,0,0,0.08); color:#a3833a; font-size:11px;
+      display:flex; align-items:center; justify-content:center; cursor:pointer;
+    }
+    #salahBox .s-icon { font-size:26px; margin-bottom:4px; display:block; }
+    #salahBox .s-main { font-size:13px; font-weight:800; color:var(--red); line-height:1.5; margin-bottom:3px; }
+    #salahBox .s-sub  { font-size:10.5px; color:#9a7a30; margin-bottom:9px; line-height:1.5; }
     #salahBox .s-btn  {
       background:linear-gradient(135deg,var(--red),var(--red2));
-      color:var(--gold2); border:2px solid var(--gold);
-      border-radius:12px; padding:11px 30px;
-      font-size:14px; font-weight:700; font-family:'Cairo',sans-serif;
+      color:var(--gold2); border:1.5px solid var(--gold);
+      border-radius:99px; padding:6px 18px;
+      font-size:11px; font-weight:700; font-family:'Cairo',sans-serif;
       cursor:pointer; transition:transform 0.15s;
     }
-    #salahBox .s-btn:hover { transform:translateY(-2px); }
+    #salahBox .s-btn:hover { transform:translateY(-1px); }
+    body.dark #salahBox { background:linear-gradient(160deg,#241808,#1e1208); }
+    body.dark #salahBox::after { background:#1e1208; }
 
     .lockout-msg {
       background:#fde8e8; color:#c0392b; border-radius:10px;
@@ -501,12 +545,13 @@
 </head>
 <body>
 
-<!-- SALAH POPUP -->
+<!-- SALAH FLOATING BUBBLE -->
 <div id="salahOverlay">
   <div id="salahBox">
+    <button class="s-close" id="salahCloseX" aria-label="إغلاق">&#x2715;</button>
     <span class="s-icon">&#x262A;</span>
     <div class="s-main">اللهم صلِّ وسلم<br>على سيدنا محمد ﷺ</div>
-    <div class="s-sub">صلى الله عليه وسلم<br>&laquo; من صلى عليّ صلاةً صلى الله عليه بها عشراً &raquo;</div>
+    <div class="s-sub">&laquo; من صلى عليّ صلاةً صلى الله عليه بها عشراً &raquo;</div>
     <button class="s-btn" id="salahCloseBtn">آمين &#x1F932;</button>
   </div>
 </div>
@@ -756,36 +801,50 @@
 
 </main>
 
-<!-- HAMBURGER MENU -->
+<!-- HAMBURGER MENU (legacy, kept hidden) -->
 <button class="menu-btn hidden" id="menuBtn">&#x2630;</button>
 
 <div class="drawer-overlay" id="drawerOverlay"></div>
 <div class="drawer" id="drawer">
-  <div class="drawer-header">شيخ البلد &#x1F37D;</div>
-  <button class="drawer-item active" data-tab="tab-home" id="nav-home">
-    <span class="d-icon">&#x1F3E0;</span><span>الرئيسية</span>
-  </button>
-  <button class="drawer-item" data-tab="tab-history" id="nav-history">
-    <span class="d-icon">&#x1F4CB;</span><span>السجل</span>
-  </button>
-  <button class="drawer-item" data-tab="tab-leader" id="nav-leader">
-    <span class="d-icon">&#x1F3C5;</span><span>الترتيب</span>
-  </button>
+  <div class="drawer-header">المزيد &#x1F37D;</div>
   <button class="drawer-item hidden" id="drawerCompletedBtn" data-tab="tab-completed">
-    <span class="d-icon">&#x1F3C6;</span><span>بطاقة مكتملة</span>
+    <span class="d-left"><span class="d-icon">&#x1F3C6;</span><span>بطاقة مكتملة</span></span>
+    <span class="d-chevron">&#x276E;</span>
   </button>
-  <button class="drawer-item" data-tab="tab-cards" id="nav-cards">
-    <span class="d-icon">🃏</span><span>البطاقات</span>
+  <button class="drawer-item" id="nav-darkmode">
+    <span class="d-left"><span class="d-icon" id="darkIconSpan">&#x1F319;</span><span id="darkLabelSpan">المظهر الليلي</span></span>
+    <span class="d-chevron">&#x276E;</span>
   </button>
   <button class="drawer-item drawer-dev" id="nav-contact">
-    <span class="d-icon">&#x1F4AC;</span><span>اتصل بالمطور</span>
+    <span class="d-left"><span class="d-icon">&#x1F4AC;</span><span>اتصل بالمطور</span></span>
+    <span class="d-chevron">&#x276E;</span>
   </button>
   <button class="drawer-item drawer-logout" id="nav-logout">
-    <span class="d-icon">&#x21A9;</span><span>تسجيل خروج</span>
+    <span class="d-left"><span class="d-icon">&#x21A9;</span><span>تسجيل خروج</span></span>
+    <span class="d-chevron">&#x276E;</span>
   </button>
 </div>
 
-<button class="dark-toggle" id="darkBtn">&#x1F319;</button>
+<!-- BOTTOM TAB BAR -->
+<nav class="bottom-nav hidden" id="bottomNav">
+  <button class="bn-item active" data-tab="tab-home" id="bn-home">
+    <span class="bn-icon">&#x1F3E0;</span><span class="bn-label">الرئيسية</span>
+  </button>
+  <button class="bn-item" data-tab="tab-history" id="bn-history">
+    <span class="bn-icon">&#x1F4CB;</span><span class="bn-label">السجل</span>
+  </button>
+  <button class="bn-item" data-tab="tab-leader" id="bn-leader">
+    <span class="bn-icon">&#x1F3C5;</span><span class="bn-label">الترتيب</span>
+  </button>
+  <button class="bn-item" data-tab="tab-cards" id="bn-cards">
+    <span class="bn-icon">&#x1F0CF;</span><span class="bn-label">البطاقات</span>
+  </button>
+  <button class="bn-item" id="bn-more">
+    <span class="bn-icon">&#x2630;</span><span class="bn-label">المزيد</span>
+    <span class="bn-dot" id="bnMoreDot"></span>
+  </button>
+</nav>
+
 <div id="toast"></div>
 <div id="confettiContainer"></div>
 <div class="security-badge">&#x1F512; TLS Secured</div>
