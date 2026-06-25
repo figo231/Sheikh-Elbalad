@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sheikh-elbalad-v2';
+const CACHE_NAME = 'sheikh-elbalad-v3';
 const ASSETS = [
   './',
   './index.html',

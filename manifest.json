@@ -2,12 +2,12 @@
   "name": "شيخ البلد - نقاط الولاء",
   "short_name": "شيخ البلد",
   "description": "نظام نقاط ولاء شيخ البلد - اجمع نقاطك واستبدلها بمكافآت",
-  "start_url": "/",
+  "start_url": "/Sheikh-Elbalad/",
   "display": "standalone",
-  "background_color": "#f5f1ea",
-  "theme_color": "#1a1614",
+  "background_color": "#F8F4ED",
+  "theme_color": "#8B0000",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "/Sheikh-Elbalad/",
   "lang": "ar",
   "dir": "rtl",
   "icons": [
@@ -23,5 +23,8 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "display_override": [
+    "window-controls-overlay"
   ]
 }
