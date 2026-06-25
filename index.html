@@ -8,847 +8,394 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title id="pageTitle">شيخ البلد - نقاط الولاء</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" id="themeColorMeta" content="#8B0000">
+  <meta name="theme-color" id="themeColorMeta" content="#0d4a3a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" id="appleTitleMeta" content="شيخ البلد">
   <link rel="apple-touch-icon" href="icon-192x192.png">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --red: #8B0000; --red2: #A50000; --gold: #D4AF37; --gold2: #F0C93A;
-      --cream: #F8F4ED; --dark: #1a0000; --green: #27AE60; --shadow: 0 4px 24px rgba(0,0,0,0.12);
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Cairo',sans-serif; background:var(--cream); color:var(--dark); min-height:100vh; }
-
-    header {
-      background: linear-gradient(160deg, #6B0000 0%, #8B0000 50%, #A50000 100%);
-      padding: 32px 20px 52px;
-      text-align: center; position: relative; overflow: hidden;
-      border-bottom: 3px solid var(--gold);
-    }
-    header::before {
-      content:''; position:absolute; inset:0;
-      background: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.15) 0%, transparent 70%);
-    }
-    .header-logo {
-      width:88px; height:88px; border-radius:50%;
-      border:3px solid var(--gold); object-fit:cover;
-      margin-bottom:10px; box-shadow:0 4px 20px rgba(0,0,0,0.4);
-      position:relative;
-    }
-    header h1 { color:var(--gold2); font-size:24px; font-weight:900; position:relative; text-shadow:0 2px 8px rgba(0,0,0,0.4); }
-    header p { color:rgba(255,255,255,0.75); font-size:12px; margin-top:3px; position:relative; }
-
-    main { max-width:430px; margin:-22px auto 0; padding:0 14px 96px; }
-
-    .card {
-      background:#fff; border-radius:20px; box-shadow:var(--shadow);
-      padding:20px; margin-bottom:14px;
-      border:1px solid rgba(212,175,55,0.12);
-    }
-    .card-title {
-      font-size:14px; font-weight:700; color:var(--dark);
-      margin-bottom:14px; display:flex; align-items:center; gap:7px;
-    }
-
-    .logo-img {
-      width:76px; height:76px; border-radius:50%; object-fit:cover;
-      display:block; margin:0 auto 10px;
-      border:3px solid var(--gold); box-shadow:0 4px 12px rgba(0,0,0,0.15);
-    }
-    .login-title { text-align:center; font-size:20px; font-weight:900; color:var(--dark); margin-bottom:4px; }
-    .login-sub { text-align:center; color:#999; font-size:12px; margin-bottom:20px; }
-
-    input[type="text"], input[type="file"] {
-      width:100%; border:2px solid #eee; border-radius:12px;
-      padding:13px 16px; font-size:15px; font-family:'Cairo',sans-serif;
-      text-align:center; transition:border-color 0.2s; outline:none; color:var(--dark);
-    }
-    input:focus { border-color:var(--gold); }
-    input.error { border-color:#e74c3c; background:#fdf2f2; }
-    .field-error { color:#e74c3c; font-size:12px; margin-top:4px; text-align:center; display:none; }
-
-    .btn-primary {
-      width:100%; background:linear-gradient(135deg, var(--red), var(--red2));
-      color:var(--gold2); border:2px solid var(--gold); border-radius:12px;
-      padding:14px; font-size:15px; font-weight:700; font-family:'Cairo',sans-serif;
-      cursor:pointer; margin-top:10px; transition:transform 0.15s, box-shadow 0.15s;
-      box-shadow:0 4px 16px rgba(139,0,0,0.35);
-    }
-    .btn-primary:hover { transform:translateY(-1px); }
-    .btn-primary:active { transform:translateY(0); }
-    .btn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
-
-    .points-hero {
-      background:linear-gradient(150deg, #6B0000 0%, #8B0000 50%, #A50000 100%);
-      border-radius:20px; padding:24px 20px; text-align:center; color:#fff;
-      margin-bottom:14px; position:relative; overflow:hidden;
-      border:2px solid rgba(212,175,55,0.6);
-      box-shadow:0 8px 32px rgba(139,0,0,0.35);
-    }
-    .points-hero::before {
-      content:''; position:absolute; inset:0;
-      background:radial-gradient(ellipse at 50% -20%, rgba(212,175,55,0.2) 0%, transparent 65%);
-    }
-    .points-name { font-size:15px; font-weight:600; opacity:0.9; margin-bottom:6px; position:relative; }
-    .points-number {
-      font-size:72px; font-weight:900; line-height:1;
-      margin-bottom:2px; color:var(--gold2); position:relative;
-      text-shadow:0 2px 12px rgba(0,0,0,0.3);
-    }
-    .points-label { font-size:13px; opacity:0.8; position:relative; }
-    .level-badge {
-      display:inline-flex; align-items:center; gap:5px;
-      padding:5px 14px; border-radius:99px; font-size:12px; font-weight:700;
-      margin:8px auto 0; position:relative;
-    }
-    .level-bronze { background:rgba(205,133,63,0.25); color:#FFD89A; border:1.5px solid #CD853F; }
-    .level-silver  { background:rgba(192,192,192,0.2); color:#ddd; border:1.5px solid #aaa; }
-    .level-gold    { background:rgba(212,175,55,0.25); color:var(--gold2); border:1.5px solid var(--gold); }
-    .level-plat    { background:rgba(52,152,219,0.2); color:#a8d8f0; border:1.5px solid #3498DB; }
-
-    .progress-section { margin-top:14px; position:relative; }
-    .progress-label {
-      display:flex; justify-content:space-between;
-      font-size:12px; margin-bottom:6px; color:rgba(255,255,255,0.85); position:relative;
-    }
-    .progress-track { height:9px; background:rgba(255,255,255,0.18); border-radius:99px; overflow:hidden; }
-    .progress-fill {
-      height:100%; background:linear-gradient(90deg,var(--gold),var(--gold2));
-      border-radius:99px; transition:width 1.2s cubic-bezier(.4,0,.2,1);
-    }
-    .last-visit { font-size:11px; color:rgba(255,255,255,0.6); margin-top:5px; position:relative; }
-
-    .reward-ready {
-      background:linear-gradient(135deg,#27AE60,#2ECC71);
-      color:#fff; border-radius:18px; padding:18px 16px; text-align:center;
-      margin-bottom:14px; animation:pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%,100% { box-shadow:0 0 0 0 rgba(39,174,96,0.4); }
-      50%      { box-shadow:0 0 0 10px rgba(39,174,96,0); }
-    }
-    .reward-ready .icon { font-size:32px; margin-bottom:6px; }
-    .reward-ready h3 { font-size:16px; font-weight:900; margin-bottom:3px; }
-    .reward-ready p  { font-size:12px; opacity:0.9; margin-bottom:10px; }
-    .btn-green {
-      width:100%; background:#fff; color:#27AE60;
-      border:none; border-radius:10px; padding:12px;
-      font-size:14px; font-weight:700; font-family:'Cairo',sans-serif;
-      cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.15);
-    }
-    .btn-green:disabled { opacity:0.6; cursor:not-allowed; }
-    .pending-badge {
-      background:#FFF8E1; border:2px solid var(--gold); border-radius:16px;
-      padding:14px 16px; text-align:center; margin-bottom:14px;
-    }
-    .pending-badge .icon { font-size:26px; margin-bottom:4px; }
-    .pending-badge p { font-size:12px; color:#856404; }
-
-    .stamp-card {
-      background:linear-gradient(135deg,#fffdf5,#fff8e7);
-      border:2px solid var(--gold); border-radius:20px;
-      padding:18px; margin-bottom:14px;
-      box-shadow:0 4px 20px rgba(212,175,55,0.18);
-    }
-    .stamp-card-title { text-align:center; font-size:15px; font-weight:900; color:var(--dark); margin-bottom:3px; }
-    .stamp-card-sub { text-align:center; font-size:11px; color:#aaa; margin-bottom:14px; }
-    .stamps-grid {
-      display:grid; grid-template-columns:repeat(5,1fr);
-      gap:8px; margin-bottom:12px;
-    }
-    .stamp {
-      aspect-ratio:1; border-radius:10px; border:2px dashed #ddd;
-      display:flex; align-items:center; justify-content:center;
-      font-size:22px; background:#f7f7f7; transition:all 0.3s;
-    }
-    .stamp.filled {
-      border:2px solid var(--gold);
-      background:linear-gradient(135deg,#fff3cd,#fff8e7);
-      box-shadow:0 2px 8px rgba(212,175,55,0.3);
-      animation:stampPop 0.4s ease;
-    }
-    @keyframes stampPop {
-      0% { transform:scale(0.5); opacity:0; }
-      70% { transform:scale(1.15); }
-      100% { transform:scale(1); opacity:1; }
-    }
-    .stamp-count { text-align:center; font-size:12px; color:#999; margin-bottom:10px; }
-    .stamp-count strong { color:var(--red); font-size:14px; }
-    .btn-stamp {
-      width:100%; background:linear-gradient(135deg,var(--gold),var(--gold2));
-      color:var(--dark); border:none; border-radius:12px;
-      padding:12px; font-size:14px; font-weight:700;
-      font-family:'Cairo',sans-serif; cursor:pointer;
-      box-shadow:0 4px 14px rgba(212,175,55,0.4); transition:transform 0.15s;
-    }
-    .btn-stamp:hover { transform:translateY(-1px); }
-    .btn-stamp:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
-    .stamp-reward {
-      background:linear-gradient(135deg,var(--gold),var(--gold2));
-      color:var(--dark); border-radius:14px; padding:14px;
-      text-align:center; margin-top:10px; font-weight:700; font-size:14px; display:none;
-    }
-    .stamp-pending-msg {
-      background:#fff3cd; color:#856404; border-radius:10px; padding:10px;
-      text-align:center; font-size:12px; margin-top:8px; display:none;
-    }
-    .btn-claim-reward {
-      width:100%; background:linear-gradient(135deg,var(--green),#2ECC71);
-      color:#fff; border:none; border-radius:12px;
-      padding:13px; font-size:14px; font-weight:700;
-      font-family:'Cairo',sans-serif; cursor:pointer; margin-top:10px;
-      box-shadow:0 4px 14px rgba(39,174,96,0.35); transition:transform 0.15s;
-      display:none;
-    }
-    .btn-claim-reward:hover { transform:translateY(-1px); }
-    .btn-claim-reward:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
-
-    .completed-card {
-      background:linear-gradient(135deg,#fffdf5,#fff3cd);
-      border:3px solid var(--gold); border-radius:22px;
-      padding:24px; text-align:center; position:relative; overflow:hidden;
-      box-shadow:0 8px 28px rgba(212,175,55,0.3);
-    }
-    .completed-card .stamps-grid { margin-top:16px; }
-    .completed-seal {
-      position:absolute; top:50%; left:50%;
-      transform:translate(-50%,-50%) rotate(-18deg);
-      border:6px solid var(--red); color:var(--red);
-      border-radius:16px; padding:10px 24px;
-      font-size:28px; font-weight:900; letter-spacing:2px;
-      opacity:0.85; pointer-events:none;
-      text-shadow:0 2px 4px rgba(0,0,0,0.1);
-      box-shadow:0 0 0 4px rgba(139,0,0,0.08);
-      font-family:'Cairo',sans-serif;
-      animation:sealPop 0.5s cubic-bezier(.34,1.56,.64,1);
-    }
-    @keyframes sealPop {
-      0% { transform:translate(-50%,-50%) rotate(-18deg) scale(0); opacity:0; }
-      70% { transform:translate(-50%,-50%) rotate(-18deg) scale(1.15); }
-      100% { transform:translate(-50%,-50%) rotate(-18deg) scale(1); opacity:0.85; }
-    }
-    .completed-title { font-size:17px; font-weight:900; color:var(--dark); margin-bottom:4px; }
-    .completed-sub { font-size:12px; color:#999; margin-bottom:4px; }
-
-    .tx-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #f0f0f0; }
-    .tx-item:last-child { border-bottom:none; }
-    .tx-icon { font-size:22px; flex-shrink:0; }
-    .tx-info { flex:1; }
-    .tx-type { font-size:12px; font-weight:600; color:var(--dark); }
-    .tx-date { font-size:10px; color:#bbb; margin-top:1px; }
-    .tx-points { font-size:14px; font-weight:900; }
-    .tx-points.earn   { color:var(--green); }
-    .tx-points.redeem { color:var(--red); }
-
-    .leader-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #f5f5f5; }
-    .leader-item:last-child { border-bottom:none; }
-    .leader-rank {
-      width:30px; height:30px; border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      font-weight:900; font-size:13px; flex-shrink:0;
-    }
-    .rank-1 { background:#FFD700; color:#8B4513; }
-    .rank-2 { background:#C0C0C0; color:#333; }
-    .rank-3 { background:#CD853F; color:#fff; }
-    .rank-other { background:#f0f0f0; color:#888; }
-    .leader-name { flex:1; font-weight:600; font-size:13px; }
-    .leader-pts  { font-weight:900; color:var(--red); font-size:13px; }
-
-    .warning-80 {
-      background:#fffbeb; border:2px solid var(--gold); border-radius:14px;
-      padding:12px; text-align:center; margin-bottom:14px;
-      font-size:12px; color:#856404; font-weight:600;
-    }
-
-    .btn-share {
-      width:100%; background:#25D366; color:#fff; border:none;
-      border-radius:12px; padding:12px; font-size:14px; font-weight:700;
-      font-family:'Cairo',sans-serif; cursor:pointer; margin-top:6px;
-      display:flex; align-items:center; justify-content:center; gap:7px;
-    }
-
-    .logout-btn {
-      display:block; margin:4px auto 0;
-      background:transparent; border:2px solid #e0e0e0; color:#ccc;
-      font-family:'Cairo',sans-serif; font-size:12px;
-      padding:9px 24px; border-radius:99px; cursor:pointer;
-    }
-
-    #toast {
-      position:fixed; bottom:84px; left:50%;
-      transform:translateX(-50%) translateY(80px);
-      background:var(--dark); color:#fff;
-      padding:11px 22px; border-radius:99px; font-size:13px; font-weight:600;
-      transition:transform 0.3s; z-index:999; white-space:nowrap;
-    }
-    #toast.show    { transform:translateX(-50%) translateY(0); }
-    #toast.success { background:var(--green); }
-    #toast.error   { background:#c0392b; }
-
-    .confetti-piece {
-      position:fixed; width:10px; height:10px; top:-20px;
-      border-radius:2px; animation:confettiFall linear forwards;
-      pointer-events:none; z-index:9999;
-    }
-    @keyframes confettiFall {
-      0%   { transform:translateY(0) rotate(0deg); opacity:1; }
-      100% { transform:translateY(110vh) rotate(720deg); opacity:0; }
-    }
-
-    body.dark { background:#1a0a0a; color:#f0e6d3; }
-    body.dark .card { background:#2a1010; border-color:rgba(212,175,55,0.15); }
-    body.dark .stat-card { background:#2a1010; }
-    body.dark input[type="text"] { background:#2a1010; border-color:#444; color:#f0e6d3; }
-    body.dark .tx-item { border-color:#333; }
-    body.dark .tx-type { color:#f0e6d3; }
-    body.dark .leader-item { border-color:#2a2a2a; }
-    body.dark .stamp-card { background:#1e1208; border-color:rgba(212,175,55,0.4); }
-    body.dark .stamp { background:#2a2a2a; border-color:#444; }
-    body.dark .stamp.filled { background:#2a1e00; }
-    body.dark .invoice-card { background:#0a1e2a; border-color:#3498DB; }
-
-    #installBanner {
-      display:none; background:linear-gradient(135deg,var(--red),var(--red2));
-      color:#fff; padding:10px 14px; text-align:center; font-size:12px;
-      border-bottom:2px solid var(--gold); gap:8px;
-      align-items:center; justify-content:center;
-    }
-    #installBanner.show { display:flex; }
-    #installBanner button {
-      background:var(--gold2); color:var(--dark); border:none; border-radius:7px;
-      padding:5px 12px; font-size:11px; font-weight:700;
-      font-family:'Cairo',sans-serif; cursor:pointer;
-    }
-
-    .dark-toggle {
-      position:fixed; bottom:84px; left:16px;
-      width:38px; height:38px; border-radius:50%;
-      background:var(--red); border:2px solid var(--gold);
-      color:#fff; font-size:16px; cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:0 4px 16px rgba(0,0,0,0.3); z-index:100;
-    }
-
-    .tab-page { display:none; }
-    .tab-page.active { display:block; }
-
-    .menu-btn {
-      position:fixed; top:18px; right:14px; z-index:300;
-      width:44px; height:44px; border-radius:50%;
-      background:rgba(0,0,0,0.25); border:2px solid var(--gold);
-      color:#fff; font-size:20px; cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:0 4px 14px rgba(0,0,0,0.25);
-    }
-    body.dark .menu-btn { background:rgba(0,0,0,0.4); }
-
-    /* BOTTOM TAB BAR */
-    .bottom-nav {
-      position:fixed; bottom:0; left:0; right:0; z-index:300;
-      background:#fff; border-top:1px solid #eee;
-      display:flex; padding:6px 4px calc(6px + env(safe-area-inset-bottom));
-      box-shadow:0 -4px 16px rgba(0,0,0,0.06);
-    }
-    body.dark .bottom-nav { background:#1e1208; border-color:#2a2a2a; }
-    .bn-item {
-      flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
-      background:none; border:none; font-family:'Cairo',sans-serif;
-      padding:6px 2px; cursor:pointer; color:#aaa;
-    }
-    .bn-item .bn-icon { display:flex; align-items:center; justify-content:center; width:22px; height:22px; }
-    .bn-item .bn-icon svg { width:22px; height:22px; display:block; }
-    .bn-item .bn-label { font-size:10px; font-weight:600; }
-    .bn-item.active { color:var(--red); }
-    body.dark .bn-item.active { color:var(--gold2); }
-    .bn-item .bn-dot {
-      position:absolute; top:2px; inset-inline-end:22%;
-      width:8px; height:8px; border-radius:50%; background:#e74c3c;
-      border:1.5px solid #fff; display:none;
-    }
-    .bn-item { position:relative; }
-    .bn-item.has-badge .bn-dot { display:block; }
-
-    .drawer-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,0.5);
-      z-index:400; opacity:0; pointer-events:none; transition:opacity 0.3s;
-    }
-    .drawer-overlay.show { opacity:1; pointer-events:auto; }
-
-    .drawer {
-      position:fixed; top:0; right:0; height:100%; width:78%; max-width:300px;
-      background:#fff; z-index:401; padding:24px 18px;
-      transform:translateX(100%); transition:transform 0.3s cubic-bezier(.4,0,.2,1);
-      box-shadow:-6px 0 30px rgba(0,0,0,0.25);
-      display:flex; flex-direction:column; gap:6px;
-    }
-    .drawer.open { transform:translateX(0); }
-    body.dark .drawer { background:#1e1208; }
-    .drawer-header {
-      font-size:17px; font-weight:900; color:var(--red);
-      margin-bottom:6px; padding-bottom:14px;
-      border-bottom:1px solid #eee;
-    }
-    body.dark .drawer-header { color:var(--gold2); border-color:#333; }
-    .drawer-item {
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      background:none; border:none; border-bottom:1px solid #f2f2f2; cursor:pointer;
-      font-family:'Cairo',sans-serif; font-size:14px; font-weight:600;
-      color:var(--dark); padding:15px 2px; border-radius:0;
-      text-align:right; transition:opacity 0.15s;
-    }
-    .drawer-item .d-left { display:flex; align-items:center; gap:12px; }
-    .drawer-item .d-chevron { color:#ccc; font-size:13px; }
-    body.dark .drawer-item { color:#f0e6d3; border-color:#2a2a2a; }
-    .drawer-item .d-icon {
-      font-size:16px; width:34px; height:34px; border-radius:50%;
-      background:rgba(212,175,55,0.12); display:flex; align-items:center; justify-content:center;
-      flex-shrink:0;
-    }
-    .drawer-item:active { opacity:0.6; }
-    .drawer-item.active .d-icon { background:var(--red); }
-    .drawer-item.active { color:var(--red); }
-    body.dark .drawer-item.active { color:var(--gold2); }
-    .drawer-logout {
-      margin-top:10px; color:#c0392b !important; border-bottom:none;
-    }
-    .drawer-dev { color:#1aa64c !important; }
-
-    .spinner {
-      display:inline-block; width:18px; height:18px;
-      border:2.5px solid rgba(255,255,255,0.3);
-      border-top-color:#fff; border-radius:50%;
-      animation:spin 0.7s linear infinite;
-      vertical-align:middle; margin-left:5px;
-    }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .hidden { display:none !important; }
-
-    /* SALAH — floating bubble, non-blocking */
-    #salahOverlay {
-      position:fixed; bottom:84px; right:14px; z-index:500;
-      max-width:215px; display:none; pointer-events:none;
-    }
-    #salahOverlay.show { display:block; }
-    #salahBox {
-      position:relative; pointer-events:auto;
-      background:linear-gradient(160deg,#fff9ee 0%,#fff3cd 100%);
-      border:2px solid var(--gold); border-radius:18px;
-      padding:14px 14px 12px; text-align:center;
-      box-shadow:0 10px 28px rgba(0,0,0,0.22);
-      animation:bubbleIn 0.45s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    #salahBox::after {
-      content:''; position:absolute; bottom:-9px; right:22px;
-      width:16px; height:16px;
-      background:#fff3cd; border-left:2px solid var(--gold); border-bottom:2px solid var(--gold);
-      transform:rotate(-45deg); border-radius:0 0 3px 0;
-    }
-    @keyframes bubbleIn { from { transform:translateY(16px) scale(0.85); opacity:0 } to { transform:translateY(0) scale(1); opacity:1 } }
-    #salahBox .s-close {
-      position:absolute; top:6px; right:6px;
-      width:20px; height:20px; border-radius:50%; border:none;
-      background:rgba(139,0,0,0.08); color:#a3833a; font-size:11px;
-      display:flex; align-items:center; justify-content:center; cursor:pointer;
-    }
-    #salahBox .s-icon { font-size:26px; margin-bottom:4px; display:block; }
-    #salahBox .s-main { font-size:13px; font-weight:800; color:var(--red); line-height:1.5; margin-bottom:3px; }
-    #salahBox .s-sub  { font-size:10.5px; color:#9a7a30; margin-bottom:9px; line-height:1.5; }
-    #salahBox .s-btn  {
-      background:linear-gradient(135deg,var(--red),var(--red2));
-      color:var(--gold2); border:1.5px solid var(--gold);
-      border-radius:99px; padding:6px 18px;
-      font-size:11px; font-weight:700; font-family:'Cairo',sans-serif;
-      cursor:pointer; transition:transform 0.15s;
-    }
-    #salahBox .s-btn:hover { transform:translateY(-1px); }
-    body.dark #salahBox { background:linear-gradient(160deg,#241808,#1e1208); }
-    body.dark #salahBox::after { background:#1e1208; }
-
-    .lockout-msg {
-      background:#fde8e8; color:#c0392b; border-radius:10px;
-      padding:10px; text-align:center; font-size:13px; margin-top:8px;
-      display:none;
-    }
-    .security-badge {
-      position:fixed; bottom:24px; right:16px;
-      font-size:11px; color:#aaa; z-index:100;
-      background:rgba(255,255,255,0.8); padding:4px 10px;
-      border-radius:99px; backdrop-filter:blur(4px);
-    }
-    body.dark .security-badge { background:rgba(0,0,0,0.5); color:#888; }
-
-    /* ── Multi Cards Tab ── */
-    .cards-list { display:flex; flex-direction:column; gap:14px; }
-    .multi-card {
-      background:#fff;
-      border:1.5px solid rgba(139,0,0,0.15);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 2px 10px rgba(139,0,0,0.07);
-    }
-    .multi-card-header {
-      display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:10px;
-    }
-    .multi-card-name { font-size:15px; font-weight:900; color:var(--dark); }
-    .multi-card-reward {
-      font-size:11px; color:#fff;
-      background:var(--red); border-radius:20px;
-      padding:3px 10px; font-weight:700;
-    }
-    .multi-stamps-grid {
-      display:flex; flex-wrap:wrap; gap:6px;
-      justify-content:center; margin:10px 0;
-    }
-    .multi-stamp {
-      width:32px; height:32px; border-radius:50%;
-      border:2px solid #ddd;
-      background:#f5f5f5;
-      display:flex; align-items:center; justify-content:center;
-      font-size:14px; transition:all 0.3s;
-    }
-    .multi-stamp.filled {
-      background:linear-gradient(135deg,#8B0000,#D4AF37);
-      border-color:var(--gold);
-      animation:stampPop 0.4s ease;
-    }
-    .multi-card-count { text-align:center; font-size:12px; color:#999; margin-bottom:8px; }
-    .multi-card-count strong { color:var(--red); }
-    .btn-card-reward {
-      width:100%; padding:10px; border:none; border-radius:12px;
-      background:linear-gradient(135deg,var(--red),var(--gold));
-      color:#fff; font-weight:800; font-size:13px;
-      cursor:pointer; margin-top:4px;
-    }
-    .btn-card-reward:disabled { opacity:0.5; cursor:not-allowed; }
-    .card-pending-msg {
-      text-align:center; font-size:12px; color:#F59E0B;
-      background:#FFFBEB; border-radius:8px; padding:8px; margin-top:6px;
-    }
-    .cards-mini-summary {
-      display:flex; gap:8px; margin-bottom:16px; overflow-x:auto;
-      padding-bottom:4px;
-    }
-    .card-mini {
-      flex-shrink:0; background:#fff; border:1.5px solid rgba(139,0,0,0.15);
-      border-radius:14px; padding:10px 14px; text-align:center;
-      min-width:90px; cursor:pointer;
-    }
-    .card-mini-name { font-size:11px; font-weight:700; color:var(--dark); }
-    .card-mini-progress { font-size:13px; font-weight:900; color:var(--red); margin-top:2px; }
-    body.dark .multi-card { background:#1e1208; border-color:rgba(212,175,55,0.2); }
-    body.dark .multi-stamp { background:#2a2a2a; border-color:#444; }
-    body.dark .card-mini { background:#1e1208; border-color:rgba(212,175,55,0.2); }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- SALAH FLOATING BUBBLE -->
-<div id="salahOverlay">
-  <div id="salahBox">
-    <button class="s-close" id="salahCloseX" aria-label="إغلاق">&#x2715;</button>
-    <span class="s-icon">&#x262A;</span>
-    <div class="s-main">اللهم صلِّ وسلم<br>على سيدنا محمد ﷺ</div>
-    <div class="s-sub">&laquo; من صلى عليّ صلاةً صلى الله عليه بها عشراً &raquo;</div>
-    <button class="s-btn" id="salahCloseBtn">آمين &#x1F932;</button>
-  </div>
-</div>
-
+<!-- INSTALL BANNER -->
 <div id="installBanner">
-  <span>حمّل التطبيق على موبايلك!</span>
+  <span>ثبّت التطبيق على هاتفك</span>
   <button id="installBtn">تثبيت</button>
-  <button id="dismissInstallBtn" style="background:rgba(255,255,255,0.2);color:#fff;">&#x2715;</button>
+  <button class="close-btn" id="dismissInstallBtn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
 </div>
 
-<header>
-  <img src="icon-192x192.png" class="header-logo" alt="شيخ البلد" onerror="this.style.display='none'">
-  <h1>شيخ البلد</h1>
-  <p>نقاط الولاء</p>
-</header>
+<!-- SALAH POPUP -->
+<div id="salahOverlay">
+  <div class="salah-box">
+    <button class="salah-close" id="salahCloseX" aria-label="إغلاق">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <span class="salah-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3c.5 0 1 .2 1.4.6.4.4.6.9.6 1.4v13c0 .5-.2 1-.6 1.4-.4.4-.9.6-1.4.6s-1-.2-1.4-.6c-.4-.4-.6-.9-.6-1.4V5c0-.5.2-1 .6-1.4C11 3.2 11.5 3 12 3z"/><circle cx="12" cy="5" r="1" fill="currentColor"/></svg>
+    </span>
+    <div class="salah-main">اللهم صلِّ وسلم<br>على سيدنا محمد ﷺ</div>
+    <div class="salah-sub">مَنْ صَلَّى عَلَيَّ صَلَاةً صَلَّى اللهُ عَلَيْهِ بِهَا عَشْرًا</div>
+    <button class="salah-btn" id="salahCloseBtn">آمين</button>
+  </div>
+</div>
 
-<main>
+<div class="page-wrapper">
 
-  <!-- SPLASH / INTRO SCREEN -->
-  <div id="splashScreen" class="card">
-    <img src="icon-192x192.png" class="logo-img" alt="شيخ البلد" onerror="this.style.display='none'">
-    <div class="login-title">أهلاً بيك في شيخ البلد 🎉</div>
-    <div class="login-sub" style="margin-bottom:18px;">نظام نقاط الولاء بتاعنا — اعرف هتستفاد إزاي:</div>
+  <!-- HEADER -->
+  <header class="header">
+    <img src="icon-192x192.png" class="header-logo" alt="شيخ البلد" id="headerLogo">
+    <h1 id="headerTitle">شيخ البلد</h1>
+    <p id="headerTagline">نقاط الولاء</p>
+  </header>
 
-    <div style="text-align:right;display:flex;flex-direction:column;gap:12px;margin-bottom:22px;">
-      <div style="display:flex;align-items:flex-start;gap:10px;">
-        <span style="font-size:20px;">💰</span>
-        <span style="font-size:14px;color:#555;">بكل طلب تعمله، تكسب نقط ولاء تلقائي</span>
+  <main>
+
+    <!-- SPLASH SCREEN -->
+    <div id="splashScreen" class="card">
+      <div class="text-center mb-4">
+        <img src="icon-192x192.png" style="width:80px;height:80px;border-radius:50%;margin:0 auto 12px;border:2px solid var(--brand);" alt="شيخ البلد">
+        <div class="login-title" id="splashTitle">مرحبًا بك في نظام الولاء</div>
+        <div class="login-sub" style="margin-bottom:8px;">تعرّف على كيفية الاستفادة من البرنامج</div>
       </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;">
-        <span style="font-size:20px;">🎟️</span>
-        <span style="font-size:14px;color:#555;">اجمع نقطك واستبدلها بخصومات حصرية على فاتورتك</span>
+
+      <div class="info-list">
+        <div class="info-row">
+          <div class="info-icon" style="background:var(--success-soft);color:var(--success);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <span class="info-text">اكسب نقاطًا مع كل طلب</span>
+        </div>
+        <div class="info-row">
+          <div class="info-icon" style="background:var(--accent-soft);color:#7a5f2e;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.2 7.8l-6.5-4.3a2 2 0 00-2.2 0L5 7.8a2 2 0 00-.8 1.6v7.2a2 2 0 00.8 1.6l6.5 4.3a2 2 0 002.2 0l6.5-4.3a2 2 0 00.8-1.6V9.4a2 2 0 00-.8-1.6z"/><path d="M12 12v.01"/></svg>
+          </div>
+          <span class="info-text">استبدل نقاطك بخصومات حصرية</span>
+        </div>
+        <div class="info-row">
+          <div class="info-icon" style="background:var(--brand-soft);color:var(--brand);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <span class="info-text">اجمع الأختام واحصل على مكافآت</span>
+        </div>
+        <div class="info-row">
+          <div class="info-icon" style="background:#dbeafe;color:#2563eb;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+          </div>
+          <span class="info-text">تابع نقاطك من هاتفك في أي وقت</span>
+        </div>
       </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;">
-        <span style="font-size:20px;">🟢</span>
-        <span style="font-size:14px;color:#555;">كل زيارة = ختم جديد في بطاقتك، وبعد ما تكمل البطاقة تاخد صينية هدية 🎁</span>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;">
-        <span style="font-size:20px;">📱</span>
-        <span style="font-size:14px;color:#555;">تابع نقاطك وأختامك وطلباتك من موبايلك في أي وقت</span>
+
+      <button class="btn btn-primary btn-full" id="splashStartBtn">ابدأ الآن</button>
+
+      <div class="social-grid mt-4">
+        <a href="https://www.facebook.com/share/1DhbKDUUra/" target="_blank" rel="noopener noreferrer" class="social-btn btn-facebook" id="fbLink">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          فيسبوك
+        </a>
+        <a href="https://www.tiktok.com/@skeikh.el.balad" target="_blank" rel="noopener noreferrer" class="social-btn btn-tiktok" id="ttLink">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.02-.07z"/></svg>
+          تيك توك
+        </a>
       </div>
     </div>
 
-    <button class="btn-primary" id="splashStartBtn">
-      <span>يلا بينا 🚀</span>
-    </button>
-  </div>
+    <!-- LOGIN CARD -->
+    <div id="loginCard" class="card hidden">
+      <div class="text-center mb-4">
+        <img src="icon-192x192.png" style="width:64px;height:64px;border-radius:50%;margin:0 auto 12px;" alt="شيخ البلد">
+        <div class="login-title">تسجيل الدخول</div>
+        <div class="login-sub">أدخل رقم هاتفك لعرض نقاطك</div>
+      </div>
 
-  <!-- LOGIN CARD -->
-  <div id="loginCard" class="card hidden">
-    <img src="icon-192x192.png" class="logo-img" alt="شيخ البلد" onerror="this.style.display='none'">
-    <div class="login-title">أهلاً بك!</div>
-    <div class="login-sub">ادخل رقم تليفونك عشان تشوف نقاطك</div>
-    <input type="text" id="phoneInput" placeholder="01XXXXXXXXX" maxlength="11" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-    <div class="field-error" id="phoneError">ادخل رقم مصري صحيح (11 رقم يبدأ بـ 01)</div>
-    <button class="btn-primary" id="lookupBtn">
-      <span id="loginBtnText">عرض نقاطي</span>
-    </button>
-    <div class="lockout-msg" id="lockoutMsg">تم تأمين الحساب مؤقتاً بسبب محاولات كثيرة. انتظر <span id="lockoutTimer">15</span> دقيقة.</div>
+      <div class="input-group">
+        <input type="text" id="phoneInput" placeholder="01XXXXXXXXX" maxlength="11" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <span class="input-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        </span>
+      </div>
+      <div class="field-error" id="phoneError">أدخل رقمًا مصريًا صحيحًا (11 رقمًا يبدأ بـ 01)</div>
 
-    <div class="hidden" id="registerPrompt" style="margin-top:16px;padding-top:16px;border-top:1px dashed #eee;">
-      <div class="login-sub" style="margin-bottom:10px;">الرقم ده مش مسجل عندنا، اكتب اسمك وسجل دلوقتي 👇</div>
-      <input type="text" id="registerNameInput" placeholder="اسمك بالكامل" maxlength="50" autocomplete="off" autocorrect="off" spellcheck="false">
-      <div class="field-error" id="registerNameError">اكتب اسم صحيح (حرفين على الأقل)</div>
-      <button class="btn-primary" id="registerBtn">
-        <span id="registerBtnText">سجلني دلوقتي 🎉</span>
+      <button class="btn btn-primary btn-full" id="lookupBtn">
+        <span id="loginBtnText">عرض النقاط</span>
       </button>
-    </div>
-  </div>
 
-  <div style="display:flex;gap:10px;margin-top:4px;margin-bottom:10px;">
-    <a href="https://www.facebook.com/share/1DhbKDUUra/" target="_blank" rel="noopener noreferrer"
-       style="display:flex;align-items:center;gap:7px;background:#1877F2;color:#fff;border-radius:12px;padding:11px 16px;font-size:13px;font-weight:700;font-family:'Cairo',sans-serif;text-decoration:none;flex:1;justify-content:center;box-shadow:0 3px 10px rgba(24,119,242,0.35);">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-      فيسبوك
-    </a>
-    <a href="https://www.tiktok.com/@skeikh.el.balad" target="_blank" rel="noopener noreferrer"
-       style="display:flex;align-items:center;gap:7px;background:#010101;color:#fff;border-radius:12px;padding:11px 16px;font-size:13px;font-weight:700;font-family:'Cairo',sans-serif;text-decoration:none;flex:1;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,0.25);">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.02-.07z"/></svg>
-      تيك توك
-    </a>
-  </div>
+      <div class="lockout-msg" id="lockoutMsg">تم قفل الحساب مؤقتًا. انتظر <span id="lockoutTimer">15</span> دقيقة.</div>
 
-  <!-- DASHBOARD -->
-  <div id="dashboard" class="hidden">
-
-    <div id="tab-home" class="tab-page active">
-      <!-- POINTS HERO -->
-      <div class="points-hero">
-        <div class="points-name" id="custName">—</div>
-        <div class="points-number" id="custPoints">0</div>
-        <div class="points-label">نقطة مجمّعة</div>
-        <div id="levelBadge" style="margin-top:8px;"></div>
-        <div class="last-visit" id="lastVisitTxt"></div>
-        <div class="progress-section">
-          <div class="progress-label">
-            <span>نحو مكافأتك</span>
-            <span id="progressText">0 / 100</span>
-          </div>
-          <div class="progress-track">
-            <div class="progress-fill" id="progressBar" style="width:0%"></div>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:12px;position:relative;">
-          <div style="flex:1;background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 6px;text-align:center;">
-            <div style="font-size:10px;opacity:0.7;margin-bottom:2px;">المرحلة</div>
-            <div style="font-size:12px;font-weight:700;" id="statLevel">مشترك جديد</div>
-          </div>
-          <div style="flex:1;background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 6px;text-align:center;">
-            <div style="font-size:10px;opacity:0.7;margin-bottom:2px;">التقدم</div>
-            <div style="font-size:12px;font-weight:700;" id="statProgress">0%</div>
-          </div>
-          <div style="flex:1;background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 6px;text-align:center;">
-            <div style="font-size:10px;opacity:0.7;margin-bottom:2px;">الأختام</div>
-            <div style="font-size:12px;font-weight:700;" id="statStamps">0/10</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- REWARD READY -->
-      <div id="rewardReady" class="reward-ready hidden">
-        <div class="icon">&#x1F389;</div>
-        <h3>مبروك! معاك خصم جاهز</h3>
-        <p>اضغط واطلب خصم <span id="discountPercent">15</span>% على طلبك</p>
-        <button class="btn-green" id="redeemBtn">استخدم الخصم &#x1F381;</button>
-      </div>
-
-      <!-- PENDING REDEMPTION -->
-      <div id="pendingBadge" class="pending-badge hidden">
-        <div class="icon">&#x23F3;</div>
-        <p>طلب الخصم بيتراجع دلوقتي.. انتظر الموافقة من الكاشير</p>
-      </div>
-
-      <!-- WARNING 80% -->
-      <div id="warning80" class="warning-80 hidden">
-        &#x26A0; اقتربت! بعدك بس <strong id="warning80pts"></strong> نقطة للمكافأة
-      </div>
-
-      <!-- CARDS MINI (اختصار) -->
-      <div id="homeMiniCards" style="margin-bottom:8px;"></div>
-
-      <!-- STAMP CARD -->
-      <div class="stamp-card">
-        <div class="stamp-card-title">&#x1F37D; بطاقة الصواني</div>
-        <div class="stamp-card-sub">اجمع 10 أختام واحصل على صينية هدية!</div>
-        <div class="stamps-grid" id="stampsGrid"></div>
-        <div class="stamp-count">عندك <strong id="stampCount">0</strong> من 10 أختام</div>
-        <button class="btn-stamp" id="stampRequestBtn">&#x1FA84; طلب ختم جديد</button>
-        <div class="stamp-reward" id="stampRewardReady">
-          &#x1F389; مبروك! اكتملت البطاقة — صينية هدية في انتظارك!<br>
-          <small style="font-weight:400;font-size:11px;">أبلّغ الكاشير عشان تاخد هديتك &#x1F381;</small>
-        </div>
-        <div class="stamp-pending-msg" id="stampPending">
-          &#x23F3; طلب الختم بيتراجع من الأدمن...
-        </div>
-        <button class="btn-claim-reward" id="claimRewardBtn">&#x1F3C6; المطالبة بالمكافأة</button>
-        <div class="stamp-pending-msg" id="rewardClaimPending">
-          &#x23F3; طلب المكافأة بيتراجع من الأدمن...
-        </div>
-      </div>
-
-      <!-- HOW IT WORKS -->
-      <div class="card">
-        <div class="card-title">&#x2B50; كيف يشتغل النظام؟</div>
-        <div style="font-size:12px;color:#777;line-height:2.2;" id="howItWorks">
-          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-            <span style="font-size:18px;flex-shrink:0;">&#x1F4B3;</span>
-            <span>ادفع فاتورتك عادي في أي فرع من فروع شيخ البلد</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-            <span style="font-size:18px;flex-shrink:0;">&#x2B50;</span>
-            <span>الكاشير هيضيفلك نقاط على كل مشترياتك (10% من قيمة الفاتورة)</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-            <span style="font-size:18px;flex-shrink:0;">&#x1F37D;</span>
-            <span>اجمع 10 أختام على بطاقة الصواني وخد صينية هدية مجاناً!</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-            <span style="font-size:18px;flex-shrink:0;">&#x1F381;</span>
-            <span>لما توصل <strong id="howItWorksThreshold">100</strong> نقطة، تقدر تطلب خصم <strong id="howItWorksDiscount">15</strong>% على طلبك</span>
-          </div>
-          <div style="display:flex;align-items:flex-start;gap:10px;">
-            <span style="font-size:18px;flex-shrink:0;">&#x1F3C6;</span>
-            <span>كل ما تزود نقاطك، تطلع مراحل أعلى: برونزي &#x2192; فضي &#x2192; ذهبي &#x2192; بلاتيني</span>
-          </div>
-        </div>
-      </div>
-
-      <button class="logout-btn" id="logoutBtn">&#x21A9; تسجيل خروج</button>
-    </div>
-    <!-- END tab-home -->
-
-    <div id="tab-history" class="tab-page">
-      <div class="card">
-        <div class="card-title">&#x1F4CB; آخر المعاملات</div>
-        <div id="txList">
-          <p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">جاري التحميل...</p>
-        </div>
-      </div>
-    </div>
-    <!-- END tab-history -->
-
-    <div id="tab-leader" class="tab-page">
-      <div class="card">
-        <div class="card-title">&#x1F3C5; أكثر العملاء ولاءً</div>
-        <div id="leaderboardList">
-          <p style="text-align:center;color:#ccc;font-size:12px;padding:14px;">جاري التحميل...</p>
-        </div>
-      </div>
-
-      <!-- SHARE -->
-      <div class="card" id="shareCard" style="display:none;">
-        <div class="card-title">&#x1F4F2; شارك نقاطك</div>
-        <button class="btn-share" id="shareBtn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          شارك على واتساب
+      <div class="register-prompt hidden" id="registerPrompt">
+        <div class="login-sub" style="margin-bottom:10px;">هذا الرقم غير مسجل. أدخل اسمك للتسجيل.</div>
+        <input type="text" id="registerNameInput" placeholder="الاسم الكامل" maxlength="50" autocomplete="off" autocorrect="off" spellcheck="false">
+        <div class="field-error" id="registerNameError">أدخل اسمًا صحيحًا (حرفان على الأقل)</div>
+        <button class="btn btn-primary btn-full" id="registerBtn">
+          <span id="registerBtnText">تسجيل</span>
         </button>
       </div>
     </div>
-    <!-- END tab-leader -->
 
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="hidden">
 
-    <div id="tab-cards" class="tab-page">
-      <!-- ملخص سريع -->
-      <div class="cards-mini-summary" id="cardsMiniSummary"></div>
+      <div id="tab-home" class="tab-page active">
 
-      <!-- البطاقات -->
-      <div class="cards-list" id="cardsList">
-        <div style="text-align:center;padding:30px;color:#ccc;font-size:13px;">
-          جاري تحميل البطاقات...
+        <!-- POINTS HERO -->
+        <div class="hero-card">
+          <div class="hero-name" id="custName">—</div>
+          <div class="hero-points" id="custPoints">0</div>
+          <div class="hero-label">نقطة مجمّعة</div>
+          <div id="levelBadge" style="margin-top:10px;"></div>
+          <div class="last-visit" id="lastVisitTxt"></div>
+
+          <div class="progress-section">
+            <div class="progress-label">
+              <span>التقدم نحو المكافأة</span>
+              <span id="progressText">0 / 100</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="progressBar" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="hero-stat-label">المرحلة</div>
+              <div class="hero-stat-value" id="statLevel">مشترك جديد</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-label">التقدم</div>
+              <div class="hero-stat-value" id="statProgress">0%</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-label">الأختام</div>
+              <div class="hero-stat-value" id="statStamps">0/10</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REWARD READY -->
+        <div id="rewardReady" class="reward-card hidden">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="margin:0 auto 8px;"><path d="M20 12v10H4V12M22 7H2v5h20V7zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+          <h3 style="font-size:18px;margin-bottom:4px;">مبروك! لديك خصم جاهز</h3>
+          <p style="font-size:14px;color:var(--ink-soft);margin-bottom:16px;">اضغط لطلب خصم <span id="discountPercent">15</span>% على طلبك</p>
+          <button class="btn btn-success btn-full" id="redeemBtn">استخدم الخصم</button>
+        </div>
+
+        <!-- PENDING REDEMPTION -->
+        <div id="pendingBadge" class="alert-card hidden">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span>طلب الخصم قيد المراجعة... انتظر الموافقة</span>
+        </div>
+
+        <!-- WARNING 80% -->
+        <div id="warning80" class="alert-card hidden" style="background:var(--accent-soft);border-left-color:var(--accent);color:#7a5f2e;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          <span>اقتربت! متبقي <strong id="warning80pts"></strong> نقاط فقط للمكافأة</span>
+        </div>
+
+        <!-- CARDS MINI -->
+        <div id="homeMiniCards" style="margin-bottom:8px;"></div>
+
+        <!-- STAMP CARD -->
+        <div class="card">
+          <div class="card-header-bar"></div>
+          <div class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="margin-left:4px;"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            بطاقة الأختام
+          </div>
+          <div class="stamp-card-sub" style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:18px;">اجمع 10 أختام واحصل على مكافأة</div>
+          <div class="stamps-grid" id="stampsGrid"></div>
+          <div class="stamp-count">لديك <strong id="stampCount">0</strong> من 10 أختام</div>
+          <button class="btn btn-secondary btn-full" id="stampRequestBtn">طلب ختم جديد</button>
+          <div class="stamp-reward hidden" id="stampRewardReady" style="background:var(--accent-soft);border:1px solid var(--accent);border-radius:8px;padding:14px;text-align:center;margin-top:10px;font-family:'Cairo',sans-serif;font-weight:600;font-size:14px;">
+            تهانينا! اكتملت البطاقة — أبلغ الكاشير لتسلم مكافأتك
+          </div>
+          <div class="stamp-pending-msg hidden" id="stampPending" style="background:var(--warning-soft);color:#92400e;border:1px solid var(--warning);border-radius:8px;padding:10px;text-align:center;font-size:12px;margin-top:8px;">
+            طلب الختم قيد المراجعة...
+          </div>
+          <button class="btn btn-success btn-full hidden" id="claimRewardBtn" style="margin-top:10px;">المطالبة بالمكافأة</button>
+          <div class="stamp-pending-msg hidden" id="rewardClaimPending" style="background:var(--warning-soft);color:#92400e;border:1px solid var(--warning);border-radius:8px;padding:10px;text-align:center;font-size:12px;margin-top:8px;">
+            طلب المكافأة قيد المراجعة...
+          </div>
+        </div>
+
+        <!-- HOW IT WORKS -->
+        <div class="card">
+          <div class="card-title">كيف يعمل النظام؟</div>
+          <div class="how-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><path d="M1 10h22"/></svg>
+            <span>ادفع فاتورتك في أي فرع من فروع شيخ البلد</span>
+          </div>
+          <div class="how-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>يضيف الكاشير نقاطًا على كل مشترياتك (10% من قيمة الفاتورة)</span>
+          </div>
+          <div class="how-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            <span>اجمع 10 أختام على بطاقة الأختام واحصل على مكافأة</span>
+          </div>
+          <div class="how-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.2 7.8l-6.5-4.3a2 2 0 00-2.2 0L5 7.8a2 2 0 00-.8 1.6v7.2a2 2 0 00.8 1.6l6.5 4.3a2 2 0 002.2 0l6.5-4.3a2 2 0 00.8-1.6V9.4a2 2 0 00-.8-1.6z"/><path d="M12 12v.01"/></svg>
+            <span>عند الوصول إلى <strong id="howItWorksThreshold">100</strong> نقطة، يمكنك طلب خصم <strong id="howItWorksDiscount">15</strong>%</span>
+          </div>
+          <div class="how-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
+            <span>كلما زادت نقاطك، ارتقِ بمراحل أعلى: برونزي → فضي → ذهبي → بلاتيني</span>
+          </div>
+        </div>
+
+        <button class="btn btn-ghost" id="logoutBtn" style="display:block;margin:8px auto 0;width:auto;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px;"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          تسجيل خروج
+        </button>
+      </div>
+      <!-- END tab-home -->
+
+      <!-- HISTORY TAB -->
+      <div id="tab-history" class="tab-page">
+        <div class="card">
+          <div class="card-title">سجل المعاملات</div>
+          <div id="txList">
+            <div class="empty-state">لا توجد معاملات حتى الآن</div>
+          </div>
         </div>
       </div>
-    </div>
-    <!-- END tab-cards -->
+      <!-- END tab-history -->
 
-    <div id="tab-completed" class="tab-page">
-      <div class="completed-card">
-        <div class="completed-seal">مكتمل &#x2705;</div>
-        <div class="completed-title">&#x1F37D; بطاقة الصواني — مكتملة</div>
-        <div class="completed-sub">تهانينا! استلمت صينية الهدية &#x1F381;</div>
-        <div class="stamps-grid" id="completedStampsGrid"></div>
+      <!-- LEADERBOARD TAB -->
+      <div id="tab-leader" class="tab-page">
+        <div class="card">
+          <div class="card-title">أكثر العملاء ولاءً</div>
+          <div id="leaderboardList">
+            <div class="empty-state">لا توجد بيانات</div>
+          </div>
+        </div>
+
+        <!-- SHARE -->
+        <div class="card hidden" id="shareCard">
+          <div class="card-title">شارك نقاطك</div>
+          <button class="btn btn-success btn-full" id="shareBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            مشاركة على واتساب
+          </button>
+        </div>
       </div>
-    </div>
-    <!-- END tab-completed -->
+      <!-- END tab-leader -->
 
+      <!-- CARDS TAB -->
+      <div id="tab-cards" class="tab-page">
+        <div class="cards-mini-summary" id="cardsMiniSummary"></div>
+        <div class="cards-list" id="cardsList">
+          <div class="empty-state" style="padding:30px;">جاري تحميل البطاقات...</div>
+        </div>
+      </div>
+      <!-- END tab-cards -->
+
+      <!-- COMPLETED TAB -->
+      <div id="tab-completed" class="tab-page">
+        <div class="completed-card">
+          <div class="completed-seal">مكتمل</div>
+          <div class="completed-title">بطاقة الأختام — مكتملة</div>
+          <div class="completed-sub">تهانينا! استلمت مكافأتك</div>
+          <div class="stamps-grid" id="completedStampsGrid"></div>
+        </div>
+      </div>
+      <!-- END tab-completed -->
+
+    </div>
+    <!-- END dashboard -->
+
+  </main>
+
+  <!-- HAMBURGER MENU (hidden, kept for JS compatibility) -->
+  <button class="menu-btn hidden" id="menuBtn" style="position:fixed;top:14px;right:14px;z-index:300;width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--line);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+  </button>
+
+  <!-- DRAWER OVERLAY -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <!-- DRAWER -->
+  <div class="drawer" id="drawer">
+    <div class="drawer-header" id="drawerHeader">المزيد</div>
+    <button class="drawer-item drawer-item-chevron hidden" id="drawerCompletedBtn" data-tab="tab-completed">
+      <span class="d-left">
+        <span class="d-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
+        </span>
+        <span>بطاقة مكتملة</span>
+      </span>
+      <span class="d-chevron">&#x276E;</span>
+    </button>
+    <button class="drawer-item drawer-item-chevron" id="nav-darkmode">
+      <span class="d-left">
+        <span class="d-icon" id="darkIconSpan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </span>
+        <span id="darkLabelSpan">المظهر الليلي</span>
+      </span>
+      <span class="d-chevron">&#x276E;</span>
+    </button>
+    <button class="drawer-item drawer-item-chevron drawer-dev" id="nav-contact">
+      <span class="d-left">
+        <span class="d-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        </span>
+        <span>اتصل بالمطور</span>
+      </span>
+      <span class="d-chevron">&#x276E;</span>
+    </button>
+    <button class="drawer-item drawer-item-chevron drawer-logout" id="nav-logout">
+      <span class="d-left">
+        <span class="d-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        </span>
+        <span>تسجيل خروج</span>
+      </span>
+      <span class="d-chevron">&#x276E;</span>
+    </button>
   </div>
 
-</main>
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav hidden" id="bottomNav">
+    <button class="bn-item active" data-tab="tab-home" id="bn-home">
+      <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5.5 9.5V20a1 1 0 001 1h11a1 1 0 001-1V9.5"/><path d="M9.5 21v-6h5v6"/></svg></span>
+      <span class="bn-label">الرئيسية</span>
+    </button>
+    <button class="bn-item" data-tab="tab-history" id="bn-history">
+      <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9z"/><path d="M8.5 11h7M8.5 15h7M8.5 19h4"/></svg></span>
+      <span class="bn-label">السجل</span>
+    </button>
+    <button class="bn-item" data-tab="tab-leader" id="bn-leader">
+      <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="6"/><path d="M9 9.5L7 3M15 9.5l2-6.5"/><path d="M12 12v6M9.5 15h5"/></svg></span>
+      <span class="bn-label">الترتيب</span>
+    </button>
+    <button class="bn-item" data-tab="tab-cards" id="bn-cards">
+      <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="14" height="10" rx="2"/><path d="M7 4.5h11a2 2 0 012 2V14"/></svg></span>
+      <span class="bn-label">البطاقات</span>
+    </button>
+    <button class="bn-item" id="bn-more">
+      <span class="bn-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></span>
+      <span class="bn-label">المزيد</span>
+      <span class="bn-dot" id="bnMoreDot"></span>
+    </button>
+  </nav>
 
-<!-- HAMBURGER MENU (legacy, kept hidden) -->
-<button class="menu-btn hidden" id="menuBtn">&#x2630;</button>
+  <!-- TOAST -->
+  <div id="toast"></div>
 
-<div class="drawer-overlay" id="drawerOverlay"></div>
-<div class="drawer" id="drawer">
-  <div class="drawer-header">المزيد &#x1F37D;</div>
-  <button class="drawer-item hidden" id="drawerCompletedBtn" data-tab="tab-completed">
-    <span class="d-left"><span class="d-icon">&#x1F3C6;</span><span>بطاقة مكتملة</span></span>
-    <span class="d-chevron">&#x276E;</span>
-  </button>
-  <button class="drawer-item" id="nav-darkmode">
-    <span class="d-left"><span class="d-icon" id="darkIconSpan">&#x1F319;</span><span id="darkLabelSpan">المظهر الليلي</span></span>
-    <span class="d-chevron">&#x276E;</span>
-  </button>
-  <button class="drawer-item drawer-dev" id="nav-contact">
-    <span class="d-left"><span class="d-icon">&#x1F4AC;</span><span>اتصل بالمطور</span></span>
-    <span class="d-chevron">&#x276E;</span>
-  </button>
-  <button class="drawer-item drawer-logout" id="nav-logout">
-    <span class="d-left"><span class="d-icon">&#x21A9;</span><span>تسجيل خروج</span></span>
-    <span class="d-chevron">&#x276E;</span>
-  </button>
+  <!-- CONFETTI CONTAINER -->
+  <div id="confettiContainer"></div>
+
+  <!-- SECURITY BADGE -->
+  <div class="security-badge">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    TLS Secured
+  </div>
+
 </div>
-
-<!-- BOTTOM TAB BAR -->
-<nav class="bottom-nav hidden" id="bottomNav">
-  <button class="bn-item active" data-tab="tab-home" id="bn-home">
-    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5"/><path d="M9.5 21v-6h5v6"/></svg></span><span class="bn-label">الرئيسية</span>
-  </button>
-  <button class="bn-item" data-tab="tab-history" id="bn-history">
-    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9z"/><path d="M8.5 11h7M8.5 15h7M8.5 19h4"/></svg></span><span class="bn-label">السجل</span>
-  </button>
-  <button class="bn-item" data-tab="tab-leader" id="bn-leader">
-    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="6"/><path d="M9 9.5 7 3M15 9.5l2-6.5"/><path d="M12 12v6M9.5 15h5"/></svg></span><span class="bn-label">الترتيب</span>
-  </button>
-  <button class="bn-item" data-tab="tab-cards" id="bn-cards">
-    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="14" height="10" rx="2"/><path d="M7 4.5h11a2 2 0 0 1 2 2V14"/></svg></span><span class="bn-label">البطاقات</span>
-  </button>
-  <button class="bn-item" id="bn-more">
-    <span class="bn-icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></span><span class="bn-label">المزيد</span>
-    <span class="bn-dot" id="bnMoreDot"></span>
-  </button>
-</nav>
-
-<div id="toast"></div>
-<div id="confettiContainer"></div>
-<div class="security-badge">&#x1F512; TLS Secured</div>
 
 <script src="config.js"></script>
 <script src="app.js"></script>

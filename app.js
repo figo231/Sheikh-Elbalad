@@ -87,7 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
     showDashboard();
     refreshData();
   } else {
-    showSplash();
+    if (!$('splashScreen')) {
+      showLoginCard();
+    } else {
+      showSplash();
+    }
   }
 });
 
@@ -473,7 +477,7 @@ function initRegisterForm() {
     }
 
     const btnText = $('registerBtnText');
-    const originalText = btnText ? btnText.textContent : 'سجلني دلوقتي 🎉';
+    const originalText = btnText ? btnText.textContent : 'سجّلني الآن';
     if (btnText) btnText.innerHTML = 'جاري التسجيل... <span class="spinner"></span>';
     registerBtn.disabled = true;
 
@@ -493,7 +497,7 @@ function initRegisterForm() {
 
       if (json.success) {
         clearLoginAttempts();
-        showToast('🎉 تم تسجيلك بنجاح، أهلاً بيك!', 'success');
+        showToast('تم تسجيلك بنجاح، مرحبًا بك!', 'success');
         hideRegisterPrompt();
         await loginWithPhone(phone);
       } else {
@@ -1025,7 +1029,7 @@ function renderCardsTab() {
   if (!list) return;
 
   if (!cards.length) {
-    list.innerHTML = '<div style="text-align:center;padding:40px;color:#ccc;font-size:13px;">مفيش بطاقات متاحة دلوقتي</div>';
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:#ccc;font-size:13px;">لا توجد بطاقات متاحة حاليًا</div>';
     if (mini) mini.innerHTML = '';
     return;
   }

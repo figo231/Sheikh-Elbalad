@@ -1,6 +1,6 @@
 /**
  * =============================================
- *   CONFIG - غير هنا بس لكل عميل جديد 🎯
+ *   CONFIG - الإعدادات العامة
  * =============================================
  */
 
@@ -18,13 +18,13 @@ const APP_CONFIG = {
 
   // ── الألوان الرئيسية ────────────────────────
   colors: {
-    primary:      "#8B0000",
-    primary2:     "#A50000",
-    primaryDark:  "#6B0000",
-    gold:         "#D4AF37",
-    gold2:        "#F0C93A",
-    background:   "#F8F4ED",
-    dark:         "#1a0000",
+    primary:      "#0d4a3a",
+    primary2:     "#16a34a",
+    primaryDark:  "#083328",
+    accent:       "#c9a84c",
+    accent2:      "#d4b85e",
+    background:   "#f8fafc",
+    dark:         "#0f172a",
   },
 
   // ── الواتساب ────────────────────────────────
@@ -33,7 +33,6 @@ const APP_CONFIG = {
 
 
   // ── الفروع ───────────────────────────────────
-  // كل فرع: { key: 'اسم_مختصر_انجليزي', name: 'الاسم بالعربي' }
   branches: [
     { key: 'alfmosken',  name: 'الف مسكن'  },
     { key: 'matriya',    name: 'المطرية'    },
@@ -45,7 +44,7 @@ const APP_CONFIG = {
   social: {
     facebook:  "https://www.facebook.com/share/1DhbKDUUra/",
     tiktok:    "https://www.tiktok.com/@skeikh.el.balad",
-    instagram: "",   // اتركه فاضي لو مش موجود
+    instagram: "",
   },
 
   // ── الـ Backend ──────────────────────────────
@@ -54,8 +53,7 @@ const APP_CONFIG = {
   // ── إعدادات النظام ───────────────────────────
   currency:       "جنيه",
   copyrightYear:  "2025",
-  copyrightText:  "بياناتك آمنة ومشفرة",
-  drawerEmoji:    "🍽️",
+  copyrightText:  "البيانات محمية ومشفرة",
 
 };
 
@@ -67,12 +65,11 @@ const APP_CONFIG = {
 
   // ── الألوان ──
   const root = document.documentElement;
-  root.style.setProperty('--red',   C.colors.primary);
-  root.style.setProperty('--red2',  C.colors.primary2);
-  root.style.setProperty('--gold',  C.colors.gold);
-  root.style.setProperty('--gold2', C.colors.gold2);
-  root.style.setProperty('--cream', C.colors.background);
-  root.style.setProperty('--dark',  C.colors.dark);
+  root.style.setProperty('--brand',        C.colors.primary);
+  root.style.setProperty('--brand-soft',   '#e8f5f0');
+  root.style.setProperty('--brand-dark',   C.colors.primaryDark);
+  root.style.setProperty('--accent',       C.colors.accent);
+  root.style.setProperty('--accent-soft',  '#faf6e8');
 
   // ── العنوان ──
   document.title = C.appName + ' - ' + C.appTagline;
@@ -92,41 +89,35 @@ const APP_CONFIG = {
   if (headerP) headerP.textContent = C.appTagline;
 
   // ── اللوجو ──
-  document.querySelectorAll('.header-logo, .logo-img').forEach(img => {
+  document.querySelectorAll('.header-logo, .logo-img, .login-logo').forEach(img => {
     img.src = C.logoUrl;
     img.alt = C.appName;
   });
 
-  // ── Splash Screen ──
-  const splashTitle = document.querySelector('.login-title');
-  if (splashTitle) splashTitle.textContent = 'أهلاً بيك في ' + C.appName + ' 🎉';
+  // ── Splash Title ──
+  const splashTitle = document.getElementById('splashTitle');
+  if (splashTitle) splashTitle.textContent = 'مرحبًا بك في ' + C.appName;
 
   // ── Drawer Header ──
-  const drawerHeader = document.querySelector('.drawer-header');
-  if (drawerHeader) drawerHeader.textContent = C.appName + ' ' + C.drawerEmoji;
+  const drawerHeader = document.getElementById('drawerHeader');
+  if (drawerHeader) drawerHeader.textContent = C.appName;
 
-  // ── Footer / Security Badge ──
-  const badge = document.querySelector('.security-badge');
-  if (badge) badge.innerHTML = '🔒 ' + C.copyrightText;
+  // ── Footer ──
+  const footerCopy = document.getElementById('footerCopy');
+  if (footerCopy) footerCopy.textContent = C.appName + ' \u00A9 ' + C.copyrightYear;
 
   // ── سوشيال ميديا ──
   if (C.social) {
-    const fbLink = document.querySelector('a[href*="facebook"]');
+    const fbLink = document.getElementById('fbLink');
     if (fbLink) {
       if (C.social.facebook) fbLink.href = C.social.facebook;
       else fbLink.style.display = 'none';
     }
-    const ttLink = document.querySelector('a[href*="tiktok"]');
+    const ttLink = document.getElementById('ttLink');
     if (ttLink) {
       if (C.social.tiktok) ttLink.href = C.social.tiktok;
       else ttLink.style.display = 'none';
     }
-  }
-
-  // ── header gradient ──
-  const header = document.querySelector('header');
-  if (header) {
-    header.style.background = `linear-gradient(160deg, ${C.colors.primaryDark} 0%, ${C.colors.primary} 50%, ${C.colors.primary2} 100%)`;
   }
 
 })();

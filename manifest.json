@@ -1,30 +1,25 @@
 {
   "name": "شيخ البلد - نقاط الولاء",
   "short_name": "شيخ البلد",
-  "description": "نظام نقاط ولاء شيخ البلد - اجمع نقاطك واستبدلها بمكافآت",
-  "start_url": "/Sheikh-Elbalad/",
+  "description": "اجمع نقاطك واستبدلها بمكافآت",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#F8F4ED",
-  "theme_color": "#8B0000",
+  "background_color": "#f8fafc",
+  "theme_color": "#0d4a3a",
   "orientation": "portrait",
-  "scope": "/Sheikh-Elbalad/",
-  "lang": "ar",
-  "dir": "rtl",
   "icons": [
     {
       "src": "icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "icon-512x512.png",
+      "src": "icon-192x192.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ],
-  "display_override": [
-    "window-controls-overlay"
-  ]
+  "dir": "rtl",
+  "lang": "ar",
+  "categories": ["food", "loyalty", "restaurant"]
 }

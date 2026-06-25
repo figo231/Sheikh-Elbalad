@@ -7,665 +7,294 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title id="adminPageTitle">شيخ البلد - لوحة الإدارة</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --red: #8B0000; --red2: #A50000; --gold: #D4AF37; --gold2: #F0C93A;
-      --cream: #F4F1E8; --dark: #1a0000; --green: #27AE60; --blue: #3498DB;
-      --shadow: 0 4px 24px rgba(0,0,0,0.12);
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Cairo', sans-serif; background: var(--cream); color: var(--dark); min-height: 100vh; }
-
-    /* ===== LOGIN SCREEN ===== */
-    #loginScreen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, var(--red) 0%, var(--red2) 60%, #6B0000 100%);
-      padding: 24px;
-    }
-    .login-box {
-      background: #fff;
-      border-radius: 24px;
-      padding: 36px 28px;
-      width: 100%;
-      max-width: 360px;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      border: 2px solid var(--gold);
-    }
-    .login-box .logo-emoji { font-size: 56px; margin-bottom: 12px; display: block; }
-    .login-box h2 { font-size: 22px; font-weight: 900; margin-bottom: 4px; color: var(--dark); }
-    .login-box p { color: #888; font-size: 13px; margin-bottom: 24px; }
-
-    .field-error {
-      color: #c0392b;
-      font-size: 12px;
-      margin-bottom: 8px;
-      display: none;
-    }
-    .lockout-banner {
-      background: #fde8e8;
-      color: #c0392b;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 12px;
-      font-size: 13px;
-      display: none;
-    }
-    .security-hint {
-      font-size: 11px;
-      color: #aaa;
-      margin-top: 16px;
-      line-height: 1.6;
-    }
-
-    input[type="password"], input[type="text"], input[type="number"], select {
-      width: 100%;
-      border: 2px solid #eee;
-      border-radius: 12px;
-      padding: 13px 16px;
-      font-size: 15px;
-      font-family: 'Cairo', sans-serif;
-      text-align: right;
-      transition: border-color 0.2s;
-      outline: none;
-      color: var(--dark);
-      margin-bottom: 12px;
-    }
-    input:focus, select:focus { border-color: var(--gold); }
-    input.error { border-color: #e74c3c; background: #fdf2f2; }
-
-    .btn {
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 15px;
-      font-weight: 700;
-      font-family: 'Cairo', sans-serif;
-      cursor: pointer;
-      transition: transform 0.15s, opacity 0.15s;
-    }
-    .btn:hover { transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-    .btn-red { background: linear-gradient(135deg, var(--red), var(--red2)); color: var(--gold2); border: 2px solid var(--gold); box-shadow: 0 4px 16px rgba(139,0,0,0.4); }
-    .btn-blue { background: linear-gradient(135deg, var(--blue), #2980B9); color: #fff; box-shadow: 0 4px 16px rgba(52,152,219,0.3); }
-    .btn-green { background: linear-gradient(135deg, var(--green), #2ECC71); color: #fff; box-shadow: 0 4px 16px rgba(39,174,96,0.3); }
-    .btn-danger { background: #c0392b; color: #fff; }
-    .btn-outline { background: transparent; border: 2px solid var(--red); color: var(--red); }
-    .btn-sm { padding: 8px 16px; font-size: 13px; width: auto; }
-    .adj-cell { display:flex; align-items:center; gap:6px; justify-content:center; white-space:nowrap; }
-    .adj-btn { width:24px; height:24px; border:none; border-radius:6px; font-size:14px; font-weight:700; cursor:pointer; line-height:1; padding:0; }
-    .adj-btn.plus  { background:var(--green); color:#fff; }
-    .adj-btn.minus { background:#c0392b; color:#fff; }
-    .adj-val { min-width:28px; text-align:center; font-weight:700; }
-
-    #adminScreen { display: none; }
-
-    /* ===== TOPBAR ===== */
-    .topbar {
-      background: linear-gradient(135deg, var(--red) 0%, var(--red2) 60%, #6B0000 100%);
-      color: #fff;
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 3px solid var(--gold);
-    }
-    .topbar h1 { font-size: 18px; font-weight: 900; color: var(--gold2); }
-    .topbar-right { display: flex; align-items: center; gap: 12px; }
-    .logout-btn {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(212,175,55,0.5);
-      color: var(--gold2);
-      font-family: 'Cairo', sans-serif;
-      font-size: 13px;
-      padding: 6px 14px;
-      border-radius: 99px;
-      cursor: pointer;
-    }
-
-    /* ===== TABS ===== */
-    .tabs {
-      background: #fff;
-      display: flex;
-      border-bottom: 2px solid #eee;
-      position: sticky;
-      top: 57px;
-      z-index: 99;
-      overflow-x: auto;
-    }
-    .tab {
-      flex: 1;
-      min-width: 80px;
-      padding: 14px 8px;
-      text-align: center;
-      font-size: 13px;
-      font-weight: 600;
-      color: #aaa;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      transition: color 0.2s;
-      white-space: nowrap;
-    }
-    .tab.active { color: var(--red); border-bottom-color: var(--red); }
-    .tab:hover { color: var(--dark); }
-
-    .tab-content { display: none; padding: 16px; max-width: 600px; margin: 0 auto; }
-    .tab-content.active { display: block; }
-
-    /* ===== CARDS ===== */
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      padding: 20px;
-      margin-bottom: 16px;
-      border: 1px solid rgba(212,175,55,0.15);
-    }
-    .card-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--dark);
-    }
-
-    /* ===== STATS ===== */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .stat-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(212,175,55,0.2);
-    }
-    .stat-icon { font-size: 32px; margin-bottom: 8px; }
-    .stat-num { font-size: 28px; font-weight: 900; color: var(--red); }
-    .stat-lbl { font-size: 12px; color: #aaa; margin-top: 4px; }
-
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { background: #f8f8f8; padding: 10px 12px; text-align: right; font-weight: 700; color: #666; }
-    td { padding: 12px; border-bottom: 1px solid #f0f0f0; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafafa; }
-
-    .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 99px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .badge-green { background: #d4edda; color: var(--green); }
-    .badge-gold { background: #fff3cd; color: #856404; }
-
-    .pending-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 0;
-      border-bottom: 1px solid #f0f0f0;
-      gap: 12px;
-    }
-    .pending-item:last-child { border-bottom: none; }
-    .pending-info .name { font-weight: 700; font-size: 15px; }
-    .pending-info .phone { font-size: 12px; color: #888; }
-    .pending-info .pts { font-size: 13px; color: var(--red); font-weight: 600; }
-    .pending-actions { display: flex; gap: 8px; flex-shrink: 0; }
-
-    #toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--dark);
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 99px;
-      font-size: 14px;
-      font-weight: 600;
-      transition: transform 0.3s;
-      z-index: 9999;
-      white-space: nowrap;
-    }
-    #toast.show { transform: translateX(-50%) translateY(0); }
-    #toast.success { background: var(--green); }
-    #toast.error { background: #c0392b; }
-
-    .spinner {
-      display: inline-block;
-      width: 16px; height: 16px;
-      border: 2px solid rgba(255,255,255,0.4);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .stamp-mini { display: inline-flex; gap: 3px; flex-wrap: wrap; margin-top: 4px; }
-    .stamp-dot { width: 14px; height: 14px; border-radius: 4px; border: 1px solid #ddd; background: #f5f5f5; font-size: 10px; display: flex; align-items: center; justify-content: center; }
-    .stamp-dot.filled { background: #fff3cd; border-color: var(--gold); }
-
-    .empty-state { text-align: center; padding: 32px; color: #ccc; font-size: 14px; }
-    .empty-state .icon { font-size: 40px; margin-bottom: 8px; }
-
-    /* ===== CHART ===== */
-    .chart-bar-wrap { display: flex; align-items: flex-end; gap: 8px; height: 120px; margin-top: 12px; }
-    .chart-bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
-    .chart-bar { width: 100%; background: linear-gradient(var(--red), var(--red2)); border-radius: 6px 6px 0 0; min-height: 4px; transition: height 0.8s; }
-    .chart-bar-lbl { font-size: 10px; color: #888; }
-    .chart-bar-val { font-size: 11px; font-weight: 700; color: var(--red); }
-
-    /* ===== ACTIVITY LOG ===== */
-    .log-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
-    .log-item:last-child { border-bottom: none; }
-    .log-time { color: #aaa; font-size: 11px; flex-shrink: 0; }
-    .log-user { font-weight: 700; color: var(--red); }
-
-    /* ===== DARK MODE ===== */
-    body.dark { background: #1a0a0a; color: #f0e6d3; }
-    body.dark .card { background: #2a1010; border-color: rgba(212,175,55,0.2); }
-    body.dark .tabs { background: #2a1010; }
-    body.dark .tab { color: #888; }
-    body.dark .tab.active { color: var(--gold2); border-bottom-color: var(--gold2); }
-    body.dark input, body.dark select { background: #2a1010; border-color: #444; color: #f0e6d3; }
-    body.dark table th { background: #1a0a0a; }
-    body.dark td { border-color: #333; }
-    body.dark .stat-card { background: #2a1010; }
-
-    /* ===== DARK TOGGLE ===== */
-    .dark-toggle {
-      position: fixed; bottom: 20px; left: 16px;
-      width: 44px; height: 44px; border-radius: 50%;
-      background: var(--red); border: 2px solid var(--gold);
-      color: #fff; font-size: 20px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 100;
-    }
-
-    /* ===== USERS ===== */
-    .user-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-    .user-item:last-child { border-bottom: none; }
-    .user-role { font-size: 11px; padding: 3px 10px; border-radius: 99px; font-weight: 700; }
-    .role-super { background: #fff3cd; color: #856404; }
-    .role-cashier { background: #d4edda; color: #27AE60; }
-    .perm-check { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-    .perm-tag { background: #f0f0f0; border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #555; }
-
-    /* ===== HAMBURGER & DRAWER ===== */
-    .menu-btn {
-      position: fixed; top: 14px; left: 16px;
-      width: 42px; height: 42px; border-radius: 50%;
-      background: rgba(255,255,255,0.15); border: 1.5px solid rgba(212,175,55,0.5);
-      color: var(--gold2); font-size: 20px; cursor: pointer;
-      display: none; align-items: center; justify-content: center;
-      z-index: 200;
-    }
-    .menu-btn.visible { display: flex; }
-
-    .drawer-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-      z-index: 400; opacity: 0; pointer-events: none; transition: opacity 0.3s;
-    }
-    .drawer-overlay.show { opacity: 1; pointer-events: auto; }
-
-    .drawer {
-      position: fixed; top: 0; right: 0; height: 100%; width: 78%; max-width: 300px;
-      background: #fff; z-index: 401; padding: 24px 18px;
-      transform: translateX(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-      box-shadow: -6px 0 30px rgba(0,0,0,0.25);
-      display: flex; flex-direction: column; gap: 6px;
-      overflow-y: auto;
-    }
-    .drawer.open { transform: translateX(0); }
-    body.dark .drawer { background: #1e1208; }
-
-    .drawer-header {
-      font-size: 17px; font-weight: 900; color: var(--red);
-      margin-bottom: 10px; padding-bottom: 10px;
-      border-bottom: 2px solid var(--gold);
-    }
-    body.dark .drawer-header { color: var(--gold2); }
-
-    .drawer-item {
-      display: flex; align-items: center; gap: 12px;
-      background: none; border: none; cursor: pointer;
-      font-family: 'Cairo', sans-serif; font-size: 15px; font-weight: 700;
-      color: var(--dark); padding: 13px 10px; border-radius: 12px;
-      text-align: right; transition: background 0.15s;
-    }
-    body.dark .drawer-item { color: #f0e6d3; }
-    .drawer-item .d-icon { font-size: 20px; }
-    .drawer-item:hover, .drawer-item.active { background: rgba(212,175,55,0.15); }
-    .drawer-item.active { color: var(--red); }
-    body.dark .drawer-item.active { color: var(--gold2); }
-    .drawer-logout { color: #c0392b !important; }
-    .drawer-dev { color: #25D366 !important; }
-
-    /* ===== CHANGE PASSWORD MODAL ===== */
-    #changePassModal {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.6); z-index: 9999;
-      align-items: center; justify-content: center; padding: 20px;
-    }
-    .modal-box {
-      background: #fff; border-radius: 20px;
-      padding: 28px 24px; width: 100%; max-width: 340px;
-      border: 2px solid var(--gold);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-    .modal-title { font-size: 22px; font-weight: 900; text-align: center; margin-bottom: 6px; color: var(--dark); }
-    .modal-sub { text-align: center; color: #888; font-size: 13px; margin-bottom: 20px; }
-
-    /* ===== SALAH — floating bubble, non-blocking ===== */
-    #salahOverlay2 {
-      position: fixed; bottom: 18px; right: 14px; z-index: 500;
-      max-width: 215px; display: none; pointer-events: none;
-    }
-    #salahOverlay2.show { display: block; }
-    #salahBox2 {
-      position: relative; pointer-events: auto;
-      background: linear-gradient(160deg, #fff9ee 0%, #fff3cd 100%);
-      border: 2px solid var(--gold);
-      border-radius: 18px;
-      padding: 14px 14px 12px;
-      text-align: center;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.22);
-      animation: bubbleIn2 0.45s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    #salahBox2::after {
-      content:''; position:absolute; bottom:-9px; right:22px;
-      width:16px; height:16px;
-      background:#fff3cd; border-left:2px solid var(--gold); border-bottom:2px solid var(--gold);
-      transform:rotate(-45deg); border-radius:0 0 3px 0;
-    }
-    @keyframes bubbleIn2 { from { transform:translateY(16px) scale(0.85); opacity:0 } to { transform:translateY(0) scale(1); opacity:1 } }
-    #salahBox2 .salah-close {
-      position:absolute; top:6px; left:6px;
-      width:20px; height:20px; border-radius:50%; border:none;
-      background:rgba(139,0,0,0.08); color:#a3833a; font-size:11px;
-      display:flex; align-items:center; justify-content:center; cursor:pointer;
-    }
-    #salahBox2 .salah-icon { font-size: 26px; margin-bottom: 4px; display: block; }
-    #salahBox2 .salah-main {
-      font-size: 13px; font-weight: 800; color: var(--red);
-      line-height: 1.5; margin-bottom: 3px;
-    }
-    #salahBox2 .salah-sub {
-      font-size: 10.5px; color: #9a7a30; margin-bottom: 9px; line-height: 1.5;
-    }
-    #salahBox2 .salah-btn {
-      background: linear-gradient(135deg, var(--red), var(--red2));
-      color: var(--gold2); border: 1.5px solid var(--gold);
-      border-radius: 99px; padding: 6px 18px;
-      font-size: 11px; font-weight: 700; font-family: 'Cairo', sans-serif;
-      cursor: pointer; transition: transform 0.15s;
-    }
-    #salahBox2 .salah-btn:hover { transform: translateY(-1px); }
-    body.dark #salahBox2 { background:linear-gradient(160deg,#241808,#1e1208); }
-    body.dark #salahBox2::after { background:#1e1208; }
-
-    .security-badge {
-      position: fixed; bottom: 20px; left: 70px;
-      font-size: 11px; color: #aaa; z-index: 100;
-      background: rgba(255,255,255,0.8); padding: 4px 10px;
-      border-radius: 99px; backdrop-filter: blur(4px);
-    }
-    body.dark .security-badge { background: rgba(0,0,0,0.5); color: #888; }
-
-    /* ── Admin Cards ── */
-    .card-item {
-      border:1.5px solid rgba(139,0,0,0.15);
-      border-radius:14px; padding:14px;
-      margin-bottom:12px; background:#fff;
-      display:flex; flex-direction:column; gap:8px;
-    }
-    .card-item-header { display:flex; justify-content:space-between; align-items:center; }
-    .card-item-name { font-weight:800; font-size:14px; color:var(--dark); }
-    .card-item-badge {
-      font-size:11px; padding:3px 10px; border-radius:20px; font-weight:700;
-    }
-    .badge-active { background:#D1FAE5; color:#065F46; }
-    .badge-inactive { background:#FEE2E2; color:#991B1B; }
-    .card-item-info { font-size:12px; color:#666; }
-    .card-item-actions { display:flex; gap:8px; }
-    .btn-toggle-card { flex:1; padding:8px; border:none; border-radius:10px; font-weight:700; font-size:12px; cursor:pointer; }
-    .btn-edit-card { flex:1; padding:8px; border:none; border-radius:10px; font-weight:700; font-size:12px; cursor:pointer; background:#EFF6FF; color:#1D4ED8; }
-    .btn-del-card { padding:8px 14px; border:none; border-radius:10px; font-weight:700; font-size:12px; cursor:pointer; background:#FEE2E2; color:#991B1B; }
-    body.dark .card-item { background:#2a1010; }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- SALAH FLOATING BUBBLE -->
+<!-- SALAH POPUP -->
 <div id="salahOverlay2">
-  <div id="salahBox2">
-    <button class="salah-close" id="salahCloseX2" aria-label="إغلاق">&#x2715;</button>
-    <span class="salah-icon">&#x262A;</span>
-    <div class="salah-main">اللهم صلِّ وسلم<br>على سيدنا محمد &#xFDFA;</div>
-    <div class="salah-sub">&laquo; من صلى عليّ صلاةً صلى الله عليه بها عشراً &raquo;</div>
-    <button class="salah-btn" id="salahCloseBtn2">آمين &#x1F932;</button>
+  <div class="salah-box">
+    <button class="salah-close" id="salahCloseX2" aria-label="إغلاق">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <span class="salah-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3c.5 0 1 .2 1.4.6.4.4.6.9.6 1.4v13c0 .5-.2 1-.6 1.4-.4.4-.9.6-1.4.6s-1-.2-1.4-.6c-.4-.4-.6-.9-.6-1.4V5c0-.5.2-1 .6-1.4C11 3.2 11.5 3 12 3z"/><circle cx="12" cy="5" r="1" fill="currentColor"/></svg>
+    </span>
+    <div class="salah-main">اللهم صلِّ وسلم<br>على سيدنا محمد ﷺ</div>
+    <div class="salah-sub">مَنْ صَلَّى عَلَيَّ صَلَاةً صَلَّى اللهُ عَلَيْهِ بِهَا عَشْرًا</div>
+    <button class="salah-btn" id="salahCloseBtn2">آمين</button>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-overlay" id="changePassModal">
+  <div class="modal-box">
+    <div class="modal-title">تغيير كلمة المرور</div>
+    <div class="modal-sub" id="changePassUserLabel"></div>
+    <input type="password" id="oldPassInput" placeholder="كلمة المرور الحالية">
+    <input type="password" id="newPassInput" placeholder="كلمة المرور الجديدة">
+    <input type="password" id="confirmPassInput" placeholder="تأكيد كلمة المرور الجديدة">
+    <div class="field-error" id="changePassError" style="margin-bottom:12px;"></div>
+    <button class="btn btn-primary btn-full" id="changePassBtn" style="margin-bottom:10px;">تغيير</button>
+    <button class="btn btn-secondary btn-full" id="closeChangePassBtn">إلغاء</button>
   </div>
 </div>
 
 <!-- LOGIN SCREEN -->
 <div id="loginScreen">
   <div class="login-box">
-    <span class="logo-emoji">&#x1F510;</span>
-    <h2>لوحة الإدارة</h2>
-    <p>شيخ البلد — اختار اسمك وادخل الباسورد</p>
-    <div class="lockout-banner" id="loginLockoutBanner">
-      &#x1F512; الحساب مقفول مؤقتاً. انتظر <span id="loginLockoutMinutes">15</span> دقيقة.
+    <div style="display:inline-flex;width:48px;height:48px;align-items:center;justify-content:center;border-radius:50%;background:var(--brand-soft);border:1.5px solid var(--brand);margin-bottom:16px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
     </div>
-    <select id="userSelect">
-      <option value="">— اختار المستخدم —</option>
-    </select>
-    <input type="password" id="passInput" placeholder="الباسورد" autocomplete="current-password">
-    <div class="field-error" id="loginFieldError">الباسورد غلط أو مستخدم مش موجود</div>
-    <button class="btn btn-red" id="adminLoginBtn" style="margin-top:4px;">دخول</button>
-    <div class="security-hint">
-      &#x1F512; الباسورد بتاعك مش بتخزن هنا. الاتصال مشفر بـ HTTPS.<br>
-      اختار المستخدم الصح واكتب الباسورد بتاعه.
-    </div>
-  </div>
-</div>
+    <div class="login-title">لوحة الإدارة</div>
+    <div class="login-sub">شيخ البلد — اختر المستخدم وأدخل كلمة المرور</div>
 
-<!-- CHANGE PASSWORD MODAL -->
-<div id="changePassModal">
-  <div class="modal-box">
-    <div class="modal-title">&#x1F511; تغيير الباسورد</div>
-    <div class="modal-sub" id="changePassUserLabel"></div>
-    <input type="password" id="oldPassInput" placeholder="الباسورد الحالي">
-    <input type="password" id="newPassInput" placeholder="الباسورد الجديد">
-    <input type="password" id="confirmPassInput" placeholder="تأكيد الباسورد الجديد">
-    <div class="field-error" id="changePassError" style="margin-bottom:12px;"></div>
-    <button class="btn btn-red" id="changePassBtn" style="margin-bottom:10px;">تغيير الباسورد</button>
-    <button class="btn btn-outline" id="closeChangePassBtn">إلغاء</button>
+    <div class="lockout-msg" id="loginLockoutBanner">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-left:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      الحساب مقفول مؤقتًا. انتظر <span id="loginLockoutMinutes">15</span> دقيقة.
+    </div>
+
+    <select id="userSelect">
+      <option value="">— اختر المستخدم —</option>
+    </select>
+    <input type="password" id="passInput" placeholder="كلمة المرور" autocomplete="current-password">
+    <div class="field-error" id="loginFieldError">كلمة المرور غير صحيحة أو المستخدم غير موجود</div>
+    <button class="btn btn-primary btn-full" id="adminLoginBtn">دخول</button>
+
+    <div class="security-hint">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-left:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      كلمة المرور لا تُخزّن محليًا. الاتصال مشفر بـ HTTPS.
+    </div>
   </div>
 </div>
 
 <!-- ADMIN SCREEN -->
 <div id="adminScreen">
 
+  <!-- TOP BAR -->
   <div class="topbar">
     <h1>شيخ البلد</h1>
     <div class="topbar-right">
-      <span style="font-size:13px;opacity:0.85;color:var(--gold2);" id="pendingCount"></span>
-      <span style="font-size:13px;color:var(--gold2);font-weight:700;" id="currentUserLabel"></span>
-      <button class="logout-btn" id="changePassOpenBtn" style="border-color:rgba(212,175,55,0.5);">&#x1F511; باسورد</button>
-      <button class="logout-btn" id="adminLogoutBtn">خروج</button>
-      <button class="logout-btn" id="menuToggleBtn" style="font-size:18px;padding:6px 12px;">&#x2630;</button>
+      <span style="font-size:13px;color:var(--accent);font-weight:600;" id="pendingCount"></span>
+      <span style="font-size:13px;color:var(--accent);font-weight:700;" id="currentUserLabel"></span>
+      <button class="btn btn-ghost btn-sm" id="changePassOpenBtn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+        كلمة المرور
+      </button>
+      <button class="btn btn-ghost btn-sm" id="adminLogoutBtn">خروج</button>
+      <button class="btn btn-ghost btn-sm" id="menuToggleBtn" style="font-size:16px;padding:4px 10px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
     </div>
   </div>
 
-  <div class="tabs" style="display:none;" id="tabsBar">
-    <div class="tab active" data-tab="home" id="tab-home-btn">&#x1F3E0; الرئيسية</div>
-    <div class="tab" data-tab="addPoints" id="tab-addPoints-btn">&#x2795; إضافة نقط</div>
-    <div class="tab" data-tab="pending" id="tab-pending-btn">&#x23F3; طلبات</div>
-    <div class="tab" data-tab="stamps" id="tab-stamps-btn">&#x1F37D; الأختام</div>
-    <div class="tab" data-tab="cards" id="tab-cards-btn">🃏 البطاقات</div>
-    <div class="tab" data-tab="customers" id="tab-customers-btn">&#x1F465; العملاء</div>
-    <div class="tab" data-tab="addCustomer" id="tab-addCustomer-btn">&#x1F464; عميل جديد</div>
-    <div class="tab" data-tab="leaderboard" id="tab-leaderboard-btn">&#x1F3C5; المتصدرين</div>
-    <div class="tab" data-tab="branches" id="tab-branches-btn">&#x1F3EA; الفروع</div>
-    <div class="tab" data-tab="activity" id="tab-activity-btn">&#x1F4CB; السجل</div>
-    <div class="tab" data-tab="users" id="tab-users-btn">&#x1F454; المستخدمين</div>
-    <div class="tab" data-tab="export" id="tab-export-btn">&#x1F4E4; تصدير</div>
-    <div class="tab" data-tab="settings" id="tab-settings-btn">&#x2699;&#xFE0F; الإعدادات</div>
+  <!-- TAB BAR -->
+  <div class="tabs" id="tabsBar" style="display:none;">
+    <div class="tab active" data-tab="home" id="tab-home-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5.5 9.5V20a1 1 0 001 1h11a1 1 0 001-1V9.5"/></svg>
+      الرئيسية
+    </div>
+    <div class="tab" data-tab="addPoints" id="tab-addPoints-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      إضافة نقاط
+    </div>
+    <div class="tab" data-tab="pending" id="tab-pending-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      الطلبات
+    </div>
+    <div class="tab" data-tab="stamps" id="tab-stamps-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      الأختام
+    </div>
+    <div class="tab" data-tab="cards" id="tab-cards-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="14" height="10" rx="2"/><path d="M7 4.5h11a2 2 0 012 2V14"/></svg>
+      البطاقات
+    </div>
+    <div class="tab" data-tab="customers" id="tab-customers-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      العملاء
+    </div>
+    <div class="tab" data-tab="addCustomer" id="tab-addCustomer-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      عميل جديد
+    </div>
+    <div class="tab" data-tab="leaderboard" id="tab-leaderboard-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
+      المتصدرين
+    </div>
+    <div class="tab" data-tab="branches" id="tab-branches-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+      الفروع
+    </div>
+    <div class="tab" data-tab="activity" id="tab-activity-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+      السجل
+    </div>
+    <div class="tab" data-tab="users" id="tab-users-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+      المستخدمين
+    </div>
+    <div class="tab" data-tab="export" id="tab-export-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+      تصدير
+    </div>
+    <div class="tab" data-tab="settings" id="tab-settings-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      الإعدادات
+    </div>
   </div>
 
-  <!-- HOME -->
+  <!-- HOME TAB -->
   <div id="tab-home" class="tab-content active">
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon">&#x1F465;</div>
+        <div class="stat-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
         <div class="stat-num" id="statTotal">—</div>
         <div class="stat-lbl">إجمالي العملاء</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">&#x23F3;</div>
+        <div class="stat-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
         <div class="stat-num" id="statPending">—</div>
         <div class="stat-lbl">طلبات معلقة</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">&#x2B50;</div>
+        <div class="stat-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
         <div class="stat-num" id="statTotalPts">—</div>
         <div class="stat-lbl">إجمالي النقاط</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">&#x1F3C6;</div>
+        <div class="stat-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
+        </div>
         <div class="stat-num" id="statReady">—</div>
-        <div class="stat-lbl">جاهزين للخصم</div>
+        <div class="stat-lbl">جاهزون للخصم</div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">&#x26A1; بحث سريع عن عميل</div>
-      <input type="text" inputmode="numeric" id="quickSearchPhone" placeholder="ابحث برقم التليفون" maxlength="11">
-      <button class="btn btn-red" id="quickSearchBtn">بحث</button>
+      <div class="card-title">البحث السريع عن عميل</div>
+      <div class="input-group">
+        <input type="text" inputmode="numeric" id="quickSearchPhone" placeholder="ابحث برقم الهاتف" maxlength="11">
+        <span class="input-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </span>
+      </div>
+      <button class="btn btn-primary btn-full" id="quickSearchBtn">بحث</button>
       <div id="quickResult" style="margin-top:16px;"></div>
     </div>
   </div>
 
-  <!-- ADD POINTS -->
+  <!-- ADD POINTS TAB -->
   <div id="tab-addPoints" class="tab-content">
     <div class="card">
-      <div class="card-title">&#x2795; إضافة نقاط لعميل</div>
-      <input type="text" inputmode="numeric" id="ptPhone" placeholder="رقم التليفون" maxlength="11">
+      <div class="card-title">إضافة نقاط لعميل</div>
+      <input type="text" inputmode="numeric" id="ptPhone" placeholder="رقم الهاتف" maxlength="11">
       <input type="number" id="ptAmount" placeholder="المبلغ المدفوع (جنيه)" min="1" max="1000000">
-      <div id="ptPreview" style="background:#f9f9f9;border-radius:12px;padding:12px;text-align:center;margin-bottom:12px;font-size:14px;color:#666;display:none;">
-        سيتم إضافة <strong id="ptCalc" style="color:var(--red);font-size:18px;">0</strong> نقطة
+      <div id="ptPreview" class="card hidden" style="background:var(--brand-soft);text-align:center;margin-bottom:12px;">
+        سيتم إضافة <strong id="ptCalc" style="color:var(--brand);font-size:18px;">0</strong> نقطة
       </div>
-      <button class="btn btn-green" id="addPointsBtn">إضافة النقاط &#x2705;</button>
+      <button class="btn btn-success btn-full" id="addPointsBtn">إضافة النقاط</button>
     </div>
   </div>
 
-  <!-- PENDING -->
+  <!-- PENDING TAB -->
   <div id="tab-pending" class="tab-content">
     <div class="card">
-      <div class="card-title">&#x23F3; طلبات الاسترداد المعلقة</div>
+      <div class="card-title">طلبات الاسترداد المعلقة</div>
       <div id="pendingList">
-        <div class="empty-state"><div class="icon">&#x23F3;</div>جاري التحميل...</div>
+        <div class="empty-state">جاري التحميل...</div>
       </div>
     </div>
   </div>
 
-  <!-- STAMPS -->
+  <!-- STAMPS TAB -->
   <div id="tab-stamps" class="tab-content">
     <div class="card">
-      <div class="card-title">&#x1F3C6; طلبات المكافآت المكتملة (10 أختام)</div>
+      <div class="card-title">طلبات المكافآت المكتملة</div>
       <div id="stampRewardPendingList">
-        <div class="empty-state"><div class="icon">&#x1F3C6;</div>جاري التحميل...</div>
+        <div class="empty-state">جاري التحميل...</div>
       </div>
     </div>
     <div class="card">
-      <div class="card-title">&#x1F37D; طلبات الأختام المعلقة</div>
+      <div class="card-title">طلبات الأختام المعلقة</div>
       <div id="stampPendingList">
-        <div class="empty-state"><div class="icon">&#x1F37D;</div>جاري التحميل...</div>
+        <div class="empty-state">جاري التحميل...</div>
       </div>
     </div>
     <div class="card">
-      <div class="card-title">&#x1FA84; إضافة ختم يدوي</div>
-      <input type="text" inputmode="numeric" id="stampPhone" placeholder="رقم التليفون" maxlength="11">
-      <div id="stampCustomerInfo" style="background:#f9f9f9;border-radius:12px;padding:12px;text-align:center;margin-bottom:12px;font-size:14px;color:#666;display:none;"></div>
-      <button class="btn btn-green" id="addStampManualBtn">إضافة ختم &#x2705;</button>
+      <div class="card-title">إضافة ختم يدوي</div>
+      <input type="text" inputmode="numeric" id="stampPhone" placeholder="رقم الهاتف" maxlength="11">
+      <div id="stampCustomerInfo" class="card hidden" style="background:var(--line-soft);text-align:center;margin-bottom:12px;font-size:14px;color:var(--muted);"></div>
+      <button class="btn btn-success btn-full" id="addStampManualBtn">إضافة ختم</button>
     </div>
   </div>
 
-
-  <!-- CARDS MANAGEMENT -->
+  <!-- CARDS TAB -->
   <div id="tab-cards" class="tab-content">
-    <!-- إضافة / تعديل بطاقة -->
     <div class="card">
-      <div class="card-title">➕ إضافة بطاقة جديدة</div>
+      <div class="card-title">إضافة بطاقة جديدة</div>
       <input type="hidden" id="editCardId">
       <input type="text" id="cardName" placeholder="اسم البطاقة (مثال: بطاقة الصواني)" maxlength="50">
       <input type="number" id="cardStamps" placeholder="عدد الأختام المطلوبة" min="1" max="50">
-      <input type="text" id="cardReward" placeholder="المكافأة (مثال: صينية هدية مجاناً)" maxlength="100">
+      <input type="text" id="cardReward" placeholder="المكافأة (مثال: طبق هدية مجانًا)" maxlength="100">
       <div class="field-error" id="cardFormError"></div>
       <div style="display:flex;gap:8px;">
-        <button class="btn btn-red" id="saveCardBtn" style="flex:1;">حفظ البطاقة ✅</button>
-        <button class="btn" id="cancelEditCardBtn" style="display:none;flex:1;background:#eee;color:#333;">إلغاء</button>
+        <button class="btn btn-primary" id="saveCardBtn" style="flex:1;">حفظ البطاقة</button>
+        <button class="btn btn-secondary hidden" id="cancelEditCardBtn" style="flex:1;">إلغاء</button>
       </div>
     </div>
-
-    <!-- قائمة البطاقات -->
     <div class="card">
-      <div class="card-title">🃏 البطاقات الحالية</div>
+      <div class="card-title">البطاقات الحالية</div>
       <div id="cardsAdminList">
-        <div class="empty-state"><div class="icon">🃏</div>جاري التحميل...</div>
+        <div class="empty-state">جاري التحميل...</div>
       </div>
     </div>
-
-    <!-- طلبات مكافآت البطاقات -->
     <div class="card">
-      <div class="card-title">🏆 طلبات مكافآت البطاقات</div>
+      <div class="card-title">طلبات مكافآت البطاقات</div>
       <div id="cardRewardsPendingList">
-        <div class="empty-state"><div class="icon">🏆</div>جاري التحميل...</div>
+        <div class="empty-state">جاري التحميل...</div>
       </div>
     </div>
-
-    <!-- إضافة ختم يدوي لبطاقة -->
     <div class="card">
-      <div class="card-title">🪄 إضافة ختم يدوي لبطاقة</div>
-      <input type="text" inputmode="numeric" id="cardStampPhone" placeholder="رقم التليفون" maxlength="11">
-      <select id="cardStampCardSelect" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid #ddd;font-size:14px;margin-bottom:10px;">
-        <option value="">اختار البطاقة</option>
+      <div class="card-title">إضافة ختم يدوي لبطاقة</div>
+      <input type="text" inputmode="numeric" id="cardStampPhone" placeholder="رقم الهاتف" maxlength="11">
+      <select id="cardStampCardSelect">
+        <option value="">اختر البطاقة</option>
       </select>
-      <div id="cardStampCustomerInfo" style="background:#f9f9f9;border-radius:12px;padding:12px;text-align:center;margin-bottom:12px;font-size:14px;color:#666;display:none;"></div>
-      <button class="btn btn-green" id="addCardStampBtn">إضافة ختم ✅</button>
+      <div id="cardStampCustomerInfo" class="card hidden" style="background:var(--line-soft);text-align:center;margin-bottom:12px;font-size:14px;color:var(--muted);"></div>
+      <button class="btn btn-success btn-full" id="addCardStampBtn">إضافة ختم</button>
     </div>
   </div>
 
-  <!-- CUSTOMERS -->
+  <!-- CUSTOMERS TAB -->
   <div id="tab-customers" class="tab-content">
     <div class="card">
-      <div class="card-title">&#x1F465; كل العملاء</div>
-      <input type="text" id="customerSearchInput" placeholder="بحث بالاسم أو رقم التليفون..." autocomplete="off">
+      <div class="card-title">قائمة العملاء</div>
+      <div class="input-group">
+        <input type="text" id="customerSearchInput" placeholder="بحث بالاسم أو رقم الهاتف..." autocomplete="off">
+        <span class="input-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </span>
+      </div>
       <div class="table-wrap">
         <table id="customersTable">
           <thead>
             <tr>
-              <th>الاسم</th><th>التليفون</th><th>النقاط</th><th>الأختام</th><th>الحالة</th><th>حذف</th>
+              <th>الاسم</th>
+              <th>الهاتف</th>
+              <th>النقاط</th>
+              <th>الأختام</th>
+              <th>الحالة</th>
+              <th>حذف</th>
             </tr>
           </thead>
           <tbody id="customersBody">
@@ -676,72 +305,72 @@
     </div>
   </div>
 
-  <!-- ADD CUSTOMER -->
+  <!-- ADD CUSTOMER TAB -->
   <div id="tab-addCustomer" class="tab-content">
     <div class="card">
-      <div class="card-title">&#x1F464; تسجيل عميل جديد</div>
+      <div class="card-title">تسجيل عميل جديد</div>
       <input type="text" id="newName" placeholder="اسم العميل" maxlength="50">
-      <input type="text" inputmode="numeric" id="newPhone" placeholder="رقم التليفون" maxlength="11">
+      <input type="text" inputmode="numeric" id="newPhone" placeholder="رقم الهاتف" maxlength="11">
       <div class="field-error" id="addCustomerError"></div>
-      <button class="btn btn-red" id="addCustomerBtn">تسجيل العميل &#x1F389;</button>
+      <button class="btn btn-primary btn-full" id="addCustomerBtn">تسجيل العميل</button>
     </div>
   </div>
 
-  <!-- LEADERBOARD -->
+  <!-- LEADERBOARD TAB -->
   <div id="tab-leaderboard" class="tab-content">
     <div class="card">
-      <div class="card-title">&#x1F3C5; أكثر العملاء ولاءً</div>
+      <div class="card-title">أكثر العملاء ولاءً</div>
       <div id="adminLeaderboard">
-        <div class="empty-state"><div class="icon">&#x1F3C5;</div>جاري التحميل...</div>
+        <div class="empty-state">جاري التحميل...</div>
       </div>
     </div>
   </div>
 
-  <!-- BRANCHES -->
+  <!-- BRANCHES TAB -->
   <div id="tab-branches" class="tab-content">
     <div class="stats-grid" id="branchStats" style="grid-template-columns:1fr 1fr;">
-      <div class="stat-card"><div class="stat-icon">&#x1F3EA;</div><div class="stat-num" id="b1Total">—</div><div class="stat-lbl">الف مسكن - عملاء</div></div>
-      <div class="stat-card"><div class="stat-icon">&#x1F3EA;</div><div class="stat-num" id="b2Total">—</div><div class="stat-lbl">المطرية - عملاء</div></div>
-      <div class="stat-card"><div class="stat-icon">&#x1F3EA;</div><div class="stat-num" id="b3Total">—</div><div class="stat-lbl">الشروق - عملاء</div></div>
-      <div class="stat-card"><div class="stat-icon">&#x1F4DE;</div><div class="stat-num" id="b4Total">—</div><div class="stat-lbl">كول سنتر - عملاء</div></div>
-      <div class="stat-card"><div class="stat-icon">&#x1F4B0;</div><div class="stat-num" id="b1Sales">—</div><div class="stat-lbl">الف مسكن - مبيعات</div></div>
-      <div class="stat-card"><div class="stat-icon">&#x1F4B0;</div><div class="stat-num" id="b2Sales">—</div><div class="stat-lbl">المطرية - مبيعات</div></div>
-      <div class="stat-card"><div class="stat-icon">&#x1F4B0;</div><div class="stat-num" id="b3Sales">—</div><div class="stat-lbl">الشروق - مبيعات</div></div>
-      <div class="stat-card"><div class="stat-icon">&#x1F4B0;</div><div class="stat-num" id="b4Sales">—</div><div class="stat-lbl">كول سنتر - مبيعات</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div><div class="stat-num" id="b1Total">—</div><div class="stat-lbl">الف مسكن — عملاء</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div><div class="stat-num" id="b2Total">—</div><div class="stat-lbl">المطرية — عملاء</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div><div class="stat-num" id="b3Total">—</div><div class="stat-lbl">الشروق — عملاء</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div><div class="stat-num" id="b4Total">—</div><div class="stat-lbl">كول سنتر — عملاء</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="stat-num" id="b1Sales">—</div><div class="stat-lbl">الف مسكن — مبيعات</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="stat-num" id="b2Sales">—</div><div class="stat-lbl">المطرية — مبيعات</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="stat-num" id="b3Sales">—</div><div class="stat-lbl">الشروق — مبيعات</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="stat-num" id="b4Sales">—</div><div class="stat-lbl">كول سنتر — مبيعات</div></div>
     </div>
     <div class="card">
-      <div class="card-title">&#x1F4CA; مقارنة الفروع - النقاط</div>
+      <div class="card-title">مقارنة الفروع — النقاط</div>
       <div class="chart-bar-wrap" id="branchChart"></div>
     </div>
   </div>
 
-  <!-- ACTIVITY -->
+  <!-- ACTIVITY TAB -->
   <div id="tab-activity" class="tab-content">
     <div class="card">
-      <div class="card-title">&#x1F4CB; سجل النشاط</div>
-      <div id="activityLog"><div class="empty-state"><div class="icon">&#x1F4CB;</div>جاري التحميل...</div></div>
+      <div class="card-title">سجل النشاط</div>
+      <div id="activityLog"><div class="empty-state">جاري التحميل...</div></div>
     </div>
   </div>
 
-  <!-- USERS -->
+  <!-- USERS TAB -->
   <div id="tab-users" class="tab-content">
     <div class="card">
-      <div class="card-title">&#x1F454; إدارة المستخدمين</div>
+      <div class="card-title">إدارة المستخدمين</div>
       <div id="usersList"></div>
     </div>
     <div class="card" id="addUserCard">
-      <div class="card-title">&#x2795; إضافة مستخدم جديد</div>
+      <div class="card-title">إضافة مستخدم جديد</div>
       <input type="text" id="newUserName" placeholder="اسم المستخدم" maxlength="50">
-      <input type="password" id="newUserPass" placeholder="الباسورد" maxlength="50">
+      <input type="password" id="newUserPass" placeholder="كلمة المرور" maxlength="50">
       <select id="newUserRole">
-        <option value="cashier_alfmosken">كاشير - الف مسكن</option>
-        <option value="cashier_matriya">كاشير - المطرية</option>
-        <option value="cashier_shorouk">كاشير - الشروق</option>
+        <option value="cashier_alfmosken">كاشير — الف مسكن</option>
+        <option value="cashier_matriya">كاشير — المطرية</option>
+        <option value="cashier_shorouk">كاشير — الشروق</option>
         <option value="callcenter">كول سنتر</option>
         <option value="super">سوبر أدمن</option>
       </select>
       <div style="margin-bottom:12px;">
-        <div style="font-weight:700;margin-bottom:8px;font-size:14px;">الصلاحيات:</div>
+        <div style="font-weight:600;margin-bottom:8px;font-size:14px;color:var(--ink);">الصلاحيات:</div>
         <div class="perm-check">
           <label><input type="checkbox" id="perm_addPoints" checked> إضافة نقاط</label>
           <label><input type="checkbox" id="perm_addCustomer" checked> تسجيل عملاء</label>
@@ -752,111 +381,142 @@
           <label><input type="checkbox" id="perm_branches"> إحصائيات الفروع</label>
         </div>
       </div>
-      <button class="btn btn-red" id="addUserBtn">إضافة المستخدم</button>
+      <button class="btn btn-primary btn-full" id="addUserBtn">إضافة المستخدم</button>
     </div>
   </div>
 
-  <!-- EXPORT -->
+  <!-- EXPORT TAB -->
   <div id="tab-export" class="tab-content">
     <div class="card">
-      <div class="card-title">&#x1F4E4; تصدير البيانات</div>
-      <button class="btn btn-green" id="exportCSVBtn" style="margin-bottom:12px;">تصدير العملاء CSV</button>
-      <button class="btn btn-red" id="exportReportBtn">تصدير تقرير الفروع</button>
+      <div class="card-title">تصدير البيانات</div>
+      <button class="btn btn-success btn-full" id="exportCSVBtn" style="margin-bottom:12px;">تصدير العملاء CSV</button>
+      <button class="btn btn-primary btn-full" id="exportReportBtn">تصدير تقرير الفروع</button>
     </div>
     <div class="card">
-      <div class="card-title">&#x26A0; العملاء الغايبين</div>
-      <p style="font-size:13px;color:#888;margin-bottom:12px;">عملاء مجاش من أكتر من 30 يوم</p>
+      <div class="card-title">العملاء الغائبون</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">عملاء لم يزوروا منذ أكثر من 30 يومًا</p>
       <div id="absentList"><div class="empty-state">جاري التحميل...</div></div>
     </div>
   </div>
 
+  <!-- SETTINGS TAB -->
   <div id="tab-settings" class="tab-content">
     <div class="card">
-      <div class="card-title">&#x2699;&#xFE0F; إعدادات النظام</div>
-      <p style="font-size:13px;color:#888;margin-bottom:20px;">يمكنك من هنا التحكم في إعدادات برنامج الولاء</p>
+      <div class="card-title">إعدادات النظام</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">يمكنك من هنا التحكم في إعدادات برنامج الولاء</p>
 
-      <div style="background:#fff8f0;border:2px solid var(--gold);border-radius:16px;padding:20px;margin-bottom:16px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:6px;color:var(--dark);">💰 نسبة الخصم عند استبدال النقاط</div>
-        <p style="font-size:12px;color:#888;margin-bottom:14px;">النسبة الحالية اللي بتتحسب للعميل لما يطلب خصم</p>
+      <div style="background:var(--warning-soft);border:1.5px solid var(--warning);border-radius:8px;padding:20px;margin-bottom:16px;">
+        <div style="font-size:15px;font-weight:600;margin-bottom:6px;color:var(--ink);">نسبة الخصم عند استبدال النقاط</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">النسبة الحالية التي يحصل عليها العميل عند طلب الخصم</p>
         <div style="display:flex;align-items:center;gap:12px;">
-          <input type="number" id="discountInput" min="1" max="100" placeholder="15"
-            style="width:100px;padding:10px 14px;border:2px solid var(--gold);border-radius:10px;font-family:Cairo,sans-serif;font-size:18px;font-weight:700;text-align:center;outline:none;color:var(--dark);">
-          <span style="font-size:20px;font-weight:900;color:var(--red);">%</span>
-          <button class="btn btn-green" id="saveDiscountBtn" style="flex:1;">💾 حفظ النسبة</button>
+          <input type="number" id="discountInput" min="1" max="100" placeholder="15" style="width:100px;padding:10px 14px;border:1.5px solid var(--warning);border-radius:8px;font-size:18px;font-weight:700;text-align:center;outline:none;color:var(--ink);">
+          <span style="font-size:20px;font-weight:700;color:var(--warning);">%</span>
+          <button class="btn btn-success" id="saveDiscountBtn" style="flex:1;">حفظ النسبة</button>
         </div>
-        <div id="discountStatus" style="margin-top:10px;font-size:13px;color:#888;"></div>
+        <div id="discountStatus" style="margin-top:10px;font-size:13px;color:var(--muted);"></div>
       </div>
 
-      <div style="background:#f0f8ff;border:2px solid #3498DB;border-radius:16px;padding:20px;">
-        <div style="font-size:15px;font-weight:700;margin-bottom:6px;color:var(--dark);">🎯 عدد النقاط المطلوبة للخصم</div>
-        <p style="font-size:12px;color:#888;margin-bottom:14px;">الحد الأدنى من النقاط عشان العميل يقدر يطلب خصم</p>
+      <div style="background:var(--brand-soft);border:1.5px solid var(--brand);border-radius:8px;padding:20px;">
+        <div style="font-size:15px;font-weight:600;margin-bottom:6px;color:var(--ink);">عدد النقاط المطلوبة للخصم</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">الحد الأدنى من النقاط لتمكين العميل من طلب الخصم</p>
         <div style="display:flex;align-items:center;gap:12px;">
-          <input type="number" id="thresholdInput" min="1" placeholder="100"
-            style="width:100px;padding:10px 14px;border:2px solid #3498DB;border-radius:10px;font-family:Cairo,sans-serif;font-size:18px;font-weight:700;text-align:center;outline:none;color:var(--dark);">
-          <span style="font-size:16px;font-weight:700;color:#3498DB;">نقطة</span>
-          <button class="btn btn-blue" id="saveThresholdBtn" style="flex:1;">💾 حفظ</button>
+          <input type="number" id="thresholdInput" min="1" placeholder="100" style="width:100px;padding:10px 14px;border:1.5px solid var(--brand);border-radius:8px;font-size:18px;font-weight:700;text-align:center;outline:none;color:var(--ink);">
+          <span style="font-size:14px;font-weight:600;color:var(--brand);">نقطة</span>
+          <button class="btn btn-primary" id="saveThresholdBtn" style="flex:1;">حفظ</button>
         </div>
-        <div id="thresholdStatus" style="margin-top:10px;font-size:13px;color:#888;"></div>
+        <div id="thresholdStatus" style="margin-top:10px;font-size:13px;color:var(--muted);"></div>
       </div>
     </div>
   </div>
 
 </div>
+<!-- END adminScreen -->
 
+<!-- DRAWER OVERLAY -->
 <div class="drawer-overlay" id="drawerOverlay"></div>
+
+<!-- DRAWER -->
 <div class="drawer" id="drawer">
-  <div class="drawer-header">شيخ البلد &#x1F37D;</div>
+  <div class="drawer-header" id="drawerHeader">شيخ البلد</div>
+
   <button class="drawer-item active" data-tab="home" id="drawer-home">
-    <span class="d-icon">&#x1F3E0;</span><span>الرئيسية</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5.5 9.5V20a1 1 0 001 1h11a1 1 0 001-1V9.5"/></svg></span>
+    <span>الرئيسية</span>
   </button>
   <button class="drawer-item" data-tab="addPoints" id="drawer-addPoints">
-    <span class="d-icon">&#x2795;</span><span>إضافة نقاط</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg></span>
+    <span>إضافة نقاط</span>
   </button>
   <button class="drawer-item" data-tab="pending" id="drawer-pending">
-    <span class="d-icon">&#x23F3;</span><span>طلبات</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+    <span>الطلبات</span>
   </button>
   <button class="drawer-item" data-tab="stamps" id="drawer-stamps">
-    <span class="d-icon">&#x1F37D;</span><span>الأختام</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>
+    <span>الأختام</span>
+  </button>
+  <button class="drawer-item" data-tab="cards" id="drawer-cards">
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="14" height="10" rx="2"/><path d="M7 4.5h11a2 2 0 012 2V14"/></svg></span>
+    <span>البطاقات</span>
   </button>
   <button class="drawer-item" data-tab="customers" id="drawer-customers">
-    <span class="d-icon">&#x1F465;</span><span>العملاء</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
+    <span>العملاء</span>
   </button>
   <button class="drawer-item" data-tab="addCustomer" id="drawer-addCustomer">
-    <span class="d-icon">&#x1F464;</span><span>عميل جديد</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+    <span>عميل جديد</span>
   </button>
   <button class="drawer-item" data-tab="leaderboard" id="drawer-leaderboard">
-    <span class="d-icon">&#x1F3C5;</span><span>المتصدرين</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg></span>
+    <span>المتصدرين</span>
   </button>
   <button class="drawer-item" data-tab="branches" id="drawer-branches">
-    <span class="d-icon">&#x1F3EA;</span><span>الفروع</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></span>
+    <span>الفروع</span>
   </button>
   <button class="drawer-item" data-tab="activity" id="drawer-activity">
-    <span class="d-icon">&#x1F4CB;</span><span>السجل</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg></span>
+    <span>السجل</span>
   </button>
   <button class="drawer-item" data-tab="users" id="drawer-users">
-    <span class="d-icon">&#x1F454;</span><span>المستخدمين</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg></span>
+    <span>المستخدمين</span>
   </button>
   <button class="drawer-item" data-tab="export" id="drawer-export">
-    <span class="d-icon">&#x1F4E4;</span><span>تصدير</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></span>
+    <span>تصدير</span>
   </button>
   <button class="drawer-item" data-tab="settings" id="drawer-settings">
-    <span class="d-icon">&#x2699;&#xFE0F;</span><span>الإعدادات</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+    <span>الإعدادات</span>
   </button>
   <button class="drawer-item drawer-dev" id="drawer-contact">
-    <span class="d-icon">&#x1F4AC;</span><span>اتصل بالمطور</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></span>
+    <span>اتصل بالمطور</span>
   </button>
   <button class="drawer-item drawer-logout" id="drawer-logout">
-    <span class="d-icon">&#x21A9;</span><span>تسجيل خروج</span>
+    <span class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span>
+    <span>تسجيل خروج</span>
   </button>
 </div>
 
-<button class="dark-toggle" id="darkBtnAdmin">&#x1F319;</button>
+<!-- DARK MODE TOGGLE -->
+<button class="dark-toggle" id="darkBtnAdmin">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+</button>
+
+<!-- TOAST -->
 <div id="toast"></div>
-<div class="security-badge">&#x1F512; TLS Secured</div>
+
+<!-- SECURITY BADGE -->
+<div class="security-badge">
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+  TLS Secured
+</div>
 
 <script src="config.js"></script>
 <script src="admin.js"></script>
-
 
 </body>
 </html>

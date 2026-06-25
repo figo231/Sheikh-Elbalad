@@ -19,13 +19,13 @@
   let currentUser = '';
   let currentUserObj = null;
   let cachedUsers = [];
-  let mainAdminPassword = '';  // فصل باسورد الأدمن الرئيسي عن باسورد المستخدم الحالي
-  let currentUserPass = '';    // باسورد المستخدم الفرعي الشخصي (بيتبعت للسيرفر مع كل طلب عشان يتحقق من صلاحياته)
+  let mainAdminPassword = '';  // فصل كلمة المرور الأدمن الرئيسي عن كلمة المرور المستخدم الحالي
+  let currentUserPass = '';    // كلمة مرور المستخدم الفرعي الشخصي (تُرسل للخادم مع كل طلب للتحقق من صلاحياته)
   let customerSearchTerm = '';
 
   // يبني بارامترات التحقق المطلوب إضافتها لكل طلب API:
-  // الأدمن الرئيسي بيبعت الباسورد الأساسي، والمستخدم الفرعي بيبعت اسمه وباسوروده الشخصي بس
-  // (السيرفر هو اللي بيتحقق من صلاحياته بنفسه على كل طلب — مفيش باسورد رئيسي بيتسرب للمستخدمين الفرعيين)
+  // الأدمن الرئيسي يُرسل كلمة المرور الأساسية، والمستخدم الفرعي يُرسل اسمه وكلمة مروره الشخصية فقط
+  // (الخادم هو الذي يتحقق من صلاحياته بنفسه على كل طلب — لا توجد كلمة مرور رئيسية تتسرب للمستخدمين الفرعيين)
   function authParams() {
     return mainAdminPassword
       ? { password: mainAdminPassword }
@@ -218,7 +218,7 @@
     select.innerHTML = '<option value="">\u2014 اختار المستخدم \u2014</option>';
     var opt = document.createElement('option');
     opt.value = '__admin__';
-    opt.textContent = '\uD83D\uDC51 الأدمن الرئيسي';
+    opt.textContent = 'الأدمن الرئيسي';
     select.appendChild(opt);
 
     var branchLabel = (function() {
@@ -258,8 +258,8 @@
     var selectedVal = els.userSelect.value;
     var pass = els.passInput.value;
 
-    if (!selectedVal) { showToast('اختار المستخدم الأول \u274C', 'error'); return; }
-    if (!pass) { showToast('ادخل الباسورد \u274C', 'error'); return; }
+    if (!selectedVal) { showToast('اختار المستخدم الأول', 'error'); return; }
+    if (!pass) { showToast('أدخل كلمة المرور', 'error'); return; }
 
     if (selectedVal === '__admin__') {
       // For main admin: password is NOT hardcoded here.
@@ -270,28 +270,28 @@
         if (!verifyData || !verifyData.success) {
           bruteForce.recordFail();
           els.loginFieldError.style.display = 'block';
-          showToast('باسورد غلط \u274C', 'error');
+          showToast('كلمة مرور خاطئة', 'error');
           return;
         }
         bruteForce.recordSuccess();
         adminPassword = pass;
-        mainAdminPassword = pass;  // تخزين باسورد الأدمن الرئيسي بشكل منفصل
+        mainAdminPassword = pass;  // تخزين كلمة المرور الأدمن الرئيسي بشكل منفصل
         currentUser = 'الأدمن الرئيسي';
         currentUserObj = { name: 'الأدمن الرئيسي', role: 'super', perms: ['إضافة نقاط','تسجيل عملاء','موافقة خصومات','حذف','تصدير','إدارة المستخدمين','إحصائيات الفروع'] };
       } catch(e) {
-        showToast('خطأ في الاتصال مع السيرفر \u274C', 'error');
+        showToast('خطأ في الاتصال مع السيرفر', 'error');
         return;
       }
     } else {
       try {
         var idx = parseInt(selectedVal, 10);
         var u = cachedUsers[idx];
-        if (!u) { showToast('المستخدم مش موجود \u274C', 'error'); return; }
+        if (!u) { showToast('المستخدم مش موجود', 'error'); return; }
         var verifyData = await api({ action: 'verifyUser', name: u.name, pass: pass });
         if (!verifyData || !verifyData.success) {
           bruteForce.recordFail();
           els.loginFieldError.style.display = 'block';
-          showToast('باسورد غلط \u274C', 'error');
+          showToast('كلمة مرور خاطئة', 'error');
           return;
         }
         bruteForce.recordSuccess();
@@ -299,14 +299,14 @@
         currentUser = u.name;
         currentUserObj = verifyData.user || u;
       } catch(e) {
-        showToast('خطأ في الاتصال \u274C', 'error');
+        showToast('خطأ في الاتصال', 'error');
         return;
       }
     }
 
     els.loginScreen.style.display = 'none';
     els.adminScreen.style.display = 'block';
-    els.currentUserLabel.textContent = '\uD83D\uDC64 ' + escapeHTML(currentUser);
+    els.currentUserLabel.textContent = '' + escapeHTML(currentUser);
     logActivity('تسجيل دخول');
     applyPermissions();
     loadAll();
@@ -337,7 +337,7 @@
     }
 
     // كل تبويب وإذن الدخول المطلوب ليه. تبويبات زي الرئيسية/المتصدرين/السجل مش موجودة هنا فهتظهر دايماً لكل المستخدمين.
-    // 'settings' متاح للأدمن الرئيسي بس لأنه مفيش خانة صلاحية خاصة بيه.
+    // 'settings' متاح للأدمن الرئيسي بس لأنه لا يوجد خانة صلاحية خاصة بيه.
     var tabPerms = {
       addPoints:   'إضافة نقاط',
       pending:     'موافقة خصومات',
@@ -370,7 +370,7 @@
 
     if (els.addUserCard) els.addUserCard.style.display = hasPerm('إدارة المستخدمين') ? '' : 'none';
 
-    // لو المستخدم كان واقف على تبويب اتقفل عليه دلوقتي، رجّعه للرئيسية
+    // إذا كان المستخدم يشاهد تبويبًا أُغلق الآن، أعده إلى الرئيسية
     var activeTab = document.querySelector('.tab.active');
     if (activeTab && activeTab.style.display === 'none') {
       switchTab('home');
@@ -382,8 +382,8 @@
     logActivity('تسجيل خروج');
     // Clear sensitive data from memory
     adminPassword = '';
-    mainAdminPassword = '';  // مسح باسورد الأدمن الرئيسي
-    currentUserPass = '';    // مسح باسورد المستخدم الفرعي
+    mainAdminPassword = '';  // مسح كلمة المرور الأدمن الرئيسي
+    currentUserPass = '';    // مسح كلمة المرور المستخدم الفرعي
     currentUser = '';
     currentUserObj = null;
     allCustomers = [];
@@ -401,7 +401,7 @@
 
   // ===== CHANGE PASSWORD =====
   function openChangePassModal() {
-    els.changePassUserLabel.textContent = '\uD83D\uDC64 ' + escapeHTML(currentUser);
+    els.changePassUserLabel.textContent = '' + escapeHTML(currentUser);
     els.oldPassInput.value = '';
     els.newPassInput.value = '';
     els.confirmPassInput.value = '';
@@ -418,23 +418,23 @@
     els.changePassError.style.display = 'none';
 
     if (!oldPass || !newPass || !confirm) {
-      els.changePassError.textContent = 'اكمل كل الحقول \u274C';
+      els.changePassError.textContent = 'اكمل كل الحقول';
       els.changePassError.style.display = 'block';
       return;
     }
     if (newPass !== confirm) {
-      els.changePassError.textContent = 'الباسورد الجديد مش متطابق \u274C';
+      els.changePassError.textContent = 'كلمة المرور الجديدة غير متطابقة';
       els.changePassError.style.display = 'block';
       return;
     }
     if (newPass.length < 4) {
-      els.changePassError.textContent = 'الباسورد لازم ٤ أحرف على الأقل \u274C';
+      els.changePassError.textContent = 'يجب أن تكون كلمة المرور ٤ أحرف على الأقل';
       els.changePassError.style.display = 'block';
       return;
     }
 
     if (currentUserObj && currentUserObj.role === 'super' && currentUser === 'الأدمن الرئيسي') {
-      els.changePassError.textContent = 'باسورد الأدمن الرئيسي بيتغير من السيرفر مش من هنا \u1F512';
+      els.changePassError.textContent = 'تتغير كلمة مرور الأدمن الرئيسي من الخادم وليس من هنا';
       els.changePassError.style.display = 'block';
       return;
     }
@@ -446,7 +446,7 @@
       return;
     }
     if (cachedUsers[idx].pass !== oldPass) {
-      els.changePassError.textContent = 'الباسورد الحالي غلط \u274C';
+      els.changePassError.textContent = 'كلمة المرور الحالية خاطئة';
       els.changePassError.style.display = 'block';
       return;
     }
@@ -454,14 +454,14 @@
     try {
       var data = await api(Object.assign({ action: 'updateUserPass', index: idx, newPass: newPass }, authParams()));
       if (!data || !data.success) {
-        els.changePassError.textContent = (data && data.message) || 'فيه مشكلة';
+        els.changePassError.textContent = (data && data.message) || 'حدث خطأ';
         els.changePassError.style.display = 'block';
         return;
       }
       cachedUsers[idx].pass = newPass;
       currentUserObj = cachedUsers[idx];
-      showToast('تم تغيير الباسورد بنجاح \u2705', 'success');
-      logActivity('تغيير الباسورد');
+      showToast('تم تغيير الكلمة المرور بنجاح', 'success');
+      logActivity('تغيير الكلمة المرور');
       closeChangePass();
     } catch(e) {
       els.changePassError.textContent = 'خطأ في الاتصال';
@@ -484,7 +484,7 @@
   document.getElementById('menuToggleBtn').addEventListener('click', openDrawer);
   els.drawerOverlay.addEventListener('click', closeDrawer);
   document.getElementById('drawer-contact').addEventListener('click', function() {
-    var msg = 'مرحباً، أنا مهتم بتطوير تطبيق ولاء مشابه لشيخ البلد \u1F37D';
+    var msg = 'مرحباً، أنا مهتم بتطوير تطبيق ولاء مشابه لشيخ البلد ';
     window.open('https://wa.me/' + (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.whatsappAdmin : '201022390517') + '?text=' + encodeURIComponent(msg), '_blank');
     closeDrawer();
   });
@@ -551,14 +551,14 @@ function switchTab(name) {
     els.statPending.textContent = pending;
     els.statTotalPts.textContent = totalPts;
     els.statReady.textContent = ready;
-    els.pendingCount.textContent = pending > 0 ? ('\u1F514 ' + pending + ' طلب معلق') : '';
+    els.pendingCount.textContent = pending > 0 ? ('' + pending + ' طلب معلق') : '';
   }
 
   // ===== CUSTOMERS TABLE (XSS-SAFE DOM RENDERING) =====
   function renderCustomers() {
     var tbody = els.customersBody;
     if (!allCustomers.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">مفيش عملاء لحد دلوقتي</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">لا يوجد عملاء حاليًا</td></tr>';
       return;
     }
 
@@ -573,7 +573,7 @@ function switchTab(name) {
     }
 
     if (!filtered.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">مفيش نتائج للبحث ده</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">لا توجد نتائج لهذا البحث</td></tr>';
       return;
     }
 
@@ -612,7 +612,7 @@ function switchTab(name) {
       var tdDelete = document.createElement('td');
       var delBtn = document.createElement('button');
       delBtn.className = 'btn btn-danger btn-sm';
-      delBtn.textContent = '\u1F5D1 حذف';
+      delBtn.textContent = 'حذف';
       delBtn.addEventListener('click', function() { deleteCustomer(c.phone, c.name); });
       tdDelete.appendChild(delBtn);
 
@@ -663,10 +663,10 @@ function switchTab(name) {
     var delta = sign;
 
     if (kind === 'points') {
-      var input = window.prompt((sign > 0 ? 'هتضيف كام نقطة؟' : 'هتشيل كام نقطة؟'), '10');
+      var input = window.prompt((sign > 0 ? 'كم نقطة تريد إضافتها؟' : 'كم نقطة تريد خصمها؟'), '10');
       if (input === null) return;
       var n = parseInt(input, 10);
-      if (isNaN(n) || n <= 0) { showToast('قيمة غلط \u274C', 'error'); return; }
+      if (isNaN(n) || n <= 0) { showToast('قيمة خاطئ', 'error'); return; }
       delta = sign * n;
     }
 
@@ -681,12 +681,12 @@ function switchTab(name) {
         }
         renderCustomers();
         logActivity((sign > 0 ? 'إضافة ' : 'خصم ') + label + ' — ' + phone);
-        showToast('\u2705 تم التعديل', 'success');
+        showToast('تم التعديل', 'success');
       } else {
-        showToast('\u274C ' + (data && data.message ? data.message : 'فشل التعديل'), 'error');
+        showToast('' + (data && data.message ? data.message : 'فشل التعديل'), 'error');
       }
     } catch (e) {
-      showToast('\u26A0\uFE0F خطأ في الاتصال', 'error');
+      showToast('خطأ في الاتصال', 'error');
     }
   }
 
@@ -694,7 +694,7 @@ function switchTab(name) {
   function renderPending(pending) {
     var list = els.pendingList;
     if (!pending || !pending.length) {
-      list.innerHTML = '<div class="empty-state"><div class="icon">\u2705</div>مفيش طلبات معلقة</div>';
+      list.innerHTML = '<div class="empty-state"><div class="icon"></div>لا توجد طلبات معلقة</div>';
       return;
     }
     var fragment = document.createDocumentFragment();
@@ -716,7 +716,7 @@ function switchTab(name) {
 
       var ptsEl = document.createElement('div');
       ptsEl.className = 'pts';
-      ptsEl.textContent = '\u2B50 ' + String(p.points || 0) + ' نقطة \u2192 خصم 15%';
+      ptsEl.textContent = '' + String(p.points || 0) + ' نقطة \u2192 خصم 15%';
 
       info.appendChild(nameEl);
       info.appendChild(phoneEl);
@@ -727,12 +727,12 @@ function switchTab(name) {
 
       var approveBtn = document.createElement('button');
       approveBtn.className = 'btn btn-green btn-sm';
-      approveBtn.textContent = '\u2713 وافق';
+      approveBtn.textContent = 'وافق';
       approveBtn.addEventListener('click', function() { approveRedemption(p.phone, p.name); });
 
       var rejectBtn = document.createElement('button');
       rejectBtn.className = 'btn btn-danger btn-sm';
-      rejectBtn.textContent = '\u2717 ارفض';
+      rejectBtn.textContent = 'ارفض';
       rejectBtn.addEventListener('click', function() { rejectRedemption(p.phone, p.name); });
 
       actions.appendChild(approveBtn);
@@ -785,7 +785,7 @@ function switchTab(name) {
     try {
       var data = await api(Object.assign({ action: 'addPoints', phone: phone, amount: amount}, authParams()));
       if (data && data.success) {
-        showToast('\u2705 ' + (data.message || 'تم') + ' \u2014 الإجمالي: ' + (data.newTotal || ''), 'success');
+        showToast('' + (data.message || 'تم') + ' \u2014 الإجمالي: ' + (data.newTotal || ''), 'success');
         logActivity('إضافة نقاط للعميل: ' + phone + ' \u2014 مبلغ: ' + amount + ' ج');
         els.ptPhone.value = '';
         els.ptAmount.value = '';
@@ -798,7 +798,7 @@ function switchTab(name) {
       showToast('خطأ في الاتصال', 'error');
     } finally {
       btn.disabled = false;
-      btn.textContent = 'إضافة النقاط \u2705';
+      btn.textContent = 'إضافة النقاط';
     }
   }
   document.getElementById('addPointsBtn').addEventListener('click', addPoints);
@@ -809,7 +809,7 @@ function switchTab(name) {
     try {
       var data = await api(Object.assign({ action: 'approveRedemption', phone: sanitizePhone(phone)}, authParams()));
       if (data && data.success) {
-        showToast('\u2705 تمت الموافقة لـ ' + (name || ''), 'success');
+        showToast('تمت الموافقة لـ ' + (name || ''), 'success');
         logActivity('موافقة خصم لـ: ' + (name || '') + ' \u2014 ' + phone);
         var el = document.getElementById('pend-' + sanitizePhone(phone));
         if (el) el.remove();
@@ -858,13 +858,13 @@ function switchTab(name) {
     try {
       var data = await api(Object.assign({ action: 'addCustomer', phone: phone, name: name}, authParams()));
       if (data && data.success) {
-        showToast('\u1F389 ' + (data.message || 'تم'), 'success');
+        showToast('' + (data.message || 'تم'), 'success');
         logActivity('تسجيل عميل جديد: ' + name + ' \u2014 ' + phone);
         els.newName.value = '';
         els.newPhone.value = '';
         loadAll();
       } else {
-        els.addCustomerError.textContent = (data && data.message) || 'فيه مشكلة';
+        els.addCustomerError.textContent = (data && data.message) || 'حدث خطأ';
         els.addCustomerError.style.display = 'block';
       }
     } catch(e) {
@@ -878,11 +878,11 @@ function switchTab(name) {
 
   // ===== DELETE CUSTOMER =====
   async function deleteCustomer(phone, name) {
-    if (!confirm('هتحذف ' + (name || '') + ' نهائياً؟')) return;
+    if (!confirm('سيتم حذف ' + (name || '') + ' نهائياً؟')) return;
     try {
       var data = await api(Object.assign({ action: 'deleteCustomer', phone: sanitizePhone(phone)}, authParams()));
       if (data && data.success) {
-        showToast('تم حذف ' + (name || '') + ' \u2705', 'success');
+        showToast('تم حذف ' + (name || '') + '', 'success');
         logActivity('حذف عميل: ' + (name || '') + ' \u2014 ' + phone);
         loadAll();
       } else {
@@ -907,15 +907,15 @@ function switchTab(name) {
         els.quickResult.innerHTML = '';
         var box = document.createElement('div');
         box.style.cssText = 'background:#f9f9f9;border-radius:12px;padding:16px;border:1px solid rgba(212,175,55,0.2);';
-        box.innerHTML = '<div style="font-weight:900;font-size:16px;margin-bottom:8px;">\uD83D\uDC64 ' + escapeHTML(c.name || '') + '</div>' +
+        box.innerHTML = '<div style="font-weight:900;font-size:16px;margin-bottom:8px;">' + escapeHTML(c.name || '') + '</div>' +
           '<div style="font-size:14px;color:#666;line-height:2;">' +
-          '\uD83D\uDCF1 ' + escapeHTML(c.phone || '') + '<br>' +
-          '\u2B50 <strong style="color:var(--red);">' + String(c.points || 0) + ' نقطة</strong><br>' +
-          (c.pendingRedemption ? '\u23F3 <span style="color:#856404;">طلب معلق</span>' : c.points >= 100 ? '\u1F381 <span style="color:var(--green);">جاهز للخصم!</span>' : '') +
+          '' + escapeHTML(c.phone || '') + '<br>' +
+          '<strong style="color:var(--red);">' + String(c.points || 0) + ' نقطة</strong><br>' +
+          (c.pendingRedemption ? '<span style="color:#856404;">طلب معلق</span>' : c.points >= 100 ? '<span style="color:var(--green);">جاهز للخصم!</span>' : '') +
           '</div>';
         els.quickResult.appendChild(box);
       } else {
-        els.quickResult.innerHTML = '<p style="color:#c0392b;font-size:14px;">العميل مش موجود</p>';
+        els.quickResult.innerHTML = '<p style="color:#c0392b;font-size:14px;">العميل غير موجود</p>';
       }
     } catch(e) {
       els.quickResult.innerHTML = '<p style="color:#c0392b;font-size:14px;">خطأ في الاتصال</p>';
@@ -929,19 +929,19 @@ function switchTab(name) {
       var data = await api(Object.assign({ action: 'getAllCustomers'}, authParams()));
       var div = els.adminLeaderboard;
       if (!data || !data.success || !data.customers || !data.customers.length) {
-        div.innerHTML = '<div class="empty-state"><div class="icon">\u1F3C5</div>مفيش عملاء لحد دلوقتي</div>';
+        div.innerHTML = '<div class="empty-state"><div class="icon"></div>لا يوجد عملاء حاليًا</div>';
         return;
       }
       var sorted = data.customers.slice().sort(function(a, b) { return (b.points || 0) - (a.points || 0); }).slice(0, 10);
 
       var fragment = document.createDocumentFragment();
       sorted.forEach(function(c, i) {
-        var medal = i === 0 ? '\uD83E\uDD47' : i === 1 ? '\uD83E\uDD48' : i === 2 ? '\uD83E\uDD49' : ('#' + (i + 1));
+        var medal = i === 0 ? '' : i === 1 ? '' : i === 2 ? '' : ('#' + (i + 1));
         var levelTxt = '', levelColor = '';
-        if (c.points >= 500)      { levelTxt = 'بلاتيني \uD83D\uDC8E'; levelColor = '#3498DB'; }
-        else if (c.points >= 200) { levelTxt = 'ذهبي \uD83E\uDD47';    levelColor = '#D4AF37'; }
-        else if (c.points >= 100) { levelTxt = 'فضي \uD83E\uDD48';     levelColor = '#aaa'; }
-        else                      { levelTxt = 'برونزي \uD83E\uDD49';  levelColor = '#CD853F'; }
+        if (c.points >= 500)      { levelTxt = 'بلاتيني '; levelColor = '#3498DB'; }
+        else if (c.points >= 200) { levelTxt = 'ذهبي ';    levelColor = '#D4AF37'; }
+        else if (c.points >= 100) { levelTxt = 'فضي ';     levelColor = '#aaa'; }
+        else                      { levelTxt = 'برونزي ';  levelColor = '#CD853F'; }
 
         var item = document.createElement('div');
         item.className = 'pending-item';
@@ -999,23 +999,23 @@ function switchTab(name) {
     try {
       var data = await api({ action: 'getUserNames' });
       if (!data || !data.success || !data.users || !data.users.length) {
-        div.innerHTML = '<div class="empty-state"><div class="icon">\u1F454</div>مفيش مستخدمين مضافين</div>';
+        div.innerHTML = '<div class="empty-state"><div class="icon"></div>لا يوجد مستخدمون مسجّلون</div>';
         populateUserSelect([]);
         return;
       }
       var roleLabel = (function() {
-        var lbl = { super: '\uD83D\uDC51 سوبر أدمن' };
+        var lbl = { super: 'سوبر أدمن' };
         if (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.branches) {
           APP_CONFIG.branches.forEach(function(b) {
             var k = b.isCallCenter ? 'callcenter' : 'cashier_' + b.key;
-            var icon = b.isCallCenter ? '\uD83D\uDCDE ' : 'كاشير - ';
+            var icon = b.isCallCenter ? '' : 'كاشير - ';
             lbl[k] = icon + b.name;
           });
         } else {
           lbl.cashier_alfmosken = 'كاشير - الف مسكن';
           lbl.cashier_matriya   = 'كاشير - المطرية';
           lbl.cashier_shorouk   = 'كاشير - الشروق';
-          lbl.callcenter        = '\uD83D\uDCDE كول سنتر';
+          lbl.callcenter        = 'كول سنتر';
         }
         return lbl;
       })();
@@ -1073,8 +1073,8 @@ function switchTab(name) {
     var pass = els.newUserPass.value.trim();
     var role = els.newUserRole.value;
 
-    if (!name || !pass) { showToast('ادخل الاسم والباسورد', 'error'); return; }
-    if (pass.length < 4) { showToast('الباسورد لازم ٤ أحرف على الأقل', 'error'); return; }
+    if (!name || !pass) { showToast('أدخل الاسم وكلمة المرور', 'error'); return; }
+    if (pass.length < 4) { showToast('يجب أن تكون كلمة المرور ٤ أحرف على الأقل', 'error'); return; }
 
     var perms = [];
     if (document.getElementById('perm_addPoints').checked)   perms.push('إضافة نقاط');
@@ -1090,18 +1090,18 @@ function switchTab(name) {
       if (data && data.success) {
         els.newUserName.value = '';
         els.newUserPass.value = '';
-        showToast('تم إضافة ' + name + ' \u2705', 'success');
+        showToast('تم إضافة ' + name + '', 'success');
         logActivity('إضافة مستخدم: ' + name);
         loadUsers();
       } else {
-        showToast((data && data.message) || 'فيه مشكلة', 'error');
+        showToast((data && data.message) || 'حدث خطأ', 'error');
       }
     } catch(e) { showToast('خطأ في الاتصال', 'error'); }
   }
   document.getElementById('addUserBtn').addEventListener('click', addUser);
 
   async function deleteUser(i, name) {
-    if (!confirm('هتحذف ' + (name || '') + '؟')) return;
+    if (!confirm('سيتم حذف ' + (name || '') + '؟')) return;
     try {
       var data = await api(Object.assign({ action: 'deleteUser', index: i }, authParams()));
       if (data && data.success) {
@@ -1109,7 +1109,7 @@ function switchTab(name) {
         logActivity('حذف مستخدم: ' + (name || ''));
         loadUsers();
       } else {
-        showToast((data && data.message) || 'فيه مشكلة', 'error');
+        showToast((data && data.message) || 'حدث خطأ', 'error');
       }
     } catch(e) { showToast('خطأ في الاتصال', 'error'); }
   }
@@ -1130,7 +1130,7 @@ function switchTab(name) {
     try { log = JSON.parse(localStorage.getItem('sheikh_activity') || '[]'); } catch(e) { log = []; }
     var div = els.activityLog;
     if (!log.length) {
-      div.innerHTML = '<div class="empty-state"><div class="icon">\u1F4CB</div>مفيش نشاط لحد دلوقتي</div>';
+      div.innerHTML = '<div class="empty-state"><div class="icon"></div>لا يوجد نشاط حاليًا</div>';
       return;
     }
     var fragment = document.createDocumentFragment();
@@ -1211,7 +1211,7 @@ function switchTab(name) {
 
   // ===== EXPORT =====
   function exportCSV() {
-    if (!allCustomers.length) { showToast('مفيش بيانات', 'error'); return; }
+    if (!allCustomers.length) { showToast('لا توجد بيانات', 'error'); return; }
     var rows = [['الاسم','التليفون','النقاط','إجمالي الإنفاق','الحالة']];
     allCustomers.forEach(function(c) {
       rows.push([c.name || '', c.phone || '', c.points || 0, c.totalSpent || 0, c.pendingRedemption ? 'طلب معلق' : 'عادي']);
@@ -1223,11 +1223,11 @@ function switchTab(name) {
     a.download = 'sheikh_customers_' + new Date().toLocaleDateString('ar-EG').replace(/\//g, '-') + '.csv';
     a.click();
     logActivity('تصدير بيانات العملاء CSV');
-    showToast('تم التصدير \u2705', 'success');
+    showToast('تم التصدير', 'success');
   }
 
   function exportReport() {
-    if (!allCustomers.length) { showToast('مفيش بيانات', 'error'); return; }
+    if (!allCustomers.length) { showToast('لا توجد بيانات', 'error'); return; }
     var total = allCustomers.length;
     var totalPts = allCustomers.reduce(function(s, c) { return s + (c.points || 0); }, 0);
     var totalSales = allCustomers.reduce(function(s, c) { return s + (c.totalSpent || 0); }, 0);
@@ -1238,7 +1238,7 @@ function switchTab(name) {
     a.href = URL.createObjectURL(blob);
     a.download = 'sheikh_report.txt';
     a.click();
-    showToast('تم تصدير التقرير \u2705', 'success');
+    showToast('تم تصدير التقرير', 'success');
   }
   document.getElementById('exportCSVBtn').addEventListener('click', exportCSV);
   
@@ -1272,7 +1272,7 @@ function switchTab(name) {
     });
     div.innerHTML = '';
     if (!fragment.childNodes.length) {
-      div.innerHTML = '<div class="empty-state">مفيش عملاء غايبين</div>';
+      div.innerHTML = '<div class="empty-state">لا يوجد عملاء غايبين</div>';
       return;
     }
     div.appendChild(fragment);
@@ -1301,7 +1301,7 @@ function switchTab(name) {
       var data = await api(Object.assign({ action: 'getPendingStamps'}, authParams()));
       var div = els.stampPendingList;
       if (!data || !data.success || !data.stamps || !data.stamps.length) {
-        div.innerHTML = '<div class="empty-state"><div class="icon">\u2705</div>مفيش طلبات أختام دلوقتي</div>';
+        div.innerHTML = '<div class="empty-state"><div class="icon"></div>لا توجد طلبات أختام حاليًا</div>';
         return;
       }
       var fragment = document.createDocumentFragment();
@@ -1333,12 +1333,12 @@ function switchTab(name) {
 
         var apprBtn = document.createElement('button');
         apprBtn.className = 'btn btn-green btn-sm';
-        apprBtn.textContent = '\u2705 موافقة';
+        apprBtn.textContent = 'موافقة';
         apprBtn.addEventListener('click', function() { approveStamp(s.phone, s.name); });
 
         var rejBtn = document.createElement('button');
         rejBtn.className = 'btn btn-danger btn-sm';
-        rejBtn.textContent = '\u2715 رفض';
+        rejBtn.textContent = 'رفض';
         rejBtn.addEventListener('click', function() { rejectStamp(s.phone); });
 
         actions.appendChild(apprBtn);
@@ -1359,11 +1359,11 @@ function switchTab(name) {
     try {
       var data = await api(Object.assign({ action: 'approveStamp', phone: sanitizePhone(phone)}, authParams()));
       if (data && data.success) {
-        showToast('تم إضافة ختم لـ ' + (name || '') + ' \u2705', 'success');
-        if (data.completed) showToast('\u1F389 ' + (name || '') + ' أكمل 10 أختام! صينية هدية', 'success');
+        showToast('تم إضافة ختم لـ ' + (name || '') + '', 'success');
+        if (data.completed) showToast('' + (name || '') + ' أكمل 10 أختام! طبق هدية', 'success');
         loadStampRequests();
       } else {
-        showToast((data && data.message) || 'فيه مشكلة', 'error');
+        showToast((data && data.message) || 'حدث خطأ', 'error');
       }
     } catch(e) { showToast('مشكلة في الاتصال', 'error'); }
   }
@@ -1383,7 +1383,7 @@ function switchTab(name) {
       var data = await api(Object.assign({ action:'getPendingStampRewards'}, authParams()));
       var div = els.stampRewardPendingList;
       if (!data || !data.success || !data.rewards || !data.rewards.length) {
-        div.innerHTML = '<div class="empty-state"><div class="icon">\u2705</div>مفيش طلبات مكافآت دلوقتي</div>';
+        div.innerHTML = '<div class="empty-state"><div class="icon"></div>لا توجد طلبات مكافآت حاليًا</div>';
         return;
       }
       var fragment = document.createDocumentFragment();
@@ -1404,7 +1404,7 @@ function switchTab(name) {
 
         var ptsEl = document.createElement('div');
         ptsEl.className = 'pts';
-        ptsEl.textContent = '\u1F37D اكمل 10 أختام \u2014 صينية هدية';
+        ptsEl.textContent = 'اكمل 10 أختام \u2014 طبق هدية';
 
         info.appendChild(nameEl);
         info.appendChild(phoneEl);
@@ -1415,12 +1415,12 @@ function switchTab(name) {
 
         var apprBtn = document.createElement('button');
         apprBtn.className = 'btn btn-green btn-sm';
-        apprBtn.textContent = '\u2705 موافقة';
+        apprBtn.textContent = 'موافقة';
         apprBtn.addEventListener('click', function() { approveStampReward(r.phone, r.name); });
 
         var rejBtn = document.createElement('button');
         rejBtn.className = 'btn btn-danger btn-sm';
-        rejBtn.textContent = '\u2715 رفض';
+        rejBtn.textContent = 'رفض';
         rejBtn.addEventListener('click', function() { rejectStampReward(r.phone); });
 
         actions.appendChild(apprBtn);
@@ -1438,15 +1438,15 @@ function switchTab(name) {
   }
 
   async function approveStampReward(phone, name) {
-    if (!confirm('تأكيد الموافقة على مكافأة ' + (name || '') + ' (صينية هدية)؟')) return;
+    if (!confirm('تأكيد الموافقة على مكافأة ' + (name || '') + ' (طبق هدية)؟')) return;
     try {
       var data = await api(Object.assign({ action: 'approveStampReward', phone: sanitizePhone(phone)}, authParams()));
       if (data && data.success) {
-        showToast('\u1F389 تمت الموافقة على مكافأة ' + (name || ''), 'success');
+        showToast('تمت الموافقة على مكافأة ' + (name || ''), 'success');
         logActivity('موافقة مكافأة أختام لـ: ' + (name || '') + ' \u2014 ' + phone);
         loadStampRewardRequests();
       } else {
-        showToast((data && data.message) || 'فيه مشكلة', 'error');
+        showToast((data && data.message) || 'حدث خطأ', 'error');
       }
     } catch(e) { showToast('مشكلة في الاتصال', 'error'); }
   }
@@ -1467,8 +1467,8 @@ function switchTab(name) {
     try {
       var data = await api(Object.assign({ action: 'addStamp', phone: phone}, authParams()));
       if (data && data.success) {
-        showToast('\u2705 تم إضافة ختم \u2014 عنده دلوقتي ' + String(data.stamps || 0) + ' أختام', 'success');
-        if (data.completed) showToast('\u1F389 اكتملت البطاقة! صينية هدية', 'success');
+        showToast('تم إضافة ختم \u2014 لديه الآن ' + String(data.stamps || 0) + ' أختام', 'success');
+        if (data.completed) showToast('اكتملت البطاقة! طبق هدية', 'success');
         els.stampPhone.value = '';
         els.stampCustomerInfo.style.display = 'none';
       } else {
@@ -1573,7 +1573,7 @@ async function loadCardsList() {
     if (!res.success) { el.innerHTML = '<div class="empty-state">فشل التحميل</div>'; return; }
     allCards = res.cards || [];
     if (!allCards.length) {
-      el.innerHTML = '<div class="empty-state"><div class="icon">🃏</div>مفيش بطاقات لسه — ضيف أول بطاقة من الأعلى</div>';
+      el.innerHTML = '<div class="empty-state"><div class="icon">🃏</div>لا توجد بطاقات لسه — أضف أول بطاقة من الأعلى</div>';
       return;
     }
     el.innerHTML = allCards.map(c => `
@@ -1609,7 +1609,7 @@ async function loadCardRewardsPending() {
     if (!res.success) { el.innerHTML = '<div class="empty-state">فشل التحميل</div>'; return; }
     const list = res.rewards || [];
     if (!list.length) {
-      el.innerHTML = '<div class="empty-state"><div class="icon">🏆</div>مفيش طلبات دلوقتي</div>';
+      el.innerHTML = '<div class="empty-state"><div class="icon">🏆</div>لا توجد طلبات حاليًا</div>';
       return;
     }
     el.innerHTML = list.map(r => `
@@ -1699,7 +1699,7 @@ async function toggleCardHandler(cardId, name) {
 }
 
 async function deleteCardHandler(cardId, name) {
-  if (!confirm(`هتحذف بطاقة "${name}" نهائياً؟`)) return;
+  if (!confirm(`سيتم حذف بطاقة "${name}" نهائياً؟`)) return;
   try {
     const res = await api({ action: 'deleteCard', cardId, ...adminAuth() });
     showToast(res.message || (res.success ? 'تم الحذف' : 'حصل خطأ'));
