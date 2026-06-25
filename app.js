@@ -213,6 +213,7 @@ function switchTab(tabId) {
 
   if (tabId === 'tab-history') loadTransactions();
   if (tabId === 'tab-leader') loadLeaderboard();
+  if (tabId === 'tab-cards') loadCustomerCards();
 
   // Update bottom-nav active state (tab-completed has no bn-item, so all clear)
   $$('.bn-item[data-tab]').forEach(item => {
@@ -414,6 +415,7 @@ async function loginWithPhone(phone) {
         warning80: pts >= (threshold * 0.8) && pts < threshold,
         warning80pts: pts,
         transactions: c.transactions || [],
+        multiCards: c.cards || [],
         timestamp: Date.now()
       };
       saveSession(newSession);
@@ -634,8 +636,10 @@ function renderDashboard() {
 
   // Stamps
   renderStamps(session.stamps || 0, session.stampStatus || 'none');
-  // تحميل البطاقات المتعددة
-  loadCustomerCards();
+  // البطاقات المتعددة — متوفرة من getCustomer مباشرة
+  session.multiCards = session.multiCards || [];
+  renderCardsTab();
+  renderHomeMiniCards();
 
   // Completed card tab
   if (session.completedCards > 0) {
@@ -796,6 +800,7 @@ function refreshData() {
           warning80: pts >= (threshold * 0.8) && pts < threshold,
           warning80pts: pts,
           transactions: session.transactions || [],
+          multiCards: c.cards || session.multiCards || [],
         });
         renderDashboard();
       }
@@ -1133,115 +1138,3 @@ async function handleCardRewardRequest(cardId, cardName) {
     if (btn) btn.disabled = false;
   }
 }
-
-// ═══════════════════════════════════════════════
-//  PREMIUM GLASSMORPHISM 2026 — GOLD PARTICLES & ANIMATIONS
-// ═══════════════════════════════════════════════
-
-// ─── Gold Particles Canvas ───────────────────────────────
-(function initGoldParticles() {
-  const canvas = document.getElementById('goldParticles');
-  if (!canvas) return;
-
-  const ctx = canvas.getContext('2d');
-  let particles = [];
-  let w, h;
-
-  function resize() {
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  class Particle {
-    constructor() {
-      this.reset();
-    }
-    reset() {
-      this.x = Math.random() * w;
-      this.y = h + Math.random() * 100;
-      this.size = Math.random() * 3 + 1;
-      this.speed = Math.random() * 0.8 + 0.3;
-      this.opacity = Math.random() * 0.5 + 0.2;
-      this.glow = Math.random() * 15 + 5;
-      this.wobble = Math.random() * Math.PI * 2;
-      this.wobbleSpeed = Math.random() * 0.02 + 0.01;
-    }
-    update() {
-      this.y -= this.speed;
-      this.wobble += this.wobbleSpeed;
-      this.x += Math.sin(this.wobble) * 0.3;
-      this.opacity -= 0.0008;
-      if (this.y < -10 || this.opacity <= 0) {
-        this.reset();
-      }
-    }
-    draw() {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(240, 201, 58, ${this.opacity})`;
-      ctx.shadowBlur = this.glow;
-      ctx.shadowColor = `rgba(212, 175, 55, ${this.opacity * 0.6})`;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-  }
-
-  for (let i = 0; i < 40; i++) {
-    const p = new Particle();
-    p.y = Math.random() * h;
-    particles.push(p);
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, w, h);
-    particles.forEach(p => {
-      p.update();
-      p.draw();
-    });
-    requestAnimationFrame(animate);
-  }
-  animate();
-})();
-
-// ─── Circular Progress Update ────────────────────────────
-function updateCircularProgress(percent) {
-  const circle = document.getElementById('progressCircle');
-  if (!circle) return;
-  const circumference = 2 * Math.PI * 60;
-  const offset = circumference - (percent / 100) * circumference;
-  circle.style.strokeDashoffset = offset;
-}
-
-// ─── Override renderDashboard to include circular progress ──
-const _originalRenderDashboard = renderDashboard;
-renderDashboard = function() {
-  _originalRenderDashboard();
-  const pts = session?.points || 0;
-  const threshold = session?.nextRewardAt || 100;
-  const progress = Math.min((pts / threshold) * 100, 100);
-  updateCircularProgress(progress);
-};
-
-// ─── Enhanced Confetti with Gold Colors ──────────────────
-const _originalFireConfetti = fireConfetti;
-fireConfetti = function() {
-  const container = document.getElementById('confettiContainer');
-  if (!container) return;
-  const goldColors = ['#D4AF37', '#F0C93A', '#8B0000', '#A50000', '#FFF8F0', '#CD853F', '#FFD700', '#C0C0C0'];
-  for (let i = 0; i < 80; i++) {
-    const piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    piece.style.left = Math.random() * 100 + 'vw';
-    piece.style.backgroundColor = goldColors[Math.floor(Math.random() * goldColors.length)];
-    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
-    piece.style.animationDelay = Math.random() * 0.5 + 's';
-    piece.style.width = (6 + Math.random() * 10) + 'px';
-    piece.style.height = (6 + Math.random() * 10) + 'px';
-    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
-    piece.style.boxShadow = `0 0 8px ${piece.style.backgroundColor}`;
-    container.appendChild(piece);
-    setTimeout(() => piece.remove(), 4500);
-  }
-};
