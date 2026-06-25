@@ -1,6 +1,7 @@
 /**
  * =============================================
  *   CONFIG - الإعدادات العامة
+ *   PREMIUM GLASSMORPHISM 2026
  * =============================================
  */
 
@@ -16,15 +17,15 @@ const APP_CONFIG = {
   iconSmall:      "icon-192x192.png",
   iconLarge:      "icon-512x512.png",
 
-  // ── الألوان الرئيسية ────────────────────────
+  // ── الألوان الرئيسية (Luxury 2026) ───────────
   colors: {
-    primary:      "#0d4a3a",
-    primary2:     "#16a34a",
-    primaryDark:  "#083328",
-    accent:       "#c9a84c",
-    accent2:      "#d4b85e",
-    background:   "#f8fafc",
-    dark:         "#0f172a",
+    primary:      "#8B0000",
+    primary2:     "#A50000",
+    primaryDark:  "#5C0000",
+    accent:       "#D4AF37",
+    accent2:      "#F0C93A",
+    background:   "#FFF8F0",
+    dark:         "#1A0A0A",
   },
 
   // ── الواتساب ────────────────────────────────
@@ -66,10 +67,10 @@ const APP_CONFIG = {
   // ── الألوان ──
   const root = document.documentElement;
   root.style.setProperty('--brand',        C.colors.primary);
-  root.style.setProperty('--brand-soft',   '#e8f5f0');
+  root.style.setProperty('--brand-soft',   'rgba(139, 0, 0, 0.12)');
   root.style.setProperty('--brand-dark',   C.colors.primaryDark);
   root.style.setProperty('--accent',       C.colors.accent);
-  root.style.setProperty('--accent-soft',  '#faf6e8');
+  root.style.setProperty('--accent-soft',  'rgba(212, 175, 55, 0.12)');
 
   // ── العنوان ──
   document.title = C.appName + ' - ' + C.appTagline;

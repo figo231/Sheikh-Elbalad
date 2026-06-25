@@ -8,17 +8,31 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title id="pageTitle">شيخ البلد - نقاط الولاء</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" id="themeColorMeta" content="#0d4a3a">
+  <meta name="theme-color" id="themeColorMeta" content="#8B0000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" id="appleTitleMeta" content="شيخ البلد">
   <link rel="apple-touch-icon" href="icon-192x192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- SVG Definitions -->
+<svg style="position:absolute;width:0;height:0;" aria-hidden="true">
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D4AF37;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F0C93A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D4AF37;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- GOLD PARTICLES CANVAS -->
+<canvas id="goldParticles"></canvas>
 
 <!-- INSTALL BANNER -->
 <div id="installBanner">
@@ -58,7 +72,7 @@
     <!-- SPLASH SCREEN -->
     <div id="splashScreen" class="card">
       <div class="text-center mb-4">
-        <img src="icon-192x192.png" style="width:80px;height:80px;border-radius:50%;margin:0 auto 12px;border:2px solid var(--brand);" alt="شيخ البلد">
+        <img src="icon-192x192.png" style="width:80px;height:80px;border-radius:50%;margin:0 auto 12px;border:2px solid var(--gold);box-shadow:0 0 20px rgba(212,175,55,0.3);" alt="شيخ البلد">
         <div class="login-title" id="splashTitle">مرحبًا بك في نظام الولاء</div>
         <div class="login-sub" style="margin-bottom:8px;">تعرّف على كيفية الاستفادة من البرنامج</div>
       </div>
@@ -71,19 +85,19 @@
           <span class="info-text">اكسب نقاطًا مع كل طلب</span>
         </div>
         <div class="info-row">
-          <div class="info-icon" style="background:var(--accent-soft);color:#7a5f2e;">
+          <div class="info-icon" style="background:var(--accent-soft);color:#8A7020;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.2 7.8l-6.5-4.3a2 2 0 00-2.2 0L5 7.8a2 2 0 00-.8 1.6v7.2a2 2 0 00.8 1.6l6.5 4.3a2 2 0 002.2 0l6.5-4.3a2 2 0 00.8-1.6V9.4a2 2 0 00-.8-1.6z"/><path d="M12 12v.01"/></svg>
           </div>
           <span class="info-text">استبدل نقاطك بخصومات حصرية</span>
         </div>
         <div class="info-row">
-          <div class="info-icon" style="background:var(--brand-soft);color:var(--brand);">
+          <div class="info-icon" style="background:var(--brand-soft);color:var(--burgundy);">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           </div>
           <span class="info-text">اجمع الأختام واحصل على مكافآت</span>
         </div>
         <div class="info-row">
-          <div class="info-icon" style="background:#dbeafe;color:#2563eb;">
+          <div class="info-icon" style="background:rgba(212,175,55,0.1);color:var(--gold);">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
           </div>
           <span class="info-text">تابع نقاطك من هاتفك في أي وقت</span>
@@ -107,7 +121,7 @@
     <!-- LOGIN CARD -->
     <div id="loginCard" class="card hidden">
       <div class="text-center mb-4">
-        <img src="icon-192x192.png" style="width:64px;height:64px;border-radius:50%;margin:0 auto 12px;" alt="شيخ البلد">
+        <img src="icon-192x192.png" style="width:64px;height:64px;border-radius:50%;margin:0 auto 12px;border:2px solid var(--gold);box-shadow:0 0 16px rgba(212,175,55,0.25);" alt="شيخ البلد">
         <div class="login-title">تسجيل الدخول</div>
         <div class="login-sub">أدخل رقم هاتفك لعرض نقاطك</div>
       </div>
@@ -142,11 +156,22 @@
       <div id="tab-home" class="tab-page active">
 
         <!-- POINTS HERO -->
-        <div class="hero-card">
+        <div class="hero-card glass-reflection">
           <div class="hero-name" id="custName">—</div>
-          <div class="hero-points" id="custPoints">0</div>
-          <div class="hero-label">نقطة مجمّعة</div>
-          <div id="levelBadge" style="margin-top:10px;"></div>
+
+          <!-- Circular Progress -->
+          <div class="circular-progress" id="pointsCircle">
+            <svg viewBox="0 0 140 140">
+              <circle class="track" cx="70" cy="70" r="60" />
+              <circle class="progress" cx="70" cy="70" r="60" stroke-dasharray="377" stroke-dashoffset="377" id="progressCircle" />
+            </svg>
+            <div class="value">
+              <div class="value-num" id="custPoints">0</div>
+              <div class="value-label">نقطة</div>
+            </div>
+          </div>
+
+          <div id="levelBadge" style="margin-top:14px;position:relative;z-index:1;"></div>
           <div class="last-visit" id="lastVisitTxt"></div>
 
           <div class="progress-section">
@@ -177,9 +202,9 @@
 
         <!-- REWARD READY -->
         <div id="rewardReady" class="reward-card hidden">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" style="margin:0 auto 8px;"><path d="M20 12v10H4V12M22 7H2v5h20V7zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
-          <h3 style="font-size:18px;margin-bottom:4px;">مبروك! لديك خصم جاهز</h3>
-          <p style="font-size:14px;color:var(--ink-soft);margin-bottom:16px;">اضغط لطلب خصم <span id="discountPercent">15</span>% على طلبك</p>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" style="margin:0 auto 10px;filter:drop-shadow(0 0 8px rgba(212,175,55,0.4));"><path d="M20 12v10H4V12M22 7H2v5h20V7zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+          <h3 style="font-size:20px;margin-bottom:6px;font-family:'Cairo',sans-serif;font-weight:700;">مبروك! لديك خصم جاهز</h3>
+          <p style="font-size:14px;color:var(--muted);margin-bottom:18px;">اضغط لطلب خصم <span id="discountPercent">15</span>% على طلبك</p>
           <button class="btn btn-success btn-full" id="redeemBtn">استخدم الخصم</button>
         </div>
 
@@ -190,7 +215,7 @@
         </div>
 
         <!-- WARNING 80% -->
-        <div id="warning80" class="alert-card hidden" style="background:var(--accent-soft);border-left-color:var(--accent);color:#7a5f2e;">
+        <div id="warning80" class="alert-card hidden" style="background:var(--accent-soft);border-left-color:var(--gold);color:#8A7020;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
           <span>اقتربت! متبقي <strong id="warning80pts"></strong> نقاط فقط للمكافأة</span>
         </div>
@@ -209,14 +234,14 @@
           <div class="stamps-grid" id="stampsGrid"></div>
           <div class="stamp-count">لديك <strong id="stampCount">0</strong> من 10 أختام</div>
           <button class="btn btn-secondary btn-full" id="stampRequestBtn">طلب ختم جديد</button>
-          <div class="stamp-reward hidden" id="stampRewardReady" style="background:var(--accent-soft);border:1px solid var(--accent);border-radius:8px;padding:14px;text-align:center;margin-top:10px;font-family:'Cairo',sans-serif;font-weight:600;font-size:14px;">
+          <div class="stamp-reward hidden" id="stampRewardReady" style="background:var(--accent-soft);border:1px solid var(--gold);border-radius:12px;padding:16px;text-align:center;margin-top:12px;font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;box-shadow:0 4px 16px rgba(212,175,55,0.12);">
             تهانينا! اكتملت البطاقة — أبلغ الكاشير لتسلم مكافأتك
           </div>
-          <div class="stamp-pending-msg hidden" id="stampPending" style="background:var(--warning-soft);color:#92400e;border:1px solid var(--warning);border-radius:8px;padding:10px;text-align:center;font-size:12px;margin-top:8px;">
+          <div class="stamp-pending-msg hidden" id="stampPending" style="background:var(--warning-soft);color:#92400e;border:1px solid var(--warning);border-radius:12px;padding:12px;text-align:center;font-size:12px;margin-top:10px;backdrop-filter:blur(4px);">
             طلب الختم قيد المراجعة...
           </div>
-          <button class="btn btn-success btn-full hidden" id="claimRewardBtn" style="margin-top:10px;">المطالبة بالمكافأة</button>
-          <div class="stamp-pending-msg hidden" id="rewardClaimPending" style="background:var(--warning-soft);color:#92400e;border:1px solid var(--warning);border-radius:8px;padding:10px;text-align:center;font-size:12px;margin-top:8px;">
+          <button class="btn btn-success btn-full hidden" id="claimRewardBtn" style="margin-top:12px;">المطالبة بالمكافأة</button>
+          <div class="stamp-pending-msg hidden" id="rewardClaimPending" style="background:var(--warning-soft);color:#92400e;border:1px solid var(--warning);border-radius:12px;padding:12px;text-align:center;font-size:12px;margin-top:10px;backdrop-filter:blur(4px);">
             طلب المكافأة قيد المراجعة...
           </div>
         </div>
@@ -246,7 +271,7 @@
           </div>
         </div>
 
-        <button class="btn btn-ghost" id="logoutBtn" style="display:block;margin:8px auto 0;width:auto;">
+        <button class="btn btn-ghost" id="logoutBtn" style="display:block;margin:10px auto 0;width:auto;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px;"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
           تسجيل خروج
         </button>
@@ -310,7 +335,7 @@
   </main>
 
   <!-- HAMBURGER MENU (hidden, kept for JS compatibility) -->
-  <button class="menu-btn hidden" id="menuBtn" style="position:fixed;top:14px;right:14px;z-index:300;width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--line);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+  <button class="menu-btn hidden" id="menuBtn" style="position:fixed;top:14px;right:14px;z-index:300;width:44px;height:44px;border-radius:50%;background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);box-shadow:var(--shadow-glass);">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
   </button>
 

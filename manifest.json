@@ -4,8 +4,8 @@
   "description": "اجمع نقاطك واستبدلها بمكافآت",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#0d4a3a",
+  "background_color": "#FFF8F0",
+  "theme_color": "#8B0000",
   "orientation": "portrait",
   "icons": [
     {
