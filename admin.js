@@ -1605,7 +1605,7 @@ async function loadCardRewardsPending() {
   const el = $('cardRewardsPendingList');
   if (!el) return;
   try {
-    const res = await api({ action: 'getPendingCardRewards', ...adminAuth() });
+    const res = await api({ action: 'getPendingCardRewards', ...authParams() });
     if (!res.success) { el.innerHTML = '<div class="empty-state">فشل التحميل</div>'; return; }
     const list = res.rewards || [];
     if (!list.length) {
@@ -1655,7 +1655,7 @@ async function saveCardHandler() {
   const btn = $('saveCardBtn');
   btn.disabled = true;
   try {
-    const payload = { action: 'saveCard', name, stampsRequired: stamps, reward, ...adminAuth() };
+    const payload = { action: 'saveCard', name, stampsRequired: stamps, reward, ...authParams() };
     if (cardId) payload.cardId = cardId;
     const res = await api(payload);
     showToast(res.message || (res.success ? 'تم ✅' : 'حصل خطأ'));
@@ -1692,7 +1692,7 @@ function editCardHandler(cardId, name, stamps, reward) {
 async function toggleCardHandler(cardId, name) {
   if (!confirm(`تغيير حالة بطاقة "${name}"؟`)) return;
   try {
-    const res = await api({ action: 'toggleCard', cardId, ...adminAuth() });
+    const res = await api({ action: 'toggleCard', cardId, ...authParams() });
     showToast(res.message || (res.success ? 'تم ✅' : 'حصل خطأ'));
     if (res.success) { await loadCardsList(); populateCardStampSelect(); }
   } catch(e) { showToast('حصل خطأ'); }
@@ -1701,7 +1701,7 @@ async function toggleCardHandler(cardId, name) {
 async function deleteCardHandler(cardId, name) {
   if (!confirm(`سيتم حذف بطاقة "${name}" نهائياً؟`)) return;
   try {
-    const res = await api({ action: 'deleteCard', cardId, ...adminAuth() });
+    const res = await api({ action: 'deleteCard', cardId, ...authParams() });
     showToast(res.message || (res.success ? 'تم الحذف' : 'حصل خطأ'));
     if (res.success) { await loadCardsList(); populateCardStampSelect(); }
   } catch(e) { showToast('حصل خطأ'); }
@@ -1710,7 +1710,7 @@ async function deleteCardHandler(cardId, name) {
 async function approveCardRewardHandler(phone, cardId, name, cardName) {
   if (!confirm(`موافقة على مكافأة "${cardName}" للعميل ${name}؟`)) return;
   try {
-    const res = await api({ action: 'approveCardReward', phone, cardId, ...adminAuth() });
+    const res = await api({ action: 'approveCardReward', phone, cardId, ...authParams() });
     showToast(res.message || (res.success ? 'تمت الموافقة ✅' : 'حصل خطأ'));
     if (res.success) await loadCardRewardsPending();
   } catch(e) { showToast('حصل خطأ'); }
@@ -1718,7 +1718,7 @@ async function approveCardRewardHandler(phone, cardId, name, cardName) {
 
 async function rejectCardRewardHandler(phone, cardId) {
   try {
-    const res = await api({ action: 'rejectCardReward', phone, cardId, ...adminAuth() });
+    const res = await api({ action: 'rejectCardReward', phone, cardId, ...authParams() });
     showToast(res.message || (res.success ? 'تم الرفض' : 'حصل خطأ'));
     if (res.success) await loadCardRewardsPending();
   } catch(e) { showToast('حصل خطأ'); }
@@ -1734,7 +1734,7 @@ async function addCardStampHandler() {
   const btn = $('addCardStampBtn');
   btn.disabled = true;
   try {
-    const res = await api({ action: 'addStampToCard', phone, cardId, ...adminAuth() });
+    const res = await api({ action: 'addStampToCard', phone, cardId, ...authParams() });
     showToast(res.message || (res.success ? 'تمت الإضافة ✅' : 'حصل خطأ'));
     if (res.success && infoEl) {
       infoEl.style.display = 'block';
