@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sheikh-balad-v4';
+const CACHE_NAME = 'sheikh-balad-v5'; // نسخة جديدة عشان يمسح كاش الملفات القديمة عند العملاء
 
 // ============================================================
 // الملفات الأساسية اللي هتتخزّن في الكاش (Off-line support)
@@ -14,6 +14,7 @@ const PRECACHE_ASSETS = [
   './config.js',
   './manifest.json',
   './icon-192x192.png',
+  './icons/icon-512x512.png',
   'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap',
 ];
 

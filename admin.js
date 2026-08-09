@@ -22,6 +22,7 @@
   let mainAdminPassword = '';  // فصل كلمة المرور الأدمن الرئيسي عن كلمة المرور المستخدم الحالي
   let currentUserPass = '';    // كلمة مرور المستخدم الفرعي الشخصي (تُرسل للخادم مع كل طلب للتحقق من صلاحياته)
   let customerSearchTerm = '';
+  const $ = document.getElementById.bind(document); // shorthand مستخدم في سكشن البطاقات
 
   // يبني بارامترات التحقق المطلوب إضافتها لكل طلب API:
   // الأدمن الرئيسي يُرسل كلمة المرور الأساسية، والمستخدم الفرعي يُرسل اسمه وكلمة مروره الشخصية فقط
@@ -1550,9 +1551,6 @@ function switchTab(name) {
     if (btn) { btn.disabled = false; btn.textContent = '💾 حفظ'; }
   }
 
-})();
-
-
 // ═══════════════════════════════════════════════
 //  ADMIN — CARDS MANAGEMENT
 // ═══════════════════════════════════════════════
@@ -1745,6 +1743,14 @@ async function addCardStampHandler() {
 }
 
 
+
+// تعريض الدوال دي على window عشان onclick="..." في innerHTML يقدر يوصلها
+window.toggleCardHandler = toggleCardHandler;
+window.editCardHandler = editCardHandler;
+window.deleteCardHandler = deleteCardHandler;
+window.approveCardRewardHandler = approveCardRewardHandler;
+window.rejectCardRewardHandler = rejectCardRewardHandler;
+
 // ربط أحداث البطاقات
 (function bindCardsEvents() {
   const saveBtn   = document.getElementById('saveCardBtn');
@@ -1753,6 +1759,7 @@ async function addCardStampHandler() {
   if (saveBtn)   saveBtn.addEventListener('click', saveCardHandler);
   if (cancelBtn) cancelBtn.addEventListener('click', resetCardForm);
   if (addStamp)  addStamp.addEventListener('click', addCardStampHandler);
+})();
 })();
 
 // ── Dropdown الفروع (من config) ──

@@ -31,6 +31,14 @@ function validateEgyptPhone(p) {
   return /^01[0125]\d{8}$/.test(p);
 }
 
+// ─── XSS protection: بيتستخدم قبل حقن أي نص جاي من العميل (زي الاسم) في innerHTML ──
+function escapeHTML(str) {
+  if (typeof str !== 'string') return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 // ─── Login Brute Force Protection ────────────────────────
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
@@ -302,6 +310,11 @@ function showLoginCard() {
 }
 
 function showDashboard() {
+  // لو الصفحة الحالية مالهاش عناصر الداشبورد (زي login.html)، حوّل لصفحة index.html بدل الكراش
+  if (!$('dashboard')) {
+    window.location.href = 'index.html';
+    return;
+  }
   $('splashScreen')?.classList.add('hidden');
   $('loginCard')?.classList.add('hidden');
   $('dashboard')?.classList.remove('hidden');
@@ -937,7 +950,7 @@ async function loadLeaderboard() {
       if (isMe) item.style.background = 'rgba(212,175,55,0.08)';
       item.innerHTML = `
         <div class="leader-rank ${rankClass}">${rankIcons[rank] || rank}</div>
-        <div class="leader-name">${leader.name || 'عميل'}${isMe ? ' <span style="color:var(--gold);font-size:10px;">(أنت)</span>' : ''}</div>
+        <div class="leader-name">${escapeHTML(leader.name || 'عميل')}${isMe ? ' <span style="color:var(--gold);font-size:10px;">(أنت)</span>' : ''}</div>
         <div class="leader-pts">${(leader.points || 0).toLocaleString('ar-EG')}</div>
       `;
       list.appendChild(item);
@@ -951,7 +964,8 @@ async function loadLeaderboard() {
 
 // ─── Share ───────────────────────────────────────────────
 function handleShare() {
-  const text = `🏆 أنا في نظام ولاء ' + (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.appName : 'شيخ البلد') + '!\n` +
+  const appName = (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.appName : 'شيخ البلد');
+  const text = `🏆 أنا في نظام ولاء ${appName}!\n` +
     `⭐ عندي ${session?.points || 0} نقطة\n` +
     `🍽️ ${session?.stamps || 0} أختام من 10\n` +
     `💎 المرحلة: ${session?.levelName || 'مشترك جديد'}\n\n` +
@@ -1017,7 +1031,7 @@ setInterval(() => {
 async function loadCustomerCards() {
   if (!session || !session.phone) return;
   try {
-    const res = await api({ action: 'getCustomerCards', phone: session.phone });
+    const res = await apiCall('getCustomerCards');
     if (res.success) {
       session.multiCards = res.cards || [];
       renderCardsTab();
@@ -1043,7 +1057,7 @@ function renderCardsTab() {
   if (mini) {
     mini.innerHTML = cards.map(c => `
       <div class="card-mini">
-        <div class="card-mini-name">${c.name}</div>
+        <div class="card-mini-name">${escapeHTML(c.name || '')}</div>
         <div class="card-mini-progress">${c.stampCount}/${c.stampsRequired}</div>
       </div>
     `).join('');
@@ -1085,8 +1099,8 @@ function buildCardHTML(c) {
   return `
     <div class="multi-card">
       <div class="multi-card-header">
-        <div class="multi-card-name">🃏 ${c.name}</div>
-        <div class="multi-card-reward">🎁 ${c.reward}</div>
+        <div class="multi-card-name">🃏 ${escapeHTML(c.name || '')}</div>
+        <div class="multi-card-reward">🎁 ${escapeHTML(c.reward || '')}</div>
       </div>
       <div class="multi-stamps-grid">${stampsHTML}</div>
       <div class="multi-card-count">عندك <strong>${filled}</strong> من ${total} ختم</div>
@@ -1129,7 +1143,7 @@ async function handleCardRewardRequest(cardId, cardName) {
   const btn = document.getElementById('cardRewardBtn_' + cardId);
   if (btn) btn.disabled = true;
   try {
-    const res = await api({ action: 'requestCardReward', phone: session.phone, cardId });
+    const res = await apiCall('requestCardReward', { cardId });
     showToast(res.message || (res.success ? 'تم الإرسال ✅' : 'حصل خطأ'));
     if (res.success) await loadCustomerCards();
   } catch(e) {
