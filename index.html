@@ -424,5 +424,16 @@
 
 <script src="config.js"></script>
 <script src="app.js"></script>
+<script>
+  // تسجيل الـ Service Worker — من غير السطر ده كل كود sw.js كان مكتوب وموجود
+  // بس مش شغال خالص، وده اللي كان مانع تثبيت الأبليكيشن (Install/Add to Home Screen)
+  // من الشغل صح على الموبايل.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .catch(err => console.warn('SW registration failed:', err));
+    });
+  }
+</script>
 </body>
 </html>
