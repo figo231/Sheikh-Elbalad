@@ -485,7 +485,8 @@
   document.getElementById('menuToggleBtn').addEventListener('click', openDrawer);
   els.drawerOverlay.addEventListener('click', closeDrawer);
   document.getElementById('drawer-contact').addEventListener('click', function() {
-    var msg = 'مرحباً، أنا مهتم بتطوير تطبيق ولاء مشابه لشيخ البلد ';
+    var appName = (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.appName : 'شيخ البلد');
+    var msg = 'مرحباً، أنا مهتم بتطوير تطبيق ولاء مشابه لـ ' + appName + ' ';
     window.open('https://wa.me/' + (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.whatsappAdmin : '201022390517') + '?text=' + encodeURIComponent(msg), '_blank');
     closeDrawer();
   });

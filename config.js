@@ -10,6 +10,8 @@ const APP_CONFIG = {
   // ── الهوية ──────────────────────────────────
   appName:        "شيخ البلد",
   appTagline:     "نقاط الولاء",
+  checkoutText:   "ادفع فاتورتك في أي فرع من فروع شيخ البلد",
+  websiteUrl:     "https://sheikhelbalad.com",
   appDescription: "اجمع نقاطك واستبدلها بمكافآت",
 
   // ── الأيقونات والصور ────────────────────────
@@ -102,6 +104,17 @@ const APP_CONFIG = {
   // ── Drawer Header ──
   const drawerHeader = document.getElementById('drawerHeader');
   if (drawerHeader) drawerHeader.textContent = C.appName;
+
+  // ── جملة الدفع في "كيف يعمل النظام" ──
+  const checkoutText = document.getElementById('checkoutBranchText');
+  if (checkoutText) checkoutText.textContent = C.checkoutText || ('ادفع فاتورتك في أي فرع من فروع ' + C.appName);
+
+  // ── لوحة الأدمن (عنوان الشريط العلوي + سطر تسجيل الدخول) ──
+  const adminTopbarTitle = document.getElementById('adminTopbarTitle');
+  if (adminTopbarTitle) adminTopbarTitle.textContent = C.appName;
+
+  const adminLoginSub = document.getElementById('adminLoginSub');
+  if (adminLoginSub) adminLoginSub.textContent = C.appName + ' — اختر المستخدم وأدخل كلمة المرور';
 
   // ── Footer ──
   const footerCopy = document.getElementById('footerCopy');

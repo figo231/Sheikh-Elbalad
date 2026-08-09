@@ -1,5 +1,8 @@
 const CACHE_NAME = 'sheikh-balad-v5'; // نسخة جديدة عشان يمسح كاش الملفات القديمة عند العملاء
 
+// تحميل الإعدادات جوه الـ Service Worker عشان اسم المطعم يبقى صح تلقائيًا مع أي نسخة جديدة
+try { importScripts('./config.js'); } catch (e) { /* لو فشل، هنستخدم القيمة الافتراضية تحت */ }
+
 // ============================================================
 // الملفات الأساسية اللي هتتخزّن في الكاش (Off-line support)
 // ============================================================
@@ -104,7 +107,7 @@ self.addEventListener('push', event => {
 
   try {
     const payload = event.data.json();
-    const title = payload.title || 'شيخ البلد';
+    const title = payload.title || (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.appName : 'شيخ البلد');
     const options = {
       body: payload.body || 'لديك إشعار جديد',
       icon: './icon-192x192.png',

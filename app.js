@@ -965,11 +965,12 @@ async function loadLeaderboard() {
 // ─── Share ───────────────────────────────────────────────
 function handleShare() {
   const appName = (typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.appName : 'شيخ البلد');
+  const siteUrl = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.websiteUrl) ? APP_CONFIG.websiteUrl : 'https://sheikhelbalad.com';
   const text = `🏆 أنا في نظام ولاء ${appName}!\n` +
     `⭐ عندي ${session?.points || 0} نقطة\n` +
     `🍽️ ${session?.stamps || 0} أختام من 10\n` +
     `💎 المرحلة: ${session?.levelName || 'مشترك جديد'}\n\n` +
-    `انضم لينا: https://sheikhelbalad.com`;
+    `انضم لينا: ${siteUrl}`;
 
   const url = 'https://wa.me/?text=' + encodeURIComponent(text);
   window.open(url, '_blank', 'noopener,noreferrer');
