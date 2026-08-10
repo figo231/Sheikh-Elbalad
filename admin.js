@@ -1086,6 +1086,7 @@ function switchTab(name) {
     if (document.getElementById('perm_export').checked)      perms.push('تصدير');
     if (document.getElementById('perm_users').checked)       perms.push('إدارة المستخدمين');
     if (document.getElementById('perm_branches').checked)    perms.push('إحصائيات الفروع');
+    if (document.getElementById('perm_cards').checked)       perms.push('إدارة البطاقات');
 
     try {
       var data = await api(Object.assign({ action: 'addUser', name: name, pass: pass, role: role, perms: perms.join(',') }, authParams()));

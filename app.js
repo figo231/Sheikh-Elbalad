@@ -1076,34 +1076,34 @@ function renderCardsTab() {
   });
 }
 
-// بناء HTML بطاقة واحدة
+// بناء HTML بطاقة واحدة — تصميم Wallet احترافي (بدون إيموجي)
 function buildCardHTML(c) {
   const filled    = c.stampCount || 0;
   const total     = c.stampsRequired || 10;
   const completed = filled >= total;
   const pending   = c.pendingReward;
 
-  let stampsHTML = '';
+  let dotsHTML = '';
   for (let i = 0; i < total; i++) {
-    stampsHTML += `<div class="multi-stamp ${i < filled ? 'filled' : ''}">${i < filled ? '🍽️' : ''}</div>`;
+    dotsHTML += `<div class="multi-stamp-dot ${i < filled ? 'filled' : ''}"></div>`;
   }
 
   let actionHTML = '';
   if (completed && pending) {
-    actionHTML = `<div class="card-pending-msg">⏳ طلب المكافأة بيتراجع من الأدمن...</div>`;
+    actionHTML = `<div class="card-pending-msg">طلب المكافأة قيد المراجعة...</div>`;
   } else if (completed) {
-    actionHTML = `<button class="btn-card-reward" id="cardRewardBtn_${c.cardId}">🏆 المطالبة بالمكافأة</button>`;
+    actionHTML = `<button class="btn-card-reward" id="cardRewardBtn_${c.cardId}">المطالبة بالمكافأة</button>`;
   } else {
-    actionHTML = `<button class="btn-card-reward" disabled>اجمع ${total - filled} ختم كمان 🎯</button>`;
+    actionHTML = `<button class="btn-card-reward" disabled>باقي ${total - filled} ختم</button>`;
   }
 
   return `
     <div class="multi-card">
       <div class="multi-card-header">
-        <div class="multi-card-name">🃏 ${escapeHTML(c.name || '')}</div>
-        <div class="multi-card-reward">🎁 ${escapeHTML(c.reward || '')}</div>
+        <div class="multi-card-name">${escapeHTML(c.name || '')}</div>
+        <div class="multi-card-reward">${escapeHTML(c.reward || '')}</div>
       </div>
-      <div class="multi-stamps-grid">${stampsHTML}</div>
+      <div class="multi-stamps-track">${dotsHTML}</div>
       <div class="multi-card-count">عندك <strong>${filled}</strong> من ${total} ختم</div>
       ${actionHTML}
     </div>

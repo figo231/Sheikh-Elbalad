@@ -90,7 +90,7 @@
           </div>
           <span class="info-text">استبدل نقاطك بخصومات حصرية</span>
         </div>
-        <div class="info-row">
+        <div class="info-row" id="legacyStampInfoRow">
           <div class="info-icon" style="background:var(--brand-soft);color:var(--burgundy);">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           </div>
@@ -193,7 +193,7 @@
               <div class="hero-stat-label">التقدم</div>
               <div class="hero-stat-value" id="statProgress">0%</div>
             </div>
-            <div class="hero-stat">
+            <div class="hero-stat" id="legacyStampHeroStat">
               <div class="hero-stat-label">الأختام</div>
               <div class="hero-stat-value" id="statStamps">0/10</div>
             </div>
@@ -223,8 +223,8 @@
         <!-- CARDS MINI -->
         <div id="homeMiniCards" style="margin-bottom:8px;"></div>
 
-        <!-- STAMP CARD -->
-        <div class="card">
+        <!-- STAMP CARD (LEGACY) -->
+        <div class="card" id="legacyStampCardSection">
           <div class="card-header-bar"></div>
           <div class="card-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="margin-left:4px;"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
@@ -257,7 +257,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             <span>يضيف الكاشير نقاطًا على كل مشترياتك (10% من قيمة الفاتورة)</span>
           </div>
-          <div class="how-row">
+          <div class="how-row" id="legacyStampHowRow">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
             <span>اجمع 10 أختام على بطاقة الأختام واحصل على مكافأة</span>
           </div>

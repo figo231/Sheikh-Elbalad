@@ -2703,118 +2703,153 @@ main,
   animation: particle-rise linear infinite;
 }
 
-/* ─── Multi Card System ─────────────────── */
+/* ─── Multi Card System — تصميم Wallet احترافي (Apple Pay style) ─────────────────── */
 .multi-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 22px;
-  margin-bottom: 14px;
-  box-shadow: var(--shadow-glass);
-  transition: all 0.3s ease;
   position: relative;
+  border-radius: 22px;
+  padding: 26px 22px 22px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--dark) 0%, var(--brand-dark) 55%, var(--burgundy) 100%);
+  color: #fff;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3), 0 3px 10px rgba(0, 0, 0, 0.18);
   overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .multi-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-glass-elevated);
-  border-color: rgba(212, 175, 55, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.34), 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.multi-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 40%);
+  pointer-events: none;
+}
+
+.multi-card::after {
+  content: '';
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  right: -70px;
+  bottom: -80px;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 72%);
+  opacity: 0.4;
+  pointer-events: none;
 }
 
 .multi-card-header {
-  margin-bottom: 14px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 20px;
 }
 
 .multi-card-name {
   font-family: 'Cairo', sans-serif;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 16px;
-  color: var(--ink);
+  letter-spacing: 0.2px;
+  color: #fff;
   margin-bottom: 4px;
 }
 
 .multi-card-reward {
-  font-size: 13px;
-  color: var(--gold);
+  font-size: 12px;
+  color: var(--gold-soft);
   font-weight: 600;
+  opacity: 0.9;
 }
 
-.multi-stamps-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.multi-stamp {
-  aspect-ratio: 1;
-  border-radius: 10px;
-  border: 1.5px dashed var(--glass-border);
+.multi-stamps-track {
+  position: relative;
+  z-index: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 248, 240, 0.4);
-  color: var(--muted);
-  font-size: 16px;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 16px;
 }
 
-.multi-stamp.filled {
-  border: 1.5px solid var(--gold);
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(139, 0, 0, 0.08));
-  color: var(--gold);
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.15);
+.multi-stamp-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  transition: all 0.3s ease;
+}
+
+.multi-stamp-dot.filled {
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
   animation: stampPop 0.35s ease;
 }
 
 .multi-card-count {
-  text-align: center;
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.62);
+  margin-bottom: 14px;
+}
+
+.multi-card-count strong {
+  color: #fff;
+  font-weight: 800;
+  font-family: 'Cairo', sans-serif;
 }
 
 .btn-card-reward {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  padding: 14px;
+  padding: 13px;
   border-radius: 14px;
-  border: none;
-  background: linear-gradient(135deg, var(--burgundy), var(--burgundy-light));
-  color: #fff;
+  border: 1px solid rgba(212, 175, 55, 0.55);
+  background: rgba(212, 175, 55, 0.14);
+  color: var(--gold-soft);
   font-family: 'IBM Plex Sans Arabic', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13.5px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(139, 0, 0, 0.2);
+  transition: all 0.25s ease;
 }
 
-.btn-card-reward:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(139, 0, 0, 0.3);
+.btn-card-reward:not(:disabled) {
+  background: var(--gold);
+  color: var(--dark);
+  border-color: var(--gold);
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.25);
+}
+
+.btn-card-reward:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(212, 175, 55, 0.35);
 }
 
 .btn-card-reward:disabled {
-  opacity: 0.45;
+  opacity: 0.55;
   cursor: not-allowed;
-  background: var(--line-soft);
-  color: var(--muted);
-  box-shadow: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .card-pending-msg {
+  position: relative;
+  z-index: 1;
   text-align: center;
   padding: 12px;
-  background: var(--warning-soft);
-  border: 1px solid rgba(217, 119, 6, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: 12px;
-  font-size: 13px;
-  color: var(--warning);
-  backdrop-filter: blur(4px);
+  font-size: 12.5px;
+  color: var(--gold-soft);
 }
 
 .card-mini {

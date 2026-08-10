@@ -12,6 +12,7 @@ const APP_CONFIG = {
   appTagline:     "نقاط الولاء",
   checkoutText:   "ادفع فاتورتك في أي فرع من فروع شيخ البلد",
   websiteUrl:     "https://sheikhelbalad.com",
+  showLegacyStampCard: false, // بطاقة الأختام القديمة (نظام منفصل عن تاب البطاقات) — اتقفلت لصالح نظام الكروت الجديد
   appDescription: "اجمع نقاطك واستبدلها بمكافآت",
 
   // ── الأيقونات والصور ────────────────────────
@@ -115,6 +116,14 @@ const APP_CONFIG = {
 
   const adminLoginSub = document.getElementById('adminLoginSub');
   if (adminLoginSub) adminLoginSub.textContent = C.appName + ' — اختر المستخدم وأدخل كلمة المرور';
+
+  // ── بطاقة الأختام القديمة (نظام منفصل، بديله تاب البطاقات الجديد) ──
+  if (!C.showLegacyStampCard) {
+    ['legacyStampCardSection', 'legacyStampHowRow', 'legacyStampInfoRow', 'legacyStampHeroStat'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.remove();
+    });
+  }
 
   // ── Footer ──
   const footerCopy = document.getElementById('footerCopy');
