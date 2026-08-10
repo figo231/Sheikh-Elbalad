@@ -1795,6 +1795,14 @@ tr:hover td {
   display: block;
 }
 
+.empty-state-icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 12px;
+  opacity: 0.35;
+  display: block;
+}
+
 /* ─── Salah Popup (Glass) ───────────────── */
 #salahOverlay,
 #salahOverlay2 {
@@ -2706,12 +2714,13 @@ main,
 /* ─── Multi Card System — تصميم Wallet احترافي (Apple Pay style) ─────────────────── */
 .multi-card {
   position: relative;
-  border-radius: 22px;
-  padding: 26px 22px 22px;
+  border-radius: 24px;
+  padding: 24px 22px 22px;
   margin-bottom: 16px;
   background: linear-gradient(135deg, var(--dark) 0%, var(--brand-dark) 55%, var(--burgundy) 100%);
   color: #fff;
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3), 0 3px 10px rgba(0, 0, 0, 0.18);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
   overflow: hidden;
   isolation: isolate;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -2746,7 +2755,33 @@ main,
 .multi-card-header {
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   margin-bottom: 20px;
+}
+
+.multi-card-icon {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 11px;
+  background: rgba(212, 175, 55, 0.14);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+}
+
+.multi-card-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.multi-card-titles {
+  flex: 1;
+  min-width: 0;
 }
 
 .multi-card-name {
@@ -2755,14 +2790,26 @@ main,
   font-size: 16px;
   letter-spacing: 0.2px;
   color: #fff;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
-.multi-card-reward {
-  font-size: 12px;
-  color: var(--gold-soft);
+.multi-card-reward-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  font-size: 11.5px;
   font-weight: 600;
-  opacity: 0.9;
+  color: var(--gold-soft);
+}
+
+.multi-card-reward-pill svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
 }
 
 .multi-stamps-track {
@@ -2877,6 +2924,55 @@ main,
   font-family: 'Cairo', sans-serif;
 }
 
+/* ─── Home Mini Card (تيزر أقرب بطاقة للاكتمال) ─── */
+.home-mini-card {
+  background: linear-gradient(135deg, var(--dark) 0%, var(--brand-dark) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.home-mini-card:hover {
+  transform: translateY(-1px);
+}
+
+.home-mini-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.home-mini-card-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'Cairo', sans-serif;
+}
+
+.home-mini-card-count {
+  font-size: 11px;
+  color: var(--gold-soft);
+  font-weight: 600;
+}
+
+.home-mini-progress-track {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  height: 5px;
+  overflow: hidden;
+}
+
+.home-mini-progress-fill {
+  background: var(--gold);
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
 /* ─── Card Item Actions ─────────────────── */
 .card-item-actions {
   display: flex;
@@ -2887,6 +2983,9 @@ main,
 .btn-toggle-card,
 .btn-edit-card,
 .btn-del-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 14px;
   border-radius: 10px;
   border: none;
@@ -2896,6 +2995,14 @@ main,
   cursor: pointer;
   transition: all 0.2s ease;
   backdrop-filter: blur(4px);
+}
+
+.btn-toggle-card svg,
+.btn-edit-card svg,
+.btn-del-card svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .btn-edit-card {
@@ -2928,8 +3035,19 @@ main,
 }
 
 .card-item-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
   color: var(--muted);
+}
+
+.card-item-info-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--muted);
+  opacity: 0.6;
 }
 
 /* ─── Gold Particles Canvas (New) ─────────── */

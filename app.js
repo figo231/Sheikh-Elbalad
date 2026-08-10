@@ -1100,8 +1100,16 @@ function buildCardHTML(c) {
   return `
     <div class="multi-card">
       <div class="multi-card-header">
-        <div class="multi-card-name">${escapeHTML(c.name || '')}</div>
-        <div class="multi-card-reward">${escapeHTML(c.reward || '')}</div>
+        <div class="multi-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="5" width="20" height="15" rx="3"/><path d="M2 10h20"/><circle cx="7" cy="15" r="1.2" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div class="multi-card-titles">
+          <div class="multi-card-name">${escapeHTML(c.name || '')}</div>
+          <div class="multi-card-reward-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 010-5C10 3 12 8 12 8"/><path d="M16.5 8a2.5 2.5 0 000-5C14 3 12 8 12 8"/></svg>
+            <span>${escapeHTML(c.reward || '')}</span>
+          </div>
+        </div>
       </div>
       <div class="multi-stamps-track">${dotsHTML}</div>
       <div class="multi-card-count">عندك <strong>${filled}</strong> من ${total} ختم</div>
@@ -1126,14 +1134,13 @@ function renderHomeMiniCards() {
 
   const pct = Math.round((nearest.stampCount / nearest.stampsRequired) * 100);
   el.innerHTML = `
-    <div style="background:rgba(255,255,255,0.1);border-radius:14px;padding:10px 14px;margin-bottom:4px;cursor:pointer;"
-         onclick="switchTab('tab-cards')">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span style="font-size:12px;font-weight:700;color:#fff;">🃏 ${nearest.name}</span>
-        <span style="font-size:11px;color:rgba(255,255,255,0.7);">${nearest.stampCount}/${nearest.stampsRequired} ختم</span>
+    <div class="home-mini-card" onclick="switchTab('tab-cards')">
+      <div class="home-mini-card-row">
+        <span class="home-mini-card-name">${escapeHTML(nearest.name || '')}</span>
+        <span class="home-mini-card-count">${nearest.stampCount}/${nearest.stampsRequired} ختم</span>
       </div>
-      <div style="background:rgba(255,255,255,0.2);border-radius:6px;height:5px;">
-        <div style="background:var(--gold);height:5px;border-radius:6px;width:${pct}%;transition:width 0.5s;"></div>
+      <div class="home-mini-progress-track">
+        <div class="home-mini-progress-fill" style="width:${pct}%;"></div>
       </div>
     </div>
   `;

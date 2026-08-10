@@ -1573,25 +1573,33 @@ async function loadCardsList() {
     if (!res.success) { el.innerHTML = '<div class="empty-state">فشل التحميل</div>'; return; }
     allCards = res.cards || [];
     if (!allCards.length) {
-      el.innerHTML = '<div class="empty-state"><div class="icon">🃏</div>لا توجد بطاقات لسه — أضف أول بطاقة من الأعلى</div>';
+      el.innerHTML = '<div class="empty-state"><svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="15" rx="3"/><path d="M2 10h20"/></svg>لا توجد بطاقات لسه — أضف أول بطاقة من الأعلى</div>';
       return;
     }
     el.innerHTML = allCards.map(c => `
       <div class="card-item">
         <div class="card-item-header">
-          <div class="card-item-name">🃏 ${c.name}</div>
-          <span class="card-item-badge ${c.active ? 'badge-active' : 'badge-inactive'}">${c.active ? 'نشطة ✅' : 'متوقفة ⛔'}</span>
+          <div class="card-item-name">${escapeHTML(c.name)}</div>
+          <span class="card-item-badge ${c.active ? 'badge-active' : 'badge-inactive'}">${c.active ? 'نشطة' : 'متوقفة'}</span>
         </div>
         <div class="card-item-info">
-          🔢 ${c.stampsRequired} ختم &nbsp;|&nbsp; 🎁 ${c.reward}
+          <span>${c.stampsRequired} ختم</span>
+          <span class="card-item-info-dot"></span>
+          <span>${escapeHTML(c.reward)}</span>
         </div>
         <div class="card-item-actions">
           <button class="btn-toggle-card ${c.active ? 'btn-del-card' : 'btn-edit-card'}"
             onclick="toggleCardHandler('${c.cardId}','${c.name}')">
-            ${c.active ? '⛔ تعطيل' : '✅ تفعيل'}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 11-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+            ${c.active ? 'تعطيل' : 'تفعيل'}
           </button>
-          <button class="btn-edit-card" onclick="editCardHandler('${c.cardId}','${c.name}',${c.stampsRequired},'${c.reward.replace(/'/g,"\'")}')">✏️ تعديل</button>
-          <button class="btn-del-card" onclick="deleteCardHandler('${c.cardId}','${c.name}')">🗑️</button>
+          <button class="btn-edit-card" onclick="editCardHandler('${c.cardId}','${c.name}',${c.stampsRequired},'${c.reward.replace(/'/g,"\'")}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            تعديل
+          </button>
+          <button class="btn-del-card" onclick="deleteCardHandler('${c.cardId}','${c.name}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </button>
         </div>
       </div>
     `).join('');
